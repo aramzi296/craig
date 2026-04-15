@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 /**
  * WhatsappBotService — handles the "login" keyword chatbot flow.
@@ -232,7 +233,7 @@ class WhatsappBotService
         }
 
         // Buat password sementara
-        $password = Str::random(10);
+        $password = \Illuminate\Support\Str::random(10);
 
         try {
             $user = User::create([
