@@ -25,10 +25,11 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 
     // ─── WhatsApp OTP Login ────────────────────────────────────────────────
+    // /wa-login           → info page (tanpa nonce)
+    // /wa-login/{nonce}   → form OTP1 + OTP2
     Route::get('/wa-login', [WaLoginController::class, 'index'])->name('wa-login');
-    Route::post('/wa-login/verify', [WaLoginController::class, 'verifyPhone'])->name('wa-login.verify');
-    Route::get('/wa-login/otp', [WaLoginController::class, 'otpForm'])->name('wa-login.otp');
-    Route::post('/wa-login/otp', [WaLoginController::class, 'verifyOtp'])->name('wa-login.verify-otp');
+    Route::get('/wa-login/{nonce}', [WaLoginController::class, 'showOtpForm'])->name('wa-login.otp');
+    Route::post('/wa-login/{nonce}', [WaLoginController::class, 'verifyOtp'])->name('wa-login.verify-otp');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

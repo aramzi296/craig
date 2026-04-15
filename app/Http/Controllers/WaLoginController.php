@@ -5,77 +5,66 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
- * WaLoginController — verifikasi dual OTP WhatsApp dan login tanpa email/password.
+ * WaLoginController — Login tanpa email/password menggunakan dua OTP WhatsApp.
  *
- * Flow:
- *  GET  /wa-login        → tampilkan form input nomor WA
- *  POST /wa-login/verify → verifikasi fase 1: nomor WA, hasilkan formulir OTP
- *  GET  /wa-login/otp    → tampilkan form input OTP1 & OTP2
- *  POST /wa-login/otp    → verifikasi OTP1 & OTP2, buat wa_login_token, login user
+ * Alur:
+ *  1. User kirim "login" ke WA → bot kirim OTP1, OTP2, dan link /wa-login/{nonce}
+ *  2. GET  /wa-login/{nonce}  → tampilkan form minta OTP1 + OTP2
+ *  3. POST /wa-login/{nonce}  → verifikasi OTP1 & OTP2, login user
+ *
+ *  Nonce → user_id disimpan di cache (10 menit).
+ *  OTP1 & OTP2 disimpan ter-hash di tabel users, juga expire 10 menit.
  */
 class WaLoginController extends Controller
 {
-    // ─── Show landing page ─────────────────────────────────────────────────
+    // ─── Halaman info bila nonce tidak ada ──────────────────────────────────
 
     public function index()
     {
         return view('auth.wa-login');
     }
 
-    // ─── Show OTP form (after phone verified) ─────────────────────────────
+    // ─── GET /wa-login/{nonce} — form OTP ───────────────────────────────────
 
-    public function otpForm(Request $request)
+    public function showOtpForm(string $nonce)
     {
-        $phone = $request->session()->get('wa_login_phone');
-        if (!$phone) {
-            return redirect()->route('wa-login')->withErrors(['phone' => 'Sesi tidak valid. Silakan masukkan nomor WhatsApp kembali.']);
+        // Validasi nonce di cache
+        $userId = Cache::get('wa_login_nonce:' . $nonce);
+
+        if (!$userId) {
+            return redirect()->route('wa-login')
+                ->withErrors(['nonce' => 'Link login tidak valid atau sudah kedaluwarsa. Kirim *login* kembali ke WhatsApp kami untuk mendapatkan link baru.']);
         }
 
-        return view('auth.wa-login-otp', compact('phone'));
-    }
-
-    // ─── POST: verify phone number, redirect to OTP form ──────────────────
-
-    public function verifyPhone(Request $request)
-    {
-        $request->validate([
-            'phone' => ['required', 'string', 'min:8', 'max:20'],
-        ], [
-            'phone.required' => 'Nomor WhatsApp wajib diisi.',
-            'phone.min'      => 'Nomor WhatsApp tidak valid.',
-        ]);
-
-        $phone = $this->normalizePhone($request->input('phone'));
-
-        $user = User::where('whatsapp', $phone)->first();
+        $user = User::find($userId);
 
         if (!$user) {
-            return back()->withErrors([
-                'phone' => 'Nomor WhatsApp ini belum terdaftar. Kirim kata kunci *login* ke WhatsApp kami untuk mendaftar.',
-            ])->withInput();
+            Cache::forget('wa_login_nonce:' . $nonce);
+            return redirect()->route('wa-login')
+                ->withErrors(['nonce' => 'Akun tidak ditemukan.']);
         }
 
-        // Check if OTPs have been issued and are still valid
+        // Cek OTP masih berlaku
         if (!$user->wa_otp1 || !$user->wa_otp1_expires_at || $user->wa_otp1_expires_at->isPast()) {
-            return back()->withErrors([
-                'phone' => 'Kode OTP belum dikirim atau sudah kedaluwarsa. Kirim kata kunci *login* ke WhatsApp kami untuk mendapatkan OTP baru.',
-            ])->withInput();
+            Cache::forget('wa_login_nonce:' . $nonce);
+            return redirect()->route('wa-login')
+                ->withErrors(['nonce' => 'Kode OTP sudah kedaluwarsa. Kirim *login* kembali ke WhatsApp kami.']);
         }
 
-        // Store phone in session for OTP form
-        $request->session()->put('wa_login_phone', $phone);
-
-        return redirect()->route('wa-login.otp');
+        return view('auth.wa-login-otp', [
+            'nonce'    => $nonce,
+            'maskedName' => $this->maskName($user->name),
+        ]);
     }
 
-    // ─── POST: verify OTP1 + OTP2, login user ─────────────────────────────
+    // ─── POST /wa-login/{nonce} — verifikasi OTP ────────────────────────────
 
-    public function verifyOtp(Request $request)
+    public function verifyOtp(Request $request, string $nonce)
     {
         $request->validate([
             'otp1' => ['required', 'digits:6'],
@@ -87,42 +76,52 @@ class WaLoginController extends Controller
             'otp2.digits'   => 'OTP Kedua harus 6 digit angka.',
         ]);
 
-        $phone = $request->session()->get('wa_login_phone');
-        if (!$phone) {
-            return redirect()->route('wa-login')->withErrors(['otp1' => 'Sesi tidak valid. Mulai ulang proses login.']);
+        // ── Cari user via nonce ────────────────────────────────────────────
+        $userId = Cache::get('wa_login_nonce:' . $nonce);
+
+        if (!$userId) {
+            return redirect()->route('wa-login')
+                ->withErrors(['nonce' => 'Sesi login sudah kedaluwarsa. Kirim *login* kembali ke WhatsApp kami.']);
         }
 
-        $user = User::where('whatsapp', $phone)->first();
+        $user = User::find($userId);
 
         if (!$user) {
-            $request->session()->forget('wa_login_phone');
-            return redirect()->route('wa-login')->withErrors(['phone' => 'Akun tidak ditemukan.']);
+            Cache::forget('wa_login_nonce:' . $nonce);
+            return redirect()->route('wa-login')
+                ->withErrors(['nonce' => 'Akun tidak ditemukan.']);
         }
 
         $otp1Input = $request->input('otp1');
         $otp2Input = $request->input('otp2');
 
-        // ── Validate OTP1 ──────────────────────────────────────────────────
+        // ── Validasi OTP1 ──────────────────────────────────────────────────
         if (!$user->wa_otp1 || !$user->wa_otp1_expires_at || $user->wa_otp1_expires_at->isPast()) {
-            return back()->withErrors(['otp1' => 'OTP Pertama sudah kedaluwarsa. Kirim *login* lagi ke WhatsApp kami.']);
+            return back()->withErrors([
+                'otp1' => 'OTP Pertama sudah kedaluwarsa. Kirim *login* lagi ke WhatsApp kami untuk mendapatkan kode baru.',
+            ]);
         }
 
         if (!Hash::check($otp1Input, $user->wa_otp1)) {
-            Log::warning('WA Login: OTP1 mismatch', ['phone_sfx' => substr($phone, -4)]);
+            Log::warning('WA Login: OTP1 mismatch', ['user_id' => $user->id]);
             return back()->withErrors(['otp1' => 'OTP Pertama tidak valid.'])->withInput();
         }
 
-        // ── Validate OTP2 ──────────────────────────────────────────────────
+        // ── Validasi OTP2 ──────────────────────────────────────────────────
         if (!$user->wa_otp2 || !$user->wa_otp2_expires_at || $user->wa_otp2_expires_at->isPast()) {
-            return back()->withErrors(['otp2' => 'OTP Kedua sudah kedaluwarsa. Kirim *login* lagi ke WhatsApp kami.']);
+            return back()->withErrors([
+                'otp2' => 'OTP Kedua sudah kedaluwarsa. Kirim *login* lagi ke WhatsApp kami untuk mendapatkan kode baru.',
+            ]);
         }
 
         if (!Hash::check($otp2Input, $user->wa_otp2)) {
-            Log::warning('WA Login: OTP2 mismatch', ['phone_sfx' => substr($phone, -4)]);
+            Log::warning('WA Login: OTP2 mismatch', ['user_id' => $user->id]);
             return back()->withErrors(['otp2' => 'OTP Kedua tidak valid.'])->withInput();
         }
 
-        // ── Both OTPs valid – clear OTPs, login ───────────────────────────
+        // ── Keduanya valid — hapus OTP & nonce, login user ────────────────
+        Cache::forget('wa_login_nonce:' . $nonce);
+
         $user->update([
             'wa_otp1'                   => null,
             'wa_otp1_expires_at'        => null,
@@ -131,8 +130,6 @@ class WaLoginController extends Controller
             'wa_login_token'            => null,
             'wa_login_token_expires_at' => null,
         ]);
-
-        $request->session()->forget('wa_login_phone');
 
         Auth::login($user, remember: true);
         $request->session()->regenerate();
@@ -144,18 +141,12 @@ class WaLoginController extends Controller
 
     // ─── Helper ───────────────────────────────────────────────────────────
 
-    private function normalizePhone(string $input): string
+    /** Mask nama untuk tampilan: "Ahmad Budi" → "Ahmad B***" */
+    private function maskName(string $name): string
     {
-        $digits = preg_replace('/\D/', '', $input) ?? '';
-
-        if (str_starts_with($digits, '0')) {
-            return '62' . substr($digits, 1);
-        }
-
-        if (str_starts_with($digits, '8')) {
-            return '62' . $digits;
-        }
-
-        return $digits;
+        $parts = explode(' ', $name, 2);
+        $first = $parts[0];
+        $rest  = isset($parts[1]) ? ' ' . substr($parts[1], 0, 1) . '***' : '';
+        return $first . $rest;
     }
 }
