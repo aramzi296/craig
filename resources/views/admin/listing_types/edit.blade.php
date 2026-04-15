@@ -1,0 +1,53 @@
+@extends('admin.layout')
+
+@section('admin_content')
+<div style="margin-bottom: 40px;">
+    <h1 style="font-size: 2rem; font-weight: 700;">Edit Tipe Listing</h1>
+    <p style="color: var(--text-muted);">Ubah informasi tipe listing: {{ $listingType->name }}</p>
+</div>
+
+<div class="glass" style="max-width: 600px; padding: 40px; border-radius: var(--radius);">
+    <form action="{{ route('admin.listing_types.update', $listingType->id) }}" method="POST">
+        @csrf
+        @method('PUT')
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="name">Nama Tipe</label>
+            <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $listingType->name) }}" required>
+            @error('name')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div class="form-group" style="margin-bottom: 30px;">
+            <label for="color">Warna Label (Hex)</label>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <input type="color" name="color" id="color" value="{{ old('color', $listingType->color) }}" style="width: 60px; height: 50px; padding: 4px; border-radius: 8px; border: 1px solid var(--border);">
+                <input type="text" id="color_text" class="form-control" value="{{ old('color', $listingType->color) }}" placeholder="#000000" maxlength="7" style="flex-grow: 1;">
+            </div>
+            @error('color')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-top: 20px;">
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Tipe</button>
+            <a href="{{ route('admin.listing_types') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const colorInput = document.getElementById('color');
+    const colorText = document.getElementById('color_text');
+    
+    colorInput.addEventListener('input', (e) => {
+        colorText.value = e.target.value.toUpperCase();
+    });
+    
+    colorText.addEventListener('input', (e) => {
+        if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+            colorInput.value = e.target.value;
+        }
+    });
+</script>
+@endsection

@@ -1,0 +1,328 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class AdminController extends Controller
+{
+    public function dashboard()
+    {
+        $stats = [
+            'users' => \App\Models\User::count(),
+            'categories' => \App\Models\Category::count(),
+            'listings' => \App\Models\Listing::count(),
+            'featured' => \App\Models\Listing::where('is_featured', true)->count(),
+        ];
+
+        $latestListings = \App\Models\Listing::with(['categories', 'user'])->latest()->take(10)->get();
+        
+        return view('admin.dashboard', compact('stats', 'latestListings'));
+    }
+
+    public function categories()
+    {
+        $categories = \App\Models\Category::withCount('listings')->orderBy('sort_order')->get();
+        return view('admin.categories.index', compact('categories'));
+    }
+
+    public function createCategory()
+    {
+        return view('admin.categories.create');
+    }
+
+    public function storeCategory(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:categories',
+            'icon' => 'required|string|max:50',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+
+        \App\Models\Category::create($data);
+
+        return redirect()->route('admin.categories')->with('success', 'Kategori berhasil ditambahkan.');
+    }
+
+    public function editCategory($id)
+    {
+        $category = \App\Models\Category::findOrFail($id);
+        return view('admin.categories.edit', compact('category'));
+    }
+
+    public function updateCategory(\Illuminate\Http\Request $request, $id)
+    {
+        $category = \App\Models\Category::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,'.$id,
+            'icon' => 'required|string|max:50',
+            'sort_order' => 'nullable|integer|min:0',
+        ]);
+
+        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+
+        $category->update($data);
+
+        return redirect()->route('admin.categories')->with('success', 'Kategori berhasil diperbarui.');
+    }
+
+    public function destroyCategory($id)
+    {
+        $category = \App\Models\Category::findOrFail($id);
+        
+        if ($category->listings()->count() > 0) {
+            return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki listing.');
+        }
+
+        $category->delete();
+
+        return redirect()->route('admin.categories')->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    public function listings(Request $request)
+    {
+        $query = \App\Models\Listing::query()->with(['categories', 'user']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('location', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $categoryId = $request->category_id;
+            $query->whereIn('id', function($sq) use ($categoryId) {
+                $sq->select('listing_id')
+                   ->from('category_listing')
+                   ->where('category_id', $categoryId);
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_active', (bool)$request->status);
+        }
+
+        $listings = $query->latest()->paginate(20)->withQueryString();
+        $categories = \App\Models\Category::orderBy('sort_order')->orderBy('name')->get();
+
+        return view('admin.listings.index', compact('listings', 'categories'));
+    }
+
+    public function createListing()
+    {
+        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $listingTypes = \App\Models\ListingType::all();
+        return view('admin.listings.create', compact('categories', 'listingTypes'));
+    }
+
+    public function storeListing(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'listing_type_id' => 'required|exists:listing_types,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'location' => 'required|string|max:255',
+            'features' => 'nullable|array|max:8',
+        ]);
+
+        $data['user_id'] = auth()->id();
+        $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
+        $data['is_active'] = true;
+
+        $listing = \App\Models\Listing::create($data);
+
+        $categoryIds = $request->category_ids ?? [];
+        if ($request->filled('category_other')) {
+            $newCategory = \App\Models\Category::firstOrCreate(
+                ['name' => $request->category_other],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
+                    'icon' => 'fa-solid fa-tag',
+                    'sort_order' => \App\Models\Category::max('sort_order') + 1
+                ]
+            );
+            $categoryIds[] = $newCategory->id;
+        }
+
+        $listing->categories()->sync($categoryIds);
+
+        return redirect()->route('admin.listings')->with('success', 'Listing berhasil dibuat.');
+    }
+
+    public function editListing($id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $listingTypes = \App\Models\ListingType::all();
+        return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes'));
+    }
+
+    public function updateListing(\Illuminate\Http\Request $request, $id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+
+        $data = $request->validate([
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'exists:categories,id',
+            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'listing_type_id' => 'required|exists:listing_types,id',
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|numeric|min:0',
+            'location' => 'required|string|max:255',
+            'features' => 'nullable|array|max:8',
+        ]);
+
+        if ($data['title'] !== $listing->title) {
+            $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
+        }
+
+        $listing->update($data);
+
+        $categoryIds = $request->category_ids ?? [];
+        if ($request->filled('category_other')) {
+            $newCategory = \App\Models\Category::firstOrCreate(
+                ['name' => $request->category_other],
+                [
+                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
+                    'icon' => 'fa-solid fa-tag',
+                    'sort_order' => \App\Models\Category::max('sort_order') + 1
+                ]
+            );
+            $categoryIds[] = $newCategory->id;
+        }
+
+        $listing->categories()->sync($categoryIds);
+
+        return redirect()->route('admin.listings')->with('success', 'Listing berhasil diperbarui.');
+    }
+
+    public function destroyListing($id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+        $listing->delete();
+
+        return redirect()->route('admin.listings')->with('success', 'Listing berhasil dihapus.');
+    }
+
+    public function users()
+    {
+        $users = \App\Models\User::latest()->paginate(20);
+        return view('admin.users.index', compact('users'));
+    }
+
+    public function editUser($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
+    }
+
+    public function updateUser(\Illuminate\Http\Request $request, $id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+        ]);
+
+        $user->update($data);
+
+        return redirect()->route('admin.users')->with('success', 'Data pengguna berhasil diperbarui.');
+    }
+
+    public function toggleAdminStatus($id)
+    {
+        if ($id == auth()->id()) {
+            return back()->with('error', 'Anda tidak dapat mengubah status admin Anda sendiri.');
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        $user->is_admin = !$user->is_admin;
+        $user->save();
+
+        return back()->with('success', 'Status peran pengguna berhasil diubah.');
+    }
+
+    public function destroyUser($id)
+    {
+        if ($id == auth()->id()) {
+            return back()->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('admin.users')->with('success', 'Akun pengguna berhasil dihapus.');
+    }
+
+    public function toggleListingStatus($id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+        $listing->is_active = !$listing->is_active;
+        $listing->save();
+
+        return back()->with('success', 'Status listing berhasil diubah.');
+    }
+
+    // Listing Types Management
+    public function listingTypes()
+    {
+        $listingTypes = \App\Models\ListingType::all();
+        return view('admin.listing_types.index', compact('listingTypes'));
+    }
+
+    public function createListingType()
+    {
+        return view('admin.listing_types.create');
+    }
+
+    public function storeListingType(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'color' => 'required|string|max:7',
+        ]);
+        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+        \App\Models\ListingType::create($data);
+        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil ditambahkan.');
+    }
+
+    public function editListingType($id)
+    {
+        $listingType = \App\Models\ListingType::findOrFail($id);
+        return view('admin.listing_types.edit', compact('listingType'));
+    }
+
+    public function updateListingType(Request $request, $id)
+    {
+        $listingType = \App\Models\ListingType::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'color' => 'required|string|max:7',
+        ]);
+        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
+        $listingType->update($data);
+        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil diperbarui.');
+    }
+
+    public function destroyListingType($id)
+    {
+        $listingType = \App\Models\ListingType::findOrFail($id);
+        if ($listingType->listings()->count() > 0) {
+            return back()->with('error', 'Tipe listing tidak dapat dihapus karena masih digunakan oleh listing.');
+        }
+        $listingType->delete();
+        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil dihapus.');
+    }
+}

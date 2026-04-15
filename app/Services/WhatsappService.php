@@ -1,0 +1,95 @@
+<?php
+
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class WhatsappService
+{
+    protected string $apiUrl;
+    protected string $deviceId;
+    protected string $username;
+    protected string $password;
+
+    public function __construct()
+    {
+        $this->apiUrl   = rtrim((string) config('services.whatsapp.api_url', ''), '/');
+        $this->deviceId = (string) config('services.whatsapp.device_id', 'default');
+        $this->username = (string) config('services.whatsapp.api_user', 'admin');
+        $this->password = (string) config('services.whatsapp.api_pass', '');
+    }
+
+    /**
+     * Send a plain-text WhatsApp message via GOWA (go-whatsapp-web-multidevice).
+     */
+    public function sendMessage(string $to, string $message): ?array
+    {
+        // 1. Clean number (only digits)
+        $cleanPhone = preg_replace('/\D/', '', $to);
+
+        // 2. Fix Indonesian format: 0811 -> 62811
+        if (str_starts_with($cleanPhone, '0')) {
+            $cleanPhone = '62' . substr($cleanPhone, 1);
+        }
+
+        // 3. If starts with 8 (no country code), prepend 62
+        if (str_starts_with($cleanPhone, '8')) {
+            $cleanPhone = '62' . $cleanPhone;
+        }
+
+        if ($this->apiUrl === '') {
+            Log::warning('WhatsappService: WHATSAPP_API_URL not configured, message not sent.', [
+                'to'      => $cleanPhone,
+                'preview' => mb_substr($message, 0, 80),
+            ]);
+            return null;
+        }
+
+        try {
+            Log::info("WhatsApp GOWA: attempting to send to $cleanPhone: " . mb_substr($message, 0, 100));
+            $sendUrl  = $this->apiUrl . '/send/message';
+            $response = Http::withBasicAuth($this->username, $this->password)
+                ->timeout(10)
+                ->withQueryParameters(['device_id' => $this->deviceId])
+                ->post($sendUrl, [
+                    'phone'   => $cleanPhone,
+                    'message' => $message,
+                ]);
+
+            if ($response->successful()) {
+                Log::info("WhatsApp GOWA: success to $cleanPhone");
+                return $response->json();
+            }
+
+            Log::warning('WhatsApp GOWA sendMessage failed', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+                'to'     => $cleanPhone,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp GOWA sendMessage exception', [
+                'error' => $e->getMessage(),
+                'to'    => $cleanPhone,
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
+     * Normalize a WhatsApp number to international digits only.
+     */
+    public static function normalizeNumber(string $input): string
+    {
+        $digits = preg_replace('/\D/', '', $input) ?? '';
+
+        if (str_starts_with($digits, '0')) {
+            $digits = '62' . substr($digits, 1);
+        } elseif (str_starts_with($digits, '8')) {
+            $digits = '62' . $digits;
+        }
+
+        return $digits;
+    }
+}
