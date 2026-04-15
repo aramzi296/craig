@@ -24,6 +24,7 @@ class User extends Authenticatable
         'password',
         'whatsapp',
         'wa_otp1',
+        'wa_otp1_lookup',
         'wa_otp1_expires_at',
         'wa_otp2',
         'wa_otp2_expires_at',

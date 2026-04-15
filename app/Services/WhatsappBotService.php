@@ -6,7 +6,6 @@ use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
  * WhatsappBotService — handles the "login" keyword chatbot flow.
@@ -83,10 +82,14 @@ class WhatsappBotService
 
     /**
      * Generate OTP1 & OTP2 (unik, berbeda satu sama lain), simpan ke user,
-     * buat nonce sesi, dan kirim semua via WA.
+     * dan kirim via WA beserta link halaman login.
      *
-     * Nonce disimpan di cache (10 menit) → user_id, diembed di login URL
-     * sehingga halaman web tidak perlu meminta nomor HP lagi.
+     * OTP1 disimpan:
+     *  - bcrypt (wa_otp1)           → untuk verifikasi aman
+     *  - SHA-256 (wa_otp1_lookup)   → untuk query/pencarian user di DB
+     * OTP2 disimpan bcrypt (wa_otp2) → verifikasi setelah user ditemukan.
+     *
+     * Login URL yang dikirim adalah URL statis /wa-login — tidak ada nonce.
      */
     private function issueLoginOtps(string $phone, User $user): void
     {
@@ -96,23 +99,18 @@ class WhatsappBotService
             $otp2 = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         } while ($otp2 === $otp1);
 
-        // ── Nonce unik: identifikasi sesi login ini di web ────────────────
-        $nonce = Str::random(40); // 40 char URL-safe random string
-
-        // Simpan nonce → user_id di cache, berlaku 10 menit
-        Cache::put('wa_login_nonce:' . $nonce, $user->id, now()->addMinutes(10));
-
-        // ── Simpan OTP ter-hash ke user ───────────────────────────────────
+        // ── Simpan ke DB ──────────────────────────────────────────────────
         $user->update([
-            'wa_otp1'                   => Hash::make($otp1),
+            'wa_otp1'                   => Hash::make($otp1),           // bcrypt
+            'wa_otp1_lookup'            => hash('sha256', $otp1),       // SHA-256 untuk lookup
             'wa_otp1_expires_at'        => now()->addMinutes(10),
-            'wa_otp2'                   => Hash::make($otp2),
+            'wa_otp2'                   => Hash::make($otp2),           // bcrypt
             'wa_otp2_expires_at'        => now()->addMinutes(10),
             'wa_login_token'            => null,
             'wa_login_token_expires_at' => null,
         ]);
 
-        $loginUrl = rtrim(config('app.url', 'http://localhost'), '/') . '/wa-login/' . $nonce;
+        $loginUrl = rtrim(config('app.url', 'http://localhost'), '/') . '/wa-login';
 
         $this->whatsapp->sendMessage(
             $phone,
@@ -120,9 +118,9 @@ class WhatsappBotService
             "Halo, *{$user->name}*! Berikut dua kode OTP untuk login:\n\n" .
             "🔑 *OTP Pertama : {$otp1}*\n" .
             "🔑 *OTP Kedua   : {$otp2}*\n\n" .
-            "Kedua kode ini berlaku selama *10 menit*.\n" .
-            "Buka link berikut dan masukkan kedua OTP di atas:\n" .
-            "{$loginUrl}\n\n" .
+            "Kedua kode ini berlaku selama *10 menit*.\n\n" .
+            "Buka halaman login di:\n{$loginUrl}\n" .
+            "Lalu masukkan kedua kode di atas.\n\n" .
             "_Jangan berikan kode ini kepada siapapun._"
         );
 
