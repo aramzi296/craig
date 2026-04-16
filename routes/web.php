@@ -84,5 +84,10 @@ Route::middleware('auth')->group(function () {
     });
 });
 
+// Static pages routes
+Route::view('/about', 'about')->name('about');
+Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');
+Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
+
 // Wildcard Routes (Must be at the bottom)
 Route::get('/listing/{slug}', [HomeController::class, 'show'])->name('listings.show');

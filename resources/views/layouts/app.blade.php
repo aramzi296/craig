@@ -81,6 +81,13 @@
             </div>
             <hr style="border: none; border-top: 1px solid #1e293b; margin: 40px 0;">
             <p style="color: #64748b; font-size: 0.9rem;">&copy; 2026 sebatam.com. All rights reserved.</p>
+            <nav style="margin-top: 20px;">
+                <a href="{{ route('about') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Tentang</a>
+                |
+                <a href="{{ route('terms.and.conditions') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Syarat & Ketentuan</a>
+                |
+                <a href="{{ route('privacy.policy') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kebijakan Privasi</a>
+            </nav>
         </div>
     </footer>
 </body>
