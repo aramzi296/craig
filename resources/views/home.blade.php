@@ -4,7 +4,7 @@
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
         <h1>Temukan Segalanya di Batam</h1>
-        <p>Ribuan listing berkualitas dari properti, kendaraan, hingga lowongan kerja di Batam.</p>
+        <p>Langsung Chat WhatsApp Tanpa Ribet.</p>
         
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -22,6 +22,12 @@
             {{ $category->name }}
         </a>
         @endforeach
+    </div>
+
+    <div style="margin-top: 16px; text-align: center;">
+        <a href="{{ route('categories.index') }}" class="btn btn-outline-primary">
+            Lihat Semua Kategori
+        </a>
     </div>
 
     @if($selectedCategory)

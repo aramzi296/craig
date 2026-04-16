@@ -8,7 +8,12 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $categories = \App\Models\Category::withCount(['listings' => function ($query) {
+            $query->where('is_active', true);
+        }])
+        ->orderByDesc('listings_count')
+        ->take(12)
+        ->get();
         $selectedCategory = null;
 
         $query = \App\Models\Listing::query()->where('is_active', true);

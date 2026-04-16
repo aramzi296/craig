@@ -1,63 +1,118 @@
 @extends('layouts.app')
 
-@section('title', 'Tentang Sebatam – ' . config('app.name', 'Sebatam'))
+@section('title', 'Tentang Kami - Sebatam.com')
 
 @section('content')
-<div class="bg-gradient-to-r from-sky-600 to-blue-800 text-white py-16">
-  <div class="container mx-auto text-center px-4">
-    <h1 class="text-4xl font-extrabold mb-4">Tentang <span class="text-white">se<span class="text-sky-400">batam</span>.com</span></h1>
-    <p class="text-lg opacity-80 max-w-xl mx-auto">Direktori usaha dan iklan baris terlengkap di Kota Batam.</p>
-  </div>
-</div>
-
-<div class="container mx-auto px-4 py-16">
-  <div class="max-w-3xl mx-auto bg-white shadow-md rounded-lg p-10">
-    <div class="mb-10 text-center">
-      <img src="{{ asset('logo.jpg') }}" alt="Logo Sebatam" class="mx-auto mb-6" style="max-height: 100px;">
-      <h2 class="text-2xl font-bold mb-4">Misi Kami</h2>
-      <p class="text-gray-600 text-lg">
-        Sebatam hadir untuk memberdayakan UMKM dan warga Kota Batam dengan menyediakan platform yang mudah diakses guna mempromosikan bisnis serta menyebarkan informasi melalui iklan baris.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
-      <div class="p-6 rounded-lg bg-gray-50 shadow">
-        <div class="mb-4 text-sky-600 text-4xl">
-          <i class="bi bi-shop"></i>
-        </div>
-        <h4 class="font-semibold text-xl mb-2">Direktori Usaha</h4>
-        <p class="text-gray-600 text-sm">
-          Temukan informasi lengkap mengenai profil usaha, layanan jasa, dan profil bisnis profesional di setiap sudut Kota Batam.
+<section class="bg-blue-600 py-20 px-6">
+    <div class="max-w-6xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Satu Platform, Semua Informasi Batam</h1>
+        <p class="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto">
+            Sebatam.com adalah pusat rujukan informasi dan papan pengumuman digital yang menghubungkan seluruh kebutuhan warga Batam dalam satu tempat.
         </p>
-      </div>
-      <div class="p-6 rounded-lg bg-gray-50 shadow">
-        <div class="mb-4 text-green-500 text-4xl">
-          <i class="bi bi-megaphone"></i>
+    </div>
+</section>
+
+<section class="py-16 px-6">
+    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                <i class="fas fa-eye mr-3"></i> Visi
+            </h2>
+            <p class="text-gray-600 leading-relaxed">
+                <span class="text-green-600">xxxMenjadi</span> ekosistem digital utama dan pusat rujukan informasi bagi seluruh warga Batam dalam memenuhi segala kebutuhan harian, bisnis, dan layanan lokal yang terpercaya.
+            </p>
         </div>
-        <h4 class="font-semibold text-xl mb-2">Iklan Baris</h4>
-        <p class="text-gray-600 text-sm">
-          Platform praktis bagi siapa saja yang ingin memasarkan produk, jasa, otomotif, properti, hingga lowongan kerja secara gratis.
-        </p>
-      </div>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+            <h2 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
+                <i class="fas fa-bullseye mr-3"></i> Misi
+            </h2>
+            <ul class="space-y-3 text-gray-600">
+                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Mendemokrasikan informasi digital bagi seluruh warga dan UMKM Batam.</li>
+                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Menghubungkan kebutuhan lokal secara cepat, tepat, dan efisien.</li>
+                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Mendorong pertumbuhan ekonomi kreatif melalui digitalisasi layanan.</li>
+            </ul>
+        </div>
     </div>
+</section>
 
-    <div class="mt-12 border-t border-gray-200 pt-10 text-center">
-      <h4 class="font-bold text-2xl mb-6">Ikuti Kami</h4>
-      <div class="flex justify-center space-x-6 mb-8">
-        <a href="https://www.facebook.com/SemuaSebatam" target="_blank" class="text-sky-600 hover:text-sky-800 text-3xl"><i class="bi bi-facebook"></i></a>
-        <a href="https://www.instagram.com/semuasebatam/" target="_blank" class="text-pink-600 hover:text-pink-800 text-3xl"><i class="bi bi-instagram"></i></a>
-        <a href="https://www.tiktok.com/@sebatam.com" target="_blank" class="text-gray-800 hover:text-gray-900 text-3xl"><i class="bi bi-tiktok"></i></a>
-        <a href="https://www.youtube.com/@SemuaSebatam" target="_blank" class="text-red-600 hover:text-red-800 text-3xl"><i class="bi bi-youtube"></i></a>
-      </div>
-
-      <h4 class="font-bold text-2xl mb-4">Mari Bergabung!</h4>
-      <p class="text-gray-600 mb-6">Daftarkan usaha Anda atau pasang iklan baris hari ini di sebatam.com.</p>
-
-      <div class="flex justify-center gap-4">
-        <a href="{{ route('register') }}" class="px-6 py-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold rounded-full">Daftar Sekarang</a>
-        <a href="{{ url('/') }}" class="px-6 py-2 border border-sky-600 text-sky-600 font-semibold rounded-full hover:bg-sky-100">Jelajahi Direktori</a>
-      </div>
+<section class="bg-white py-16 px-6">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-2">Apa yang Bisa Anda Lakukan?</h2>
+            <p class="text-gray-500">Apapun kebutuhan Anda di Batam, Sebatam punya ruangnya.</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3 class="font-bold">Jual & Beli</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h3 class="font-bold">Direktori Bisnis</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <h3 class="font-bold">Lowongan Kerja</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-user-search"></i>
+                </div>
+                <h3 class="font-bold">Cari Kerja</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h3 class="font-bold">Promo & Diskon</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="font-bold">Agenda Kota</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <h3 class="font-bold">Barang Hilang</h3>
+            </div>
+            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
+                <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3 class="font-bold">Pengumuman</h3>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
+</section>
+
+<section class="py-20 px-6">
+    <div class="max-w-4xl mx-auto bg-blue-900 rounded-3xl p-10 text-center text-white relative overflow-hidden">
+        <div class="relative z-10">
+            <h2 class="text-3xl font-bold mb-4">Punya Informasi yang Ingin Dibagikan?</h2>
+            <p class="mb-8 text-blue-200">Bergabunglah dengan ribuan warga Batam lainnya dan pasang informasi Anda sekarang secara gratis.</p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <a href="#" class="bg-white text-blue-900 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition">Mulai Posting</a>
+                <a href="#" class="bg-blue-700 text-white border border-blue-500 px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition">Lihat Direktori</a>
+            </div>
+        </div>
+        <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-800 rounded-full opacity-50"></div>
+    </div>
+</section>
+
+<footer class="py-10 text-center text-gray-500 border-t border-gray-200">
+    <p>&copy; 2026 Sebatam.com - Platform Informasi Warga Batam.</p>
+</footer>
+
 @endsection
+
+
