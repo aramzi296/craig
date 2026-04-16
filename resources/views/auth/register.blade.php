@@ -43,6 +43,17 @@
         <div class="auth-footer">
             Sudah punya akun? <a href="{{ route('login') }}">Masuk</a>
         </div>
+        <div class="mt-6 p-4 bg-yellow-100 border border-yellow-300 text-yellow-800 rounded">
+            <strong>Perhatian:</strong> Untuk registrasi menggunakan WhatsApp, cukup kirim pesan "login" ke nomor admin.
+            <div class="mt-4">
+                @php
+    $whatsappAdminNumber = env('WHATSAPP_ADMIN_NUMBER', '6282172292230');
+@endphp
+<a href="https://wa.me/{{ $whatsappAdminNumber }}?text=login" target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold px-5 py-3 rounded">
+    Kirim WhatsApp: login
+</a>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
