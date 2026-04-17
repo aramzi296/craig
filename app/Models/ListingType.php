@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ListingType extends Model
 {
-    protected $fillable = ['name', 'slug', 'color'];
+    protected $fillable = ['name', 'slug', 'color', 'sort_order'];
+
 
     public function listings()
     {

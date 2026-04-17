@@ -16,7 +16,8 @@ class ListingController extends Controller
     public function create()
     {
         $categories = \App\Models\Category::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::all();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+
         return view('listings.create', compact('categories', 'listingTypes'));
     }
 
@@ -71,7 +72,8 @@ class ListingController extends Controller
     {
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
         $categories = \App\Models\Category::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::all();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+
         return view('listings.edit', compact('listing', 'categories', 'listingTypes'));
     }
 

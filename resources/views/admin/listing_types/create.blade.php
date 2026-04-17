@@ -17,7 +17,17 @@
             @enderror
         </div>
 
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="sort_order">Urutan Tampilan</label>
+            <input type="number" name="sort_order" id="sort_order" class="form-control @error('sort_order') is-invalid @enderror" value="{{ old('sort_order', 0) }}" min="0" required>
+            <small style="color: var(--text-muted); display: block; margin-top: 8px;">Semakin kecil angkanya, semakin awal ditampilkan.</small>
+            @error('sort_order')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <div class="form-group" style="margin-bottom: 30px;">
+
             <label for="color">Warna Label (Hex)</label>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <input type="color" name="color" id="color" value="{{ old('color', '#0ea5e9') }}" style="width: 60px; height: 50px; padding: 4px; border-radius: 8px; border: 1px solid var(--border);">

@@ -16,8 +16,10 @@
         <thead>
             <tr>
                 <th>Nama Tipe</th>
+                <th>Urutan</th>
                 <th>Slug</th>
                 <th>Warna Label</th>
+
                 <th>Preview</th>
                 <th>Aksi</th>
             </tr>
@@ -26,8 +28,10 @@
             @foreach($listingTypes as $type)
             <tr>
                 <td style="font-weight: 600;">{{ $type->name }}</td>
+                <td><span style="background: #f1f5f9; padding: 2px 8px; border-radius: 4px;">{{ $type->sort_order }}</span></td>
                 <td><code>{{ $type->slug }}</code></td>
                 <td><code>{{ $type->color }}</code></td>
+
                 <td>
                     <span style="background: {{ $type->color }}; color: white; padding: 4px 12px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
                         {{ $type->name }}

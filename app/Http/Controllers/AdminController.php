@@ -117,7 +117,7 @@ class AdminController extends Controller
     public function createListing()
     {
         $categories = \App\Models\Category::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::all();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         return view('admin.listings.create', compact('categories', 'listingTypes'));
     }
 
@@ -163,7 +163,7 @@ class AdminController extends Controller
     {
         $listing = \App\Models\Listing::findOrFail($id);
         $categories = \App\Models\Category::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::all();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes'));
     }
 
@@ -278,7 +278,7 @@ class AdminController extends Controller
     // Listing Types Management
     public function listingTypes()
     {
-        $listingTypes = \App\Models\ListingType::all();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         return view('admin.listing_types.index', compact('listingTypes'));
     }
 
@@ -292,6 +292,7 @@ class AdminController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'color' => 'required|string|max:7',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
         \App\Models\ListingType::create($data);
@@ -310,6 +311,7 @@ class AdminController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'color' => 'required|string|max:7',
+            'sort_order' => 'nullable|integer|min:0',
         ]);
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
         $listingType->update($data);
