@@ -3,66 +3,65 @@
 @section('title', 'Kebijakan Privasi – sebatam.com')
 
 @section('content')
-<div class="container mx-auto px-4 py-16 max-w-4xl">
-  <div class="bg-white rounded-lg shadow-md p-10">
-    <header class="mb-8">
-      <h1 class="text-2xl font-bold text-gray-800 mb-1">Kebijakan Privasi sebatam.com</h1>
-      <p class="text-sm text-gray-500">Terakhir Diperbarui: 18 Februari 2026</p>
-    </header>
-
-    <section class="prose max-w-none text-gray-700">
-      <p>Di {{ config('app.name') }}, kami sangat menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat Anda menggunakan layanan direktori kami.</p>
-
-      <h3>1. Informasi yang Kami Kumpulkan</h3>
-      <p>Kami mengumpulkan informasi yang Anda berikan secara sukarela saat mendaftarkan usaha atau profil profesional, termasuk namun tidak terbatas pada:</p>
-      <ul>
-        <li><strong>Informasi Identitas:</strong> Nama lengkap, nama usaha, dan deskripsi profesional.</li>
-        <li><strong>Informasi Kontak:</strong> Alamat email, nomor telepon/WhatsApp, dan alamat fisik usaha.</li>
-        <li><strong>Konten Visual:</strong> Foto profil, logo usaha, dan foto galeri produk/layanan.</li>
-        <li><strong>Data Teknis:</strong> Alamat IP, jenis perangkat, dan aktivitas penggunaan situs melalui log server (untuk keamanan dan optimasi sistem).</li>
-      </ul>
-
-      <h3>2. Penggunaan Informasi</h3>
-      <p>Kami menggunakan informasi Anda untuk:</p>
-      <ul>
-        <li>Menampilkan profil usaha/profesional Anda di direktori publik agar dapat ditemukan oleh calon pelanggan.</li>
-        <li>Menampilkan iklan baris yang Anda posting di direktori publik agar dapat ditemukan oleh calon pelanggan atau dibaca oleh khalayak umum.</li>
-        <li>Menghubungi Anda terkait pembaruan layanan, verifikasi akun, atau informasi penting lainnya.</li>
-        <li>Meningkatkan performa dan keamanan situs web kami.</li>
-        <li>Menganalisis tren penggunaan untuk pengembangan fitur baru.</li>
-      </ul>
-
-      <h3>3. Keamanan Data</h3>
-      <p>Kami mengelola data Anda pada infrastruktur server pribadi (VPS) dengan standar keamanan yang kami upayakan sebaik mungkin (seperti penggunaan SSL/HTTPS). Namun, perlu diingat bahwa tidak ada metode transmisi data melalui internet yang 100% aman. Kami menyarankan Anda untuk menjaga kerahasiaan kredensial akun Anda.</p>
-
-      <h3>4. Berbagi Informasi dengan Pihak Ketiga</h3>
-      <p><strong>Tampilan Publik:</strong> Informasi usaha dan iklan baris yang Anda masukkan dalam listing akan tersedia secara publik di situs web kami.</p>
-      <p><strong>Pihak Ketiga:</strong> Kami tidak menjual atau menyewakan data pribadi Anda kepada pihak luar. Kami hanya akan membagikan data jika diwajibkan oleh hukum atau untuk keperluan teknis penyedia layanan (seperti penyedia hosting/VPS) demi kelancaran operasional situs.</p>
-
-      <h3>5. Hak Anda atas Data</h3>
-      <p>Anda memiliki hak untuk:</p>
-      <ul>
-        <li>Mengakses dan memperbarui informasi profil Anda kapan saja melalui dashboard pengguna.</li>
-        <li>Meminta penghapusan akun dan data terkait dari sistem kami dengan menghubungi tim admin kami.</li>
-      </ul>
-
-      <h3>6. Cookie</h3>
-      <p>Kami menggunakan cookie untuk meningkatkan pengalaman pengguna, seperti mengingat preferensi bahasa atau status login Anda. Anda dapat mengatur browser Anda untuk menolak cookie, namun hal ini mungkin mempengaruhi fungsi beberapa fitur di situs kami.</p>
-
-      <h3>7. Perubahan Kebijakan</h3>
-      <p>Kami dapat memperbarui Kebijakan Privasi ini dari waktu ke waktu. Setiap perubahan akan diberitahukan melalui halaman ini dengan memperbarui tanggal "Terakhir Diperbarui".</p>
-
-      <h3>8. Hubungi Kami</h3>
-      <p>Jika ada pertanyaan mengenai kebijakan privasi ini, Anda dapat menghubungi kami di:</p>
-      <ul class="list-unstyled">
-        <li><i class="bi bi-envelope me-2 text-primary"></i>Email: <a href="mailto:admin@sebatam.com" class="text-blue-600 hover:underline">admin@sebatam.com</a></li>
-        <li><i class="bi bi-geo-alt me-2 text-primary"></i>Lokasi: Batam, Kepulauan Riau.</li>
-      </ul>
-
-      <div class="mt-4 text-gray-600 text-sm">
-        Dokumen ini masih dapat diperbarui.
-      </div>
+<div class="legal-page">
+    <!-- Compact Hero -->
+    <section style="background: linear-gradient(135deg, var(--primary) 0%, #0369a1 100%); padding: 50px 20px; text-align: center; color: white; position: relative; overflow: hidden;">
+        <div class="container" style="position: relative; z-index: 2;">
+            <h1 style="font-size: 2.5rem; font-weight: 850; margin-bottom: 10px; letter-spacing: -1px;">Kebijakan Privasi</h1>
+            <p style="font-size: 1.1rem; opacity: 0.9;">Terakhir Diperbarui: 18 Februari 2026</p>
+        </div>
+        <div style="position: absolute; top: -20px; right: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     </section>
-  </div>
+
+    <!-- Content Section -->
+    <section style="padding: 60px 20px; background: var(--background);">
+        <div class="container">
+            <div class="glass" style="max-width: 900px; margin: 0 auto; padding: 50px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                <div class="prose" style="color: var(--text); line-height: 1.8;">
+                    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px;">
+                        Di <strong>{{ config('app.name') }}</strong>, kami sangat menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat Anda menggunakan layanan direktori kami.
+                    </p>
+
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">1. Informasi yang Kami Kumpulkan</h2>
+                        <p>Kami mengumpulkan informasi yang Anda berikan secara sukarela, termasuk:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-check-circle" style="color: var(--primary); margin-top: 6px;"></i> <span><strong>Identitas:</strong> Nama lengkap dan deskripsi profil.</span></li>
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-check-circle" style="color: var(--primary); margin-top: 6px;"></i> <span><strong>Kontak:</strong> Alamat email dan nomor WhatsApp.</span></li>
+                            <li style="display: flex; gap: 12px;"><i class="fas fa-check-circle" style="color: var(--primary); margin-top: 6px;"></i> <span><strong>Data Usaha:</strong> Nama usaha, logo, dan foto produk.</span></li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">2. Penggunaan Informasi</h2>
+                        <p>Informasi Anda digunakan untuk:</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menampilkan profil usaha Anda di direktori publik.</span></li>
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menghubungi Anda terkait verifikasi akun atau laporan.</span></li>
+                            <li style="display: flex; gap: 12px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Meningkatkan performa dan keamanan situs kami.</span></li>
+                        </ul>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">3. Keamanan Data</h2>
+                        <p>Kami mengelola data Anda pada infrastruktur server pribadi (VPS) dengan standar keamanan SSL/HTTPS. Kami berkomitmen melindungi data Anda, namun harap diingat bahwa keamanan mutlak di internet tidak dapat dijamin sepenuhnya.</p>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">4. Hak Anda atas Data</h2>
+                        <p>Anda berhak untuk mengakses, memperbarui, atau meminta penghapusan akun dan data pribadi Anda kapan saja melalui dashboard pengguna atau dengan menghubungi admin kami.</p>
+                    </div>
+
+                    <hr style="border: none; border-top: 1px solid var(--border); margin: 40px 0;">
+
+                    <div style="text-align: center; background: #f8fafc; padding: 30px; border-radius: 16px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Butuh Bantuan?</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 0;">Hubungi kami di <a href="mailto:admin@sebatam.com" style="color: var(--primary); font-weight: 600;">admin@sebatam.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </div>
 @endsection
+

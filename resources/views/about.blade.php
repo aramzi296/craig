@@ -3,116 +3,121 @@
 @section('title', 'Tentang Kami - Sebatam.com')
 
 @section('content')
-<section class="bg-blue-600 py-20 px-6">
-    <div class="max-w-6xl mx-auto text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">Satu Platform, Semua Informasi Batam</h1>
-        <p class="text-blue-100 text-lg md:text-xl max-w-2xl mx-auto">
-            Sebatam.com adalah pusat rujukan informasi dan papan pengumuman digital yang menghubungkan seluruh kebutuhan warga Batam dalam satu tempat.
-        </p>
-    </div>
-</section>
+<div class="about-page">
+    <!-- Hero Section -->
+    <section class="hero-about" style="background: linear-gradient(135deg, var(--primary) 0%, #0369a1 100%); padding: 60px 20px 40px 20px; text-align: center; color: white; position: relative; overflow: hidden;">
 
-<section class="py-16 px-6">
-    <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-12">
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                <i class="fas fa-eye mr-3"></i> Visi
-            </h2>
-            <p class="text-gray-600 leading-relaxed">
-                <span class="text-green-600">xxxMenjadi</span> ekosistem digital utama dan pusat rujukan informasi bagi seluruh warga Batam dalam memenuhi segala kebutuhan harian, bisnis, dan layanan lokal yang terpercaya.
+        <div class="container" style="position: relative; z-index: 2;">
+            <h1 style="font-size: 2.8rem; font-weight: 850; margin-bottom: 12px; letter-spacing: -1.5px; line-height: 1.2;">Satu Platform,<br>Semua Informasi Batam.</h1>
+
+            <p style="font-size: 1.25rem; opacity: 0.9; max-width: 700px; margin: 0 auto; line-height: 1.6;">
+                Sebatam.com hadir sebagai pusat rujukan digital dan papan pengumuman modern untuk menghubungkan seluruh kebutuhan warga Batam dalam satu ekosistem yang terpercaya.
             </p>
         </div>
-        <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-            <h2 class="text-2xl font-bold text-blue-600 mb-4 flex items-center">
-                <i class="fas fa-bullseye mr-3"></i> Misi
-            </h2>
-            <ul class="space-y-3 text-gray-600">
-                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Mendemokrasikan informasi digital bagi seluruh warga dan UMKM Batam.</li>
-                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Menghubungkan kebutuhan lokal secara cepat, tepat, dan efisien.</li>
-                <li class="flex items-start"><i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i> Mendorong pertumbuhan ekonomi kreatif melalui digitalisasi layanan.</li>
-            </ul>
-        </div>
-    </div>
-</section>
+        <!-- Decorative elements -->
+        <div style="position: absolute; top: -50px; left: -50px; width: 200px; height: 200px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+        <div style="position: absolute; bottom: -100px; right: -100px; width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
 
-<section class="bg-white py-16 px-6">
-    <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12">
-            <h2 class="text-3xl font-bold mb-2">Apa yang Bisa Anda Lakukan?</h2>
-            <p class="text-gray-500">Apapun kebutuhan Anda di Batam, Sebatam punya ruangnya.</p>
-        </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-shopping-bag"></i>
+    </section>
+
+    <!-- Visi & Misi Section -->
+    <section style="padding: 40px 20px 80px 20px; background: var(--background);">
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+                <div class="glass" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <div style="width: 60px; height: 60px; background: #eff6ff; color: var(--primary); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 15px; color: var(--text);">Visi Kami</h2>
+                    <p style="color: var(--text-muted); line-height: 1.7; font-size: 1.05rem;">
+                        Menjadi ekosistem digital utama dan pusat rujukan informasi bagi seluruh warga Batam dalam memenuhi segala kebutuhan harian, bisnis, dan layanan lokal yang transparan dan terpercaya.
+                    </p>
                 </div>
-                <h3 class="font-bold">Jual & Beli</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-store"></i>
+
+                <div class="glass" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <div style="width: 60px; height: 60px; background: #fff7ed; color: var(--secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h2 style="font-size: 1.8rem; font-weight: 700; margin-bottom: 15px; color: var(--text);">Misi Kami</h2>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="display: flex; gap: 12px; margin-bottom: 12px; color: var(--text-muted);">
+                            <i class="fas fa-check-circle" style="color: #10b981; margin-top: 5px;"></i>
+                            <span>Mendemokrasikan akses informasi digital bagi seluruh warga Batam.</span>
+                        </li>
+                        <li style="display: flex; gap: 12px; margin-bottom: 12px; color: var(--text-muted);">
+                            <i class="fas fa-check-circle" style="color: #10b981; margin-top: 5px;"></i>
+                            <span>Mendukung UMKM lokal melalui digitalisasi layanan dan promosi.</span>
+                        </li>
+                        <li style="display: flex; gap: 12px; color: var(--text-muted);">
+                            <i class="fas fa-check-circle" style="color: #10b981; margin-top: 5px;"></i>
+                            <span>Menghubungkan penyedia jasa dan pengguna secara cepat dan efisien.</span>
+                        </li>
+                    </ul>
                 </div>
-                <h3 class="font-bold">Direktori Bisnis</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-briefcase"></i>
-                </div>
-                <h3 class="font-bold">Lowongan Kerja</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-user-search"></i>
-                </div>
-                <h3 class="font-bold">Cari Kerja</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-tag"></i>
-                </div>
-                <h3 class="font-bold">Promo & Diskon</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <h3 class="font-bold">Agenda Kota</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-box-open"></i>
-                </div>
-                <h3 class="font-bold">Barang Hilang</h3>
-            </div>
-            <div class="p-6 bg-gray-50 rounded-xl text-center hover:shadow-md transition">
-                <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 text-xl">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <h3 class="font-bold">Pengumuman</h3>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<section class="py-20 px-6">
-    <div class="max-w-4xl mx-auto bg-blue-900 rounded-3xl p-10 text-center text-white relative overflow-hidden">
-        <div class="relative z-10">
-            <h2 class="text-3xl font-bold mb-4">Punya Informasi yang Ingin Dibagikan?</h2>
-            <p class="mb-8 text-blue-200">Bergabunglah dengan ribuan warga Batam lainnya dan pasang informasi Anda sekarang secara gratis.</p>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="#" class="bg-white text-blue-900 px-8 py-3 rounded-full font-bold hover:bg-blue-50 transition">Mulai Posting</a>
-                <a href="#" class="bg-blue-700 text-white border border-blue-500 px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition">Lihat Direktori</a>
+    <!-- Services Grid -->
+    <section style="padding: 80px 20px; background: white;">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 60px;">
+                <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 15px;">Apa yang Kami Tawarkan?</h2>
+                <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto;">Semua yang Anda cari di Batam, kini tersedia dalam jangkauan satu klik.</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                @php
+                    $features = [
+                        ['icon' => 'shopping-bag', 'title' => 'Jual & Beli', 'color' => '#3b82f6'],
+                        ['icon' => 'store', 'title' => 'Direktori Bisnis', 'color' => '#10b981'],
+                        ['icon' => 'briefcase', 'title' => 'Lowongan Kerja', 'color' => '#8b5cf6'],
+                        ['icon' => 'user-check', 'title' => 'Cari Kerja', 'color' => '#f59e0b'],
+                        ['icon' => 'tag', 'title' => 'Promo & Diskon', 'color' => '#ef4444'],
+                        ['icon' => 'calendar-alt', 'title' => 'Agenda Kota', 'color' => '#6366f1'],
+                        ['icon' => 'box-open', 'title' => 'Barang Hilang', 'color' => '#f97316'],
+                        ['icon' => 'bullhorn', 'title' => 'Pengumuman', 'color' => '#14b8a6'],
+                    ];
+                @endphp
+
+                @foreach($features as $f)
+                <div style="padding: 30px; border-radius: var(--radius); border: 1px solid var(--border); text-align: center; transition: all 0.3s ease; cursor: default;" 
+                     onmouseover="this.style.transform='translateY(-5px)'; this.style.borderColor='var(--primary)';" 
+                     onmouseout="this.style.transform='none'; this.style.borderColor='var(--border)';">
+                    <div style="width: 50px; height: 50px; background: {{ $f['color'] }}15; color: {{ $f['color'] }}; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin: 0 auto 15px;">
+                        <i class="fas fa-{{ $f['icon'] }}"></i>
+                    </div>
+                    <h3 style="font-size: 1.1rem; font-weight: 700;">{{ $f['title'] }}</h3>
+                </div>
+                @endforeach
             </div>
         </div>
-        <div class="absolute -top-10 -right-10 w-40 h-40 bg-blue-800 rounded-full opacity-50"></div>
-    </div>
-</section>
+    </section>
 
-<footer class="py-10 text-center text-gray-500 border-t border-gray-200">
-    <p>&copy; 2026 Sebatam.com - Platform Informasi Warga Batam.</p>
-</footer>
+    <!-- Bottom CTA -->
+    <section style="padding: 100px 20px; background: var(--background);">
+        <div class="container text-center">
+            <div class="glass" style="max-width: 900px; margin: 0 auto; padding: 60px 40px; border-radius: 32px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
+                <h2 style="font-size: 2.8rem; font-weight: 850; margin-bottom: 20px;">Siap Bergabung dengan Komunitas?</h2>
+                <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 600px; margin: 0 auto 40px; line-height: 1.6;">
+                    Pasang pengumuman, promosikan bisnis Anda, atau cari kebutuhan lainnya sekarang juga secara gratis.
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <a href="{{ route('listings.create') }}" class="btn btn-primary" style="padding: 16px 32px; font-size: 1.1rem;">Mulai Posting Sekarang</a>
+                    <a href="{{ route('home') }}" class="btn btn-outline" style="padding: 16px 32px; font-size: 1.1rem;">Lihat Informasi Terbaru</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 
+<style>
+    @media (max-width: 768px) {
+        .hero-about h1 { font-size: 2.5rem !important; }
+        .hero-about p { font-size: 1.1rem !important; }
+    }
+</style>
 @endsection
+
 
 

@@ -83,7 +83,10 @@
             <nav style="margin-top: 20px;">
                 <a href="{{ route('about') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Tentang</a>
                 |
+                <a href="{{ route('contact') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kontak</a>
+                |
                 <a href="{{ route('terms.and.conditions') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Syarat & Ketentuan</a>
+
                 |
                 <a href="{{ route('privacy.policy') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kebijakan Privasi</a>
             </nav>
