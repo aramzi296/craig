@@ -23,6 +23,7 @@
             <nav class="nav-links" id="navLinks">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('baca-saya') }}" class="{{ request()->routeIs('baca-saya') ? 'active' : '' }}">Baca Saya</a>
                 
                 <div class="nav-divider"></div>
 
@@ -81,6 +82,8 @@
             <hr style="border: none; border-top: 1px solid #1e293b; margin: 40px 0;">
             <p style="color: #64748b; font-size: 0.9rem;">&copy; 2026 sebatam.com. All rights reserved.</p>
             <nav style="margin-top: 20px;">
+                <a href="{{ route('baca-saya') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Baca Saya</a>
+                |
                 <a href="{{ route('about') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Tentang</a>
                 |
                 <a href="{{ route('contact') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kontak</a>

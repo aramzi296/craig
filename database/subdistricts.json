@@ -1,0 +1,510 @@
+{
+	"table": "subdistricts",
+	"rows":
+	[
+		{
+			"id": 1,
+			"district_id": 1,
+			"name": "Belian",
+			"slug": "belian",
+			"created_at": "2026-04-06 16:04:03",
+			"updated_at": "2026-04-06 16:04:03"
+		},
+		{
+			"id": 2,
+			"district_id": 1,
+			"name": "Baloi Permai",
+			"slug": "baloi-permai",
+			"created_at": "2026-04-06 16:04:03",
+			"updated_at": "2026-04-06 16:04:03"
+		},
+		{
+			"id": 3,
+			"district_id": 1,
+			"name": "Sungai Panas",
+			"slug": "sungai-panas",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 4,
+			"district_id": 1,
+			"name": "Sukajadi",
+			"slug": "sukajadi",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 5,
+			"district_id": 1,
+			"name": "Taman Baloi",
+			"slug": "taman-baloi",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 6,
+			"district_id": 1,
+			"name": "Teluk Tering",
+			"slug": "teluk-tering",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 7,
+			"district_id": 2,
+			"name": "Bukit Tempayan",
+			"slug": "bukit-tempayan",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 8,
+			"district_id": 2,
+			"name": "Buliang",
+			"slug": "buliang",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 9,
+			"district_id": 2,
+			"name": "Kibing",
+			"slug": "kibing",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 10,
+			"district_id": 2,
+			"name": "Tanjung Uncang",
+			"slug": "tanjung-uncang",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 11,
+			"district_id": 3,
+			"name": "Batu Merah",
+			"slug": "batu-merah",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 12,
+			"district_id": 3,
+			"name": "Kampung Seraya",
+			"slug": "kampung-seraya",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 13,
+			"district_id": 3,
+			"name": "Sungai Jodoh",
+			"slug": "sungai-jodoh",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 14,
+			"district_id": 3,
+			"name": "Tanjung Sengkuang",
+			"slug": "tanjung-sengkuang",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 15,
+			"district_id": 4,
+			"name": "Pemping",
+			"slug": "pemping",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 16,
+			"district_id": 4,
+			"name": "Kasu",
+			"slug": "kasu",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 17,
+			"district_id": 4,
+			"name": "Pecong",
+			"slug": "pecong",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 18,
+			"district_id": 4,
+			"name": "Pulau Terung",
+			"slug": "pulau-terung",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 19,
+			"district_id": 4,
+			"name": "Seko Kupang",
+			"slug": "seko-kupang",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 20,
+			"district_id": 4,
+			"name": "Tanjung Sari",
+			"slug": "tanjung-sari",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 21,
+			"district_id": 5,
+			"name": "Bengkong Indah",
+			"slug": "bengkong-indah",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 22,
+			"district_id": 5,
+			"name": "Bengkong Laut",
+			"slug": "bengkong-laut",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 23,
+			"district_id": 5,
+			"name": "Bengkong Permai",
+			"slug": "bengkong-permai",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 24,
+			"district_id": 5,
+			"name": "Sadai",
+			"slug": "sadai",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 25,
+			"district_id": 6,
+			"name": "Batu Legong",
+			"slug": "batu-legong",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 26,
+			"district_id": 6,
+			"name": "Bulang Lintang",
+			"slug": "bulang-lintang",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 27,
+			"district_id": 6,
+			"name": "Pantai Gelam",
+			"slug": "pantai-gelam",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 28,
+			"district_id": 6,
+			"name": "Pulau Buluh",
+			"slug": "pulau-buluh",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 29,
+			"district_id": 6,
+			"name": "Setokok",
+			"slug": "setokok",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 30,
+			"district_id": 6,
+			"name": "Temoyong",
+			"slug": "temoyong",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 31,
+			"district_id": 7,
+			"name": "Air Raja",
+			"slug": "air-raja",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 32,
+			"district_id": 7,
+			"name": "Galang Baru",
+			"slug": "galang-baru",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 33,
+			"district_id": 7,
+			"name": "Karas",
+			"slug": "karas",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 34,
+			"district_id": 7,
+			"name": "Rempang Cate",
+			"slug": "rempang-cate",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 35,
+			"district_id": 7,
+			"name": "Sembulang",
+			"slug": "sembulang",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 36,
+			"district_id": 7,
+			"name": "Sijantung",
+			"slug": "sijantung",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 37,
+			"district_id": 7,
+			"name": "Subang Mas",
+			"slug": "subang-mas",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 38,
+			"district_id": 8,
+			"name": "Baloi Indah",
+			"slug": "baloi-indah",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 39,
+			"district_id": 8,
+			"name": "Batu Selicin",
+			"slug": "batu-selicin",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 40,
+			"district_id": 8,
+			"name": "Lubuk Baja Kota",
+			"slug": "lubuk-baja-kota",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 41,
+			"district_id": 8,
+			"name": "Pelita",
+			"slug": "pelita",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 42,
+			"district_id": 8,
+			"name": "Tanjung Uma",
+			"slug": "tanjung-uma",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 43,
+			"district_id": 9,
+			"name": "Batu Besar",
+			"slug": "batu-besar",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 44,
+			"district_id": 9,
+			"name": "Kabil",
+			"slug": "kabil",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 45,
+			"district_id": 9,
+			"name": "Ngenang",
+			"slug": "ngenang",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 46,
+			"district_id": 9,
+			"name": "Sambau",
+			"slug": "sambau",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 47,
+			"district_id": 10,
+			"name": "Sagulung Kota",
+			"slug": "sagulung-kota",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 48,
+			"district_id": 10,
+			"name": "Sungai Binti",
+			"slug": "sungai-binti",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 49,
+			"district_id": 10,
+			"name": "Sungai Langkai",
+			"slug": "sungai-langkai",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 50,
+			"district_id": 10,
+			"name": "Sungai Lekop",
+			"slug": "sungai-lekop",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 51,
+			"district_id": 10,
+			"name": "Sungai Pelunggut",
+			"slug": "sungai-pelunggut",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 52,
+			"district_id": 10,
+			"name": "Tembesi",
+			"slug": "tembesi",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 53,
+			"district_id": 11,
+			"name": "Duriangkang",
+			"slug": "duriangkang",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 54,
+			"district_id": 11,
+			"name": "Muka Kuning",
+			"slug": "muka-kuning",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 55,
+			"district_id": 11,
+			"name": "Mangsang",
+			"slug": "mangsang",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 56,
+			"district_id": 11,
+			"name": "Tanjung Piayu",
+			"slug": "tanjung-piayu",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 57,
+			"district_id": 12,
+			"name": "Patam Lestari",
+			"slug": "patam-lestari",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 58,
+			"district_id": 12,
+			"name": "Sungai Harapan",
+			"slug": "sungai-harapan",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		},
+		{
+			"id": 59,
+			"district_id": 12,
+			"name": "Tanjung Pinggir",
+			"slug": "tanjung-pinggir",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		},
+		{
+			"id": 60,
+			"district_id": 12,
+			"name": "Tanjung Riau",
+			"slug": "tanjung-riau",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		},
+		{
+			"id": 61,
+			"district_id": 12,
+			"name": "Tiban Baru",
+			"slug": "tiban-baru",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		},
+		{
+			"id": 62,
+			"district_id": 12,
+			"name": "Tiban Indah",
+			"slug": "tiban-indah",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		},
+		{
+			"id": 63,
+			"district_id": 12,
+			"name": "Tiban Lama",
+			"slug": "tiban-lama",
+			"created_at": "2026-04-06 16:04:10",
+			"updated_at": "2026-04-06 16:04:10"
+		}
+	]
+}

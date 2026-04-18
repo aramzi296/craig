@@ -32,7 +32,27 @@
                 <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
                     {{ $listing->categories->pluck('name')->join(' • ') }}
                 </div>
-                <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; color: var(--text); line-height: 1.2;">{{ $listing->title }}</h1>
+
+
+                <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; color: var(--text); line-height: 1.2;">
+                    {{ $listing->title }}
+                    @if($listing->is_premium)
+                        <span class="badge badge-premium" style="font-size: 0.8rem; vertical-align: middle; margin-top: -5px; display: inline-block;">PREMIUM</span>
+                    @endif
+                </h1>
+
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 25px; padding: 10px; background: #f8fafc; border-radius: 12px;">
+                    <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;" alt="">
+                    <div>
+                        <div style="font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 4px;">
+                            {{ $listing->user->name }}
+                            @if($listing->user->is_verified)
+                                <i class="fa-solid fa-circle-check verified-badge" style="font-size: 0.8rem;" title="Akun Terverifikasi"></i>
+                            @endif
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
+                    </div>
+                </div>
                 
                 <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); margin-bottom: 30px; letter-spacing: -1px;">
                     Rp {{ number_format($listing->price, 0, ',', '.') }}
@@ -55,7 +75,7 @@
                 </div>
 
                 <div style="display: grid; gap: 15px;">
-                    <a href="https://wa.me/628123456789?text=Halo, saya tertarik dengan {{ $listing->title }}" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; font-size: 1.1rem; border-radius: 12px;">
+                    <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di Sebatam: {{ $listing->title }}. Apakah masih tersedia%3F" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 12px; padding: 18px; font-size: 1.1rem; border-radius: 12px;">
                         <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via WhatsApp
                     </a>
                     

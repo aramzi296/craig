@@ -24,6 +24,7 @@
             <tr>
                 <th>Nama</th>
                 <th>Email</th>
+                <th>Status</th>
                 <th>Peran</th>
                 <th>Bergabung</th>
                 <th>Aksi</th>
@@ -35,13 +36,28 @@
                 <td style="font-weight: 600;">{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
                 <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        @if($user->is_verified)
+                            <span class="badge badge-success" style="font-size: 0.65rem;">VERIFIED</span>
+                        @else
+                            <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.65rem;">REGULAR</span>
+                        @endif
+                    </div>
+                </td>
+                <td>
                     <span class="badge {{ $user->is_admin ? 'badge-success' : '' }}" style="background: {{ $user->is_admin ? '#dbeafe' : '#f1f5f9' }}; color: {{ $user->is_admin ? '#1e40af' : '#475569' }};">
-                        {{ $user->is_admin ? 'Administrator' : 'Pengguna Umum' }}
+                        {{ $user->is_admin ? 'Admin' : 'User' }}
                     </span>
                 </td>
                 <td>{{ $user->created_at->format('d M Y') }}</td>
                 <td>
                     <div style="display: flex; gap: 15px; align-items: center;">
+                        <form action="{{ route('admin.users.toggle-verification', $user->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" style="background: none; border: none; color: {{ $user->is_verified ? '#0ea5e9' : '#94a3b8' }}; cursor: pointer; padding: 0;" title="Ganti Verifikasi">
+                                <i class="fa-solid fa-certificate"></i>
+                            </button>
+                        </form>
                         <form action="{{ route('admin.users.toggle-admin', $user->id) }}" method="POST">
                             @csrf
                             <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 0;" title="Ganti Peran">

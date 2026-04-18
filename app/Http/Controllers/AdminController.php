@@ -327,4 +327,95 @@ class AdminController extends Controller
         $listingType->delete();
         return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil dihapus.');
     }
+
+    // Premium Packages
+    public function premiumPackages()
+    {
+        $packages = \App\Models\PremiumPackage::orderBy('price')->get();
+        return view('admin.premium_packages.index', compact('packages'));
+    }
+
+    public function createPremiumPackage()
+    {
+        return view('admin.premium_packages.create');
+    }
+
+    public function storePremiumPackage(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'duration_days' => 'required|integer|min:1',
+        ]);
+        \App\Models\PremiumPackage::create($data);
+        return redirect()->route('admin.premium_packages')->with('success', 'Paket premium berhasil ditambahkan.');
+    }
+
+    public function editPremiumPackage($id)
+    {
+        $package = \App\Models\PremiumPackage::findOrFail($id);
+        return view('admin.premium_packages.edit', compact('package'));
+    }
+
+    public function updatePremiumPackage(Request $request, $id)
+    {
+        $package = \App\Models\PremiumPackage::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'duration_days' => 'required|integer|min:1',
+            'is_active' => 'required|boolean',
+        ]);
+        $package->update($data);
+        return redirect()->route('admin.premium_packages')->with('success', 'Paket premium berhasil diperbarui.');
+    }
+
+    public function destroyPremiumPackage($id)
+    {
+        $package = \App\Models\PremiumPackage::findOrFail($id);
+        $package->delete();
+        return redirect()->route('admin.premium_packages')->with('success', 'Paket premium berhasil dihapus.');
+    }
+
+    // Premium Requests
+    public function premiumRequests()
+    {
+        $requests = \App\Models\PremiumRequest::with(['user', 'listing', 'package'])->latest()->get();
+        return view('admin.premium_requests.index', compact('requests'));
+    }
+
+    public function approvePremiumRequest($id)
+    {
+        $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
+        $premiumRequest->status = 'active';
+        $premiumRequest->expires_at = now()->addDays($premiumRequest->package->duration_days);
+        $premiumRequest->save();
+
+        // Update listing
+        $listing = $premiumRequest->listing;
+        $listing->is_premium = true;
+        $listing->save();
+
+        return back()->with('success', 'Permintaan premium berhasil disetujui.');
+    }
+
+    public function rejectPremiumRequest($id)
+    {
+        $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
+        $premiumRequest->status = 'rejected';
+        $premiumRequest->save();
+
+        return back()->with('success', 'Permintaan premium telah ditolak.');
+    }
+
+    // User Verification
+    public function toggleUserVerification($id)
+    {
+        $user = \App\Models\User::findOrFail($id);
+        $user->is_verified = !$user->is_verified;
+        $user->save();
+
+        return back()->with('success', 'Status verifikasi akun berhasil diubah.');
+    }
+
 }

@@ -8,7 +8,12 @@
     @endif
 
     <div class="dashboard-header">
-        <h1>Halo, {{ auth()->user()->name }}!</h1>
+        <h1>
+            Halo, {{ auth()->user()->name }}!
+            @if(auth()->user()->is_verified)
+                <i class="fa-solid fa-circle-check verified-badge" title="Akun Terverifikasi"></i>
+            @endif
+        </h1>
         <a href="{{ route('listings.create') }}" class="btn btn-primary">+ Buat Iklan Baru</a>
     </div>
 
@@ -24,7 +29,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-label">Iklan Premium</div>
-            <div class="stat-value">{{ $featuredListings }}</div>
+            <div class="stat-value">{{ $premiumListings }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Dilihat</div>
@@ -54,12 +59,18 @@
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 <img src="{{ $listing->getThumbnailUrl() }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" alt="">
                                 <div>
-                                    <div style="font-weight: 600;"><a href="{{ route('listings.show', $listing->slug) }}">{{ $listing->title }}</a></div>
+                                    <div style="font-weight: 600;">
+                                        <a href="{{ route('listings.show', $listing->slug) }}">{{ $listing->title }}</a>
+                                        @if($listing->is_premium)
+                                            <span class="badge badge-premium" style="font-size: 0.65rem; margin-left: 5px;">PREMIUM</span>
+                                        @endif
+                                    </div>
                                     <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $listing->location }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $listing->categories->pluck('name')->join(', ') }}</td>
+                        <td>{{ $listing->categories->take(3)->pluck('name')->join(', ') }}</td>
+
                         <td>Rp {{ number_format($listing->price, 0, ',', '.') }}</td>
                         <td>
                             <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">
@@ -76,6 +87,16 @@
                                         </button>
                                     </form>
                                 @else
+                                    @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
+                                        <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" style="color: #ea580c;" title="Upgrade ke Premium">
+                                            <i class="fa-solid fa-crown"></i>
+                                        </a>
+                                    @endif
+
+                                    @if($listing->hasPendingPremiumRequest())
+                                        <span class="badge badge-pending" style="font-size: 0.65rem; margin-right: 10px;">PROSES PREMIUM...</span>
+                                    @endif
+
                                     <form action="{{ route('listings.toggle', $listing->id) }}" method="POST">
                                         @csrf
                                         <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 0;" title="Ganti Status">

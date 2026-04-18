@@ -1,0 +1,90 @@
+{
+	"table": "districts",
+	"rows":
+	[
+		{
+			"id": 1,
+			"name": "Batam Kota",
+			"slug": "batam-kota",
+			"created_at": "2026-04-06 16:04:03",
+			"updated_at": "2026-04-06 16:04:03"
+		},
+		{
+			"id": 2,
+			"name": "Batu Aji",
+			"slug": "batu-aji",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 3,
+			"name": "Batu Ampar",
+			"slug": "batu-ampar",
+			"created_at": "2026-04-06 16:04:04",
+			"updated_at": "2026-04-06 16:04:04"
+		},
+		{
+			"id": 4,
+			"name": "Belakang Padang",
+			"slug": "belakang-padang",
+			"created_at": "2026-04-06 16:04:05",
+			"updated_at": "2026-04-06 16:04:05"
+		},
+		{
+			"id": 5,
+			"name": "Bengkong",
+			"slug": "bengkong",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 6,
+			"name": "Bulang",
+			"slug": "bulang",
+			"created_at": "2026-04-06 16:04:06",
+			"updated_at": "2026-04-06 16:04:06"
+		},
+		{
+			"id": 7,
+			"name": "Galang",
+			"slug": "galang",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 8,
+			"name": "Lubuk Baja",
+			"slug": "lubuk-baja",
+			"created_at": "2026-04-06 16:04:07",
+			"updated_at": "2026-04-06 16:04:07"
+		},
+		{
+			"id": 9,
+			"name": "Nongsa",
+			"slug": "nongsa",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 10,
+			"name": "Sagulung",
+			"slug": "sagulung",
+			"created_at": "2026-04-06 16:04:08",
+			"updated_at": "2026-04-06 16:04:08"
+		},
+		{
+			"id": 11,
+			"name": "Sei Beduk",
+			"slug": "sei-beduk",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		},
+		{
+			"id": 12,
+			"name": "Sekupang",
+			"slug": "sekupang",
+			"created_at": "2026-04-06 16:04:09",
+			"updated_at": "2026-04-06 16:04:09"
+		}
+	]
+}

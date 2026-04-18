@@ -32,6 +32,19 @@
                     <i class="fa-solid fa-layer-group"></i> Tipe Listing
                 </a>
             </li>
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 10px 0;">
+            <li class="sidebar-item">
+                <a href="{{ route('admin.premium_packages') }}" class="sidebar-link {{ request()->routeIs('admin.premium_packages*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gem"></i> Paket Premium
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.premium_requests') }}" class="sidebar-link {{ request()->routeIs('admin.premium_requests*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Permintaan Premium
+                </a>
+            </li>
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 10px 0;">
+
             <li class="sidebar-item">
                 <a href="{{ route('admin.users') }}" class="sidebar-link {{ request()->routeIs('admin.users') ? 'active' : '' }}">
                     <i class="fa-solid fa-users-gear"></i> Pengguna

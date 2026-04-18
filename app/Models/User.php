@@ -30,6 +30,7 @@ class User extends Authenticatable
         'wa_otp2_expires_at',
         'wa_login_token',
         'wa_login_token_expires_at',
+        'is_verified',
     ];
 
     /**
@@ -55,7 +56,9 @@ class User extends Authenticatable
         return [
             'email_verified_at'          => 'datetime',
             'password'                   => 'hashed',
+            'is_verified'                => 'boolean',
             'wa_otp1_expires_at'         => 'datetime',
+
             'wa_otp2_expires_at'         => 'datetime',
             'wa_login_token_expires_at'  => 'datetime',
         ];

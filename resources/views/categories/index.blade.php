@@ -34,7 +34,7 @@
                     @foreach($categories as $category)
                         <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); padding: 8px 0; transition: all 0.2s ease;" onmouseover="this.style.paddingLeft='10px'; this.style.color='var(--primary)'" onmouseout="this.style.paddingLeft='0'; this.style.color='var(--text)'">
                             <div style="width: 35px; height: 35px; background: rgba(var(--primary-rgb), 0.1); border-radius: 50px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                                <i class="fa-solid fa-{{ $category->icon }}" style="font-size: 0.9rem;"></i>
+                                <i class="fa-solid fa-tag" style="font-size: 0.9rem;"></i>
                             </div>
                             <span style="font-weight: 500;" class="name-span">{{ $category->name }}</span>
                             <span style="margin-left: auto; font-size: 0.8rem; color: var(--text-muted); background: var(--border); padding: 2px 8px; border-radius: 50px;">{{ $category->listings()->where('is_active', true)->count() }}</span>

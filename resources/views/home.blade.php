@@ -37,16 +37,21 @@
         </div>
     @endif
 
-    @if($featuredListings->count() > 0 && !$selectedCategory)
+    @if($premiumListings->count() > 0 && !$selectedCategory)
     <h2 class="section-title">Iklan Premium</h2>
     <div class="listing-grid">
-        @foreach($featuredListings as $listing)
+        @foreach($premiumListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
             <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             <div class="listing-details">
                 <div class="listing-category">
-                    {{ $listing->categories->pluck('name')->join(', ') }}
+                    {{ $listing->categories->take(3)->pluck('name')->join(', ') }}
+                    @if($listing->is_premium)
+
+                        <span class="badge badge-premium" style="margin-left: 5px; vertical-align: middle;">PREMIUM</span>
+                    @endif
                     @if($listing->listingType)
+
                         <span style="background: {{ $listing->listingType->color }}; color: white; padding: 2px 8px; border-radius: 4px; margin-left: 5px; font-size: 0.65rem; vertical-align: middle; display: inline-block;">
                             {{ $listing->listingType->name }}
                         </span>
@@ -81,8 +86,13 @@
             <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             <div class="listing-details">
                 <div class="listing-category">
-                    {{ $listing->categories->pluck('name')->join(', ') }}
+                    {{ $listing->categories->take(3)->pluck('name')->join(', ') }}
+                    @if($listing->is_premium)
+
+                        <span class="badge badge-premium" style="margin-left: 5px; vertical-align: middle;">PREMIUM</span>
+                    @endif
                     @if($listing->listingType)
+
                         <span style="background: {{ $listing->listingType->color }}; color: white; padding: 2px 8px; border-radius: 4px; margin-left: 5px; font-size: 0.65rem; vertical-align: middle; display: inline-block;">
                             {{ $listing->listingType->name }}
                         </span>

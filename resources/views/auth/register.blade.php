@@ -55,13 +55,19 @@
                 @enderror
             </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
+            <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Minimal 8 karakter" required>
                 @error('password')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label for="password_confirmation">Konfirmasi Password</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Ulangi password" required>
+            </div>
+
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Buat Akun Baru</button>
         </form>

@@ -27,10 +27,12 @@ class HomeController extends Controller
             }
         }
 
-        $featuredListings = (clone $query)->where('is_featured', true)->latest()->take(6)->get();
+        $premiumListings = (clone $query)->where('is_premium', true)->latest()->take(6)->get();
+
         $recentListings = $query->latest()->paginate(12);
 
-        return view('home', compact('categories', 'featuredListings', 'recentListings', 'selectedCategory'));
+        return view('home', compact('categories', 'premiumListings', 'recentListings', 'selectedCategory'));
+
     }
 
     public function show($slug)

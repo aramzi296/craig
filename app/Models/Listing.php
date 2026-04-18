@@ -8,14 +8,16 @@ class Listing extends Model
 {
     protected $fillable = [
         'user_id', 'category_other', 'listing_type_id', 'title', 'slug', 'description', 
-        'price', 'location', 'is_featured', 'is_active', 'features'
+        'price', 'location', 'is_featured', 'is_premium', 'is_active', 'features'
     ];
 
     protected $casts = [
         'features' => 'array',
         'is_featured' => 'boolean',
+        'is_premium' => 'boolean',
         'is_active' => 'boolean',
     ];
+
 
     public function user()
     {
@@ -59,4 +61,12 @@ class Listing extends Model
         }
         return "https://picsum.photos/seed/{$this->id}/200/200";
     }
+
+    public function hasPendingPremiumRequest()
+    {
+        return \App\Models\PremiumRequest::where('listing_id', $this->id)
+            ->where('status', 'pending')
+            ->exists();
+    }
 }
+

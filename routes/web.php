@@ -81,10 +81,36 @@ Route::middleware('auth')->group(function () {
         Route::get('/listing-types/{id}/edit', [AdminController::class, 'editListingType'])->name('listing_types.edit');
         Route::put('/listing-types/{id}', [AdminController::class, 'updateListingType'])->name('listing_types.update');
         Route::delete('/listing-types/{id}', [AdminController::class, 'destroyListingType'])->name('listing_types.destroy');
+
+        // Premium Package Management
+        Route::get('/premium-packages', [AdminController::class, 'premiumPackages'])->name('premium_packages');
+        Route::get('/premium-packages/create', [AdminController::class, 'createPremiumPackage'])->name('premium_packages.create');
+        Route::post('/premium-packages', [AdminController::class, 'storePremiumPackage'])->name('premium_packages.store');
+        Route::get('/premium-packages/{id}/edit', [AdminController::class, 'editPremiumPackage'])->name('premium_packages.edit');
+        Route::put('/premium-packages/{id}', [AdminController::class, 'updatePremiumPackage'])->name('premium_packages.update');
+        Route::delete('/premium-packages/{id}', [AdminController::class, 'destroyPremiumPackage'])->name('premium_packages.destroy');
+
+        // Premium Requests
+        Route::get('/premium-requests', [AdminController::class, 'premiumRequests'])->name('premium_requests');
+        Route::post('/premium-requests/{id}/approve', [AdminController::class, 'approvePremiumRequest'])->name('premium_requests.approve');
+        Route::post('/premium-requests/{id}/reject', [AdminController::class, 'rejectPremiumRequest'])->name('premium_requests.reject');
+
+        // User Verification
+        Route::post('/users/{id}/toggle-verification', [AdminController::class, 'toggleUserVerification'])->name('users.toggle-verification');
     });
+
+    // Member Premium Upgrade
+    Route::get('/dashboard/premium/upgrade/{listing_id}', [DashboardController::class, 'premiumUpgrade'])->name('dashboard.premium.upgrade');
+    Route::post('/dashboard/premium/process', [DashboardController::class, 'processPremiumRequest'])->name('dashboard.premium.process');
+    Route::get('/dashboard/premium/thank-you', function() {
+        return view('listings.premium_thankyou');
+    })->name('dashboard.premium.thankyou');
 });
 
+
+
 // Static pages routes
+Route::view('/baca-saya', 'baca-saya')->name('baca-saya');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');
