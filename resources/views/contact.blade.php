@@ -13,13 +13,13 @@
         <div style="position: absolute; top: -30px; left: -30px; width: 180px; height: 180px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     </section>
 
-    <section style="padding: 80px 20px; background: var(--background);">
+    <section class="legal-section">
         <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: start;">
+            <div class="contact-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 40px; align-items: start;">
                 
                 <!-- Contact info cards -->
                 <div style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="glass" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <div class="glass contact-card" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
                         <div style="display: flex; gap: 20px;">
                             <div style="width: 50px; height: 50px; background: #eff6ff; color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                                 <i class="fas fa-location-dot"></i>
@@ -31,7 +31,7 @@
                         </div>
                     </div>
 
-                    <div class="glass" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <div class="glass contact-card" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
                         <div style="display: flex; gap: 20px;">
                             <div style="width: 50px; height: 50px; background: #ecfdf5; color: #10b981; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                                 <i class="fab fa-whatsapp"></i>
@@ -44,7 +44,7 @@
                         </div>
                     </div>
 
-                    <div class="glass" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                    <div class="glass contact-card" style="padding: 30px; border-radius: 20px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
                         <div style="display: flex; gap: 20px;">
                             <div style="width: 50px; height: 50px; background: #fff7ed; color: var(--secondary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
                                 <i class="fas fa-envelope"></i>
@@ -59,7 +59,7 @@
                 </div>
 
                 <!-- Message instruction / Social -->
-                <div class="glass" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
+                <div class="glass contact-card" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
                     <h2 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 20px;">Hubungi Kami Online</h2>
                     <p style="color: var(--text-muted); margin-bottom: 30px; line-height: 1.6;">
                         Kami siap membantu Anda terkait pemasangan iklan, kendala teknis, atau kerjasama bisnis di Batam. Anda juga bisa mengikuti kami di media sosial untuk update terbaru.
@@ -88,3 +88,18 @@
     </section>
 </div>
 @endsection
+
+<style>
+    @media (max-width: 768px) {
+        .contact-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+        .contact-card {
+            padding: 20px !important;
+        }
+        .contact-card h2 {
+            font-size: 1.5rem !important;
+        }
+    }
+</style>

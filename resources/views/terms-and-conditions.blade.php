@@ -14,9 +14,9 @@
     </section>
 
     <!-- Content Section -->
-    <section style="padding: 60px 20px; background: var(--background);">
+    <section class="legal-section">
         <div class="container">
-            <div class="glass" style="max-width: 900px; margin: 0 auto; padding: 50px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+            <div class="legal-card glass">
                 <div class="prose" style="color: var(--text); line-height: 1.8;">
                     <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px;">
                         Selamat datang di <strong>{{ config('app.name') }}</strong>. Sebelum Anda mulai menggunakan layanan kami untuk memposting sesuatu di platform ini, mohon luangkan waktu sejenak untuk membaca Syarat & Ketentuan berikut.

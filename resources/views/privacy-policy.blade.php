@@ -14,9 +14,9 @@
     </section>
 
     <!-- Content Section -->
-    <section style="padding: 60px 20px; background: var(--background);">
+    <section class="legal-section">
         <div class="container">
-            <div class="glass" style="max-width: 900px; margin: 0 auto; padding: 50px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+            <div class="legal-card glass">
                 <div class="prose" style="color: var(--text); line-height: 1.8;">
                     <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px;">
                         Di <strong>{{ config('app.name') }}</strong>, kami sangat menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda saat Anda menggunakan layanan direktori kami.

@@ -13,71 +13,109 @@
             </p>
         </div>
         <!-- Decorative background elements -->
-        <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; blur: 50px;"></div>
-        <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: rgba(0,0,0,0.05); border-radius: 50%; blur: 50px;"></div>
+        <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(50px);"></div>
+        <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: rgba(0,0,0,0.05); border-radius: 50%; filter: blur(50px);"></div>
     </section>
 
     <!-- Content Sections -->
-    <section style="padding: 60px 20px; background: #f8fafc;">
+    <section class="legal-section" style="background: #f8fafc;">
         <div class="container" style="max-width: 1000px;">
             <div style="display: flex; flex-direction: column; gap: 40px;">
                 
                 <!-- Question 1 -->
-                <div class="faq-card glass" style="padding: 40px; border-radius: 28px; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.3s ease;">
-                    <div style="display: flex; align-items: flex-start; gap: 25px;">
+                <div class="faq-card legal-card glass">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #eef2ff; color: #4f46e5; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-rocket"></i>
                         </div>
                         <div>
                             <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Apa yang bisa Anda lakukan dengan website ini?</h2>
                             <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Sebatam.com adalah platform penawaran dan papan pengumuman modern khusus untuk warga Batam. Anda bisa:
+                                Sebatam.com adalah platform penawaran dan papan pengumuman modern khusus untuk warga Batam. Tipe penawaran atau iklan yang tersedia:
                             </p>
                             <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Menjual produk/barang Anda. Baik baru atau bekas. Contoh: mobil, motor, HP, laptop, sepeda, furniture, pakaian, dll.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">JUAL/BELI:</strong> Jika anda mau menjual atau membeli produk/barang. Baik baru atau bekas. Contoh: mobil, motor, HP, laptop, sepeda, furniture, pakaian, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Menawarkan jasa Anda. Contoh: service AC, jasa anggutan puing, tukang, jasa desain grafis, jasa pembuatan website, jasa perbaikan elektronik, jasa kebersihan, dll.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">JASA:</strong> Jika anda mau menawarkan jasa Anda. Contoh: service AC, jasa anggutan puing, tukang, jasa desain grafis, jasa pembuatan website, jasa perbaikan elektronik, jasa kebersihan, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Mencari barang/jasa yang Anda butuhkan. Contoh: menjari tukang bangunan, mencari asisten rumah tangga, mencari pemborong teralis, dll</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">DIREKTORI:</strong> Jika Anda mau informasi usaha Anda dapat ditemukan oleh warga Batam.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Memasang informasi lowongan kerja.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">CARI KERJA:</strong> Jika Anda mau mencari pekerjaan dan menawarkan profil Anda kepada warga Batam.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Memberitahu kalau anda sedang mencari pekerjaan.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">LOWONGAN:</strong> Jika Anda mau memasang informasi lowongan kerja.</span>
+                                </li>
+                                
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">AGENDA:</strong> Jika Anda mau memberitahukan agenda kegiatan (gratis atau berbayar). Contoh: kegiatan seminar, pelatihan, workshop, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Memberitahukan agenda kegiatan. Contoh: kegiatan seminar, pelatihan, workshop, dll.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">PELUANG:</strong> Jika Anda mau menawarkan kerjasama usaha atau peluang usaha kepada warga batam. Contoh: affiliate marketing, dropship, patungan usaha, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Menawarkan kerjasama usaha atau peluang usaha kepada warga batam. Contoh: affiliate marketing, dropship, patungan usaha, dll.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Menawarkan promo: diskon, bonus, dll.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">PROMO:</strong> Jika Anda mau menawarkan promo: diskon, bonus, cashback, doorprice, luckydraw, kupon, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span>Memberikan pengumuman publik lainnya kepada warga Batam lainnya. Contoh: berita kehilangan barang/hewan peliharaan, dll.</span>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">PENGUMUMAN:</strong> Jika Anda mau memberikan pengumuman publik lainnya kepada warga Batam lainnya. Contoh: berita kehilangan barang/hewan peliharaan, dll.</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">LAINNYA:</strong> Untuk menampung informasi yang belum masuk dalam kategori di atas.</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                <!-- Question 2 -->
-                <div class="faq-card glass" style="padding: 40px; border-radius: 28px; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.3s ease;">
-                    <div style="display: flex; align-items: flex-start; gap: 25px;">
+                <!-- Question 2: Why Us -->
+                <div class="faq-card legal-card glass">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
+                        <div style="min-width: 60px; height: 60px; background: #f5f3ff; color: #8b5cf6; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div>
+                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Kenapa harus di Sebatam.com?</h2>
+                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
+                                Kami memberikan pengalaman berbeda dalam beriklan dan mencari informasi:
+                            </p>
+                            <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">FOKUS LOKAL:</strong> 100% didedikasikan untuk komunitas di Batam.</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">TANPA RIBET:</strong> Gak perlu email/password ribet, cukup masuk via WhatsApp.</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">SEARCH ENGINE FRIENDLY:</strong> Iklan Anda dirancang agar mudah ditemukan di Google.</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">ALGORITMA MODERN:</strong> Tampilan bersih dan sangat mudah digunakan bahkan melalui HP.</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="faq-card legal-card glass">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #fff7ed; color: #f97316; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-paper-plane"></i>
                         </div>
@@ -104,9 +142,9 @@
                     </div>
                 </div>
 
-                <!-- Question 3 -->
-                <div class="faq-card glass" style="padding: 40px; border-radius: 28px; background: white; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); transition: transform 0.3s ease;">
-                    <div style="display: flex; align-items: flex-start; gap: 25px;">
+                <!-- Question 4 -->
+                <div class="faq-card legal-card glass">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #ecfdf5; color: #10b981; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-hand-holding-dollar"></i>
                         </div>
@@ -119,9 +157,9 @@
                     </div>
                 </div>
 
-                <!-- Question 4 -->
-                <div class="faq-card glass" style="padding: 40px; border-radius: 28px; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); color: white; transition: transform 0.3s ease;">
-                    <div style="display: flex; align-items: flex-start; gap: 25px;">
+                <!-- Question 5 -->
+                <div class="faq-card legal-card glass" style="background: #1e293b; color: white;">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: rgba(255,255,255,0.1); color: #fbbf24; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-crown"></i>
                         </div>
@@ -171,8 +209,9 @@
     @media (max-width: 768px) {
         .premium-hero h1 { font-size: 2.5rem !important; }
         .premium-hero p { font-size: 1.1rem !important; }
-        .faq-card { padding: 30px 20px !important; }
-        .faq-card h2 { font-size: 1.4rem !important; }
+        .faq-card { padding: 25px 20px !important; border-radius: 20px !important; }
+        .faq-card-content { flex-direction: column !important; gap: 15px !important; }
+        .faq-card h2 { font-size: 1.5rem !important; }
     }
 </style>
 @endsection

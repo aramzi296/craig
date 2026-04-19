@@ -24,7 +24,7 @@ class ListingController extends Controller
     public function store(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'category_ids' => 'nullable|array',
+            'category_ids' => 'nullable|array|max:' . config('sebatam.max_category', 3),
             'category_ids.*' => 'exists:categories,id',
             'category_other' => 'required_without:category_ids|nullable|string|max:255',
             'listing_type_id' => 'required|exists:listing_types,id',
@@ -44,12 +44,14 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::create($data);
 
         $categoryIds = $request->category_ids ?? [];
-        if ($request->filled('category_other')) {
+        $maxAllowed = config('sebatam.max_category', 3);
+
+        if ($request->filled('category_other') && count($categoryIds) < $maxAllowed) {
             $newCategory = \App\Models\Category::firstOrCreate(
                 ['name' => $request->category_other],
                 [
                     'slug' => \Illuminate\Support\Str::slug($request->category_other),
-                    'icon' => 'fa-solid fa-tag', // Default icon for user-suggested categories
+                    'icon' => 'fa-solid fa-tag',
                     'sort_order' => \App\Models\Category::max('sort_order') + 1
                 ]
             );
@@ -82,7 +84,7 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
 
         $data = $request->validate([
-            'category_ids' => 'nullable|array',
+            'category_ids' => 'nullable|array|max:' . config('sebatam.max_category', 3),
             'category_ids.*' => 'exists:categories,id',
             'category_other' => 'required_without:category_ids|nullable|string|max:255',
             'listing_type_id' => 'required|exists:listing_types,id',
@@ -102,7 +104,9 @@ class ListingController extends Controller
         $listing->update($data);
         
         $categoryIds = $request->category_ids ?? [];
-        if ($request->filled('category_other')) {
+        $maxAllowed = config('sebatam.max_category', 3);
+
+        if ($request->filled('category_other') && count($categoryIds) < $maxAllowed) {
             $newCategory = \App\Models\Category::firstOrCreate(
                 ['name' => $request->category_other],
                 [

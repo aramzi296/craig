@@ -21,10 +21,10 @@
     </section>
 
     <!-- Visi & Misi Section -->
-    <section style="padding: 40px 20px 80px 20px; background: var(--background);">
+    <section class="legal-section">
         <div class="container">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-                <div class="glass" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                <div class="glass legal-card" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
                     <div style="width: 60px; height: 60px; background: #eff6ff; color: var(--primary); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
                         <i class="fas fa-eye"></i>
                     </div>
@@ -34,7 +34,7 @@
                     </p>
                 </div>
 
-                <div class="glass" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                <div class="glass legal-card" style="padding: 40px; border-radius: 24px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow);">
                     <div style="width: 60px; height: 60px; background: #fff7ed; color: var(--secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 25px;">
                         <i class="fas fa-bullseye"></i>
                     </div>
@@ -59,7 +59,7 @@
     </section>
 
     <!-- Services Grid -->
-    <section style="padding: 80px 20px; background: white;">
+    <section class="legal-section" style="background: white;">
         <div class="container">
             <div style="text-align: center; margin-bottom: 60px;">
                 <h2 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 15px;">Apa yang Kami Tawarkan?</h2>
@@ -95,9 +95,9 @@
     </section>
 
     <!-- Bottom CTA -->
-    <section style="padding: 100px 20px; background: var(--background);">
+    <section class="legal-section">
         <div class="container text-center">
-            <div class="glass" style="max-width: 900px; margin: 0 auto; padding: 60px 40px; border-radius: 32px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
+            <div class="glass legal-card" style="max-width: 900px; margin: 0 auto; padding: 60px 40px; border-radius: 32px; background: white; border: 1px solid var(--border); box-shadow: var(--shadow-lg);">
                 <h2 style="font-size: 2.8rem; font-weight: 850; margin-bottom: 20px;">Siap Bergabung dengan Komunitas?</h2>
                 <p style="color: var(--text-muted); font-size: 1.15rem; max-width: 600px; margin: 0 auto 40px; line-height: 1.6;">
                     Pasang pengumuman, promosikan bisnis Anda, atau cari kebutuhan lainnya sekarang juga secara gratis.
@@ -113,8 +113,10 @@
 
 <style>
     @media (max-width: 768px) {
-        .hero-about h1 { font-size: 2.5rem !important; }
+        .hero-about h1 { font-size: 2.2rem !important; }
         .hero-about p { font-size: 1.1rem !important; }
+        .legal-card { padding: 30px 20px !important; }
+        .legal-section { padding: 40px 0 !important; }
     }
 </style>
 @endsection

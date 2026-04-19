@@ -28,24 +28,59 @@
             <div class="form-group-horizontal">
                 <label>Kategori</label>
                 <div class="form-input-side">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+                    <div id="category-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
                         @php
                             $selectedIds = old('category_ids', $listing->categories->pluck('id')->toArray());
                         @endphp
                         @foreach($categories as $category)
                             <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
-                                <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" 
+                                <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" class="category-checkbox"
                                     {{ in_array($category->id, $selectedIds) ? 'checked' : '' }}
                                     style="width: 18px; height: 18px;">
                                 {{ $category->name }}
                             </label>
                         @endforeach
                     </div>
+                    <small id="category-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Pilih maksimal <strong>{{ config('sebatam.max_category', 3) }}</strong> kategori.
+                    </small>
                     @error('category_ids')
                         <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
 
-                    <div style="margin-top: 15px;">
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const maxCategories = {{ config('sebatam.max_category', 3) }};
+                            const checkboxes = document.querySelectorAll('.category-checkbox');
+                            const otherCategoryContainer = document.getElementById('other-category-container');
+                            
+                            function updateVisibility() {
+                                const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+                                if (checkedCount >= maxCategories) {
+                                    otherCategoryContainer.style.display = 'none';
+                                } else {
+                                    otherCategoryContainer.style.display = 'block';
+                                }
+                            }
+
+                            checkboxes.forEach(checkbox => {
+                                checkbox.addEventListener('change', function() {
+                                    const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
+                                    
+                                    if (checkedCount > maxCategories) {
+                                        this.checked = false;
+                                        alert('Anda hanya dapat memilih maksimal ' + maxCategories + ' kategori.');
+                                    }
+                                    updateVisibility();
+                                });
+                            });
+
+                            // Initial check
+                            updateVisibility();
+                        });
+                    </script>
+
+                    <div id="other-category-container" style="margin-top: 15px;">
                         <label for="category_other" style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Tambah Kategori Baru:</label>
                         <input type="text" name="category_other" id="category_other" class="form-control" placeholder="Tulis nama kategori baru..." value="{{ old('category_other') }}">
                     </div>
