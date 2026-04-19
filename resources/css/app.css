@@ -5,7 +5,7 @@
     --primary-dark: #0284c7;
     --secondary: #f97316;
     --accent: #8b5cf6;
-    --background: #f8fafc;
+    --background: #f1f5f9;
     --surface: #ffffff;
     --text: #0f172a;
     --text-muted: #64748b;
@@ -13,7 +13,7 @@
     --radius: 12px;
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --glass: rgba(255, 255, 255, 0.7);
+    --glass: rgba(255, 255, 255, 0.9);
 }
 
 * {
@@ -38,7 +38,7 @@ body {
     --primary-dark: #0284c7;
     --secondary: #f97316;
     --accent: #8b5cf6;
-    --background: #f8fafc;
+    --background: #f1f5f9;
     --surface: #ffffff;
     --text: #0f172a;
     --text-muted: #64748b;
@@ -46,7 +46,7 @@ body {
     --radius: 12px;
     --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --glass: rgba(255, 255, 255, 0.7);
+    --glass: rgba(255, 255, 255, 0.9);
 }
 
 * {

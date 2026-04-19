@@ -24,17 +24,16 @@ class ListingController extends Controller
     public function store(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'category_ids' => 'nullable|array|max:' . config('sebatam.max_category', 3),
-            'category_ids.*' => 'exists:categories,id',
-            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'required|string|max:' . config('sebatam.huruf_deskripsi_iklan', 100),
             'price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
             'features' => 'nullable|array|max:8',
+            'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240', // Max 10MB upload
+            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $data['user_id'] = auth()->id();
@@ -43,19 +42,24 @@ class ListingController extends Controller
 
         $listing = \App\Models\Listing::create($data);
 
-        $categoryIds = $request->category_ids ?? [];
-        $maxAllowed = config('sebatam.max_category', 3);
-
-        if ($request->filled('category_other') && count($categoryIds) < $maxAllowed) {
-            $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $request->category_other],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
-                    'icon' => 'fa-solid fa-tag',
-                    'sort_order' => \App\Models\Category::max('sort_order') + 1
-                ]
-            );
-            $categoryIds[] = $newCategory->id;
+        // Process Categories from Tagify
+        $categoryIds = [];
+        if ($request->filled('categories')) {
+            $tagifyCategories = json_decode($request->categories, true);
+            $maxAllowed = config('sebatam.max_category', 3);
+            
+            foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
+                $categoryName = $cat['value'];
+                $category = \App\Models\Category::firstOrCreate(
+                    ['name' => $categoryName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($categoryName),
+                        'icon' => 'fa-solid fa-tag',
+                        'sort_order' => \App\Models\Category::max('sort_order') + 1
+                    ]
+                );
+                $categoryIds[] = $category->id;
+            }
         }
 
         $listing->categories()->sync($categoryIds);
@@ -84,15 +88,14 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
 
         $data = $request->validate([
-            'category_ids' => 'nullable|array|max:' . config('sebatam.max_category', 3),
-            'category_ids.*' => 'exists:categories,id',
-            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'required|string|max:' . ($listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100)),
             'price' => 'required|numeric|min:0',
             'location' => 'required|string|max:255',
             'features' => 'nullable|array|max:8',
+            'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
@@ -103,19 +106,24 @@ class ListingController extends Controller
 
         $listing->update($data);
         
-        $categoryIds = $request->category_ids ?? [];
-        $maxAllowed = config('sebatam.max_category', 3);
-
-        if ($request->filled('category_other') && count($categoryIds) < $maxAllowed) {
-            $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $request->category_other],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
-                    'icon' => 'fa-solid fa-tag',
-                    'sort_order' => \App\Models\Category::max('sort_order') + 1
-                ]
-            );
-            $categoryIds[] = $newCategory->id;
+        // Process Categories from Tagify
+        $categoryIds = [];
+        if ($request->filled('categories')) {
+            $tagifyCategories = json_decode($request->categories, true);
+            $maxAllowed = config('sebatam.max_category', 3);
+            
+            foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
+                $categoryName = $cat['value'];
+                $category = \App\Models\Category::firstOrCreate(
+                    ['name' => $categoryName],
+                    [
+                        'slug' => \Illuminate\Support\Str::slug($categoryName),
+                        'icon' => 'fa-solid fa-tag',
+                        'sort_order' => \App\Models\Category::max('sort_order') + 1
+                    ]
+                );
+                $categoryIds[] = $category->id;
+            }
         }
 
         $listing->categories()->sync($categoryIds);

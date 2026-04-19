@@ -135,6 +135,9 @@ class AdminController extends Controller
             'features' => 'nullable|array|max:8',
         ]);
 
+        $categoryOther = $data['category_other'] ?? null;
+        unset($data['category_other'], $data['category_ids']);
+
         $data['user_id'] = auth()->id();
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = true;
@@ -142,11 +145,11 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::create($data);
 
         $categoryIds = $request->category_ids ?? [];
-        if ($request->filled('category_other')) {
+        if ($categoryOther) {
             $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $request->category_other],
+                ['name' => $categoryOther],
                 [
-                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
+                    'slug' => \Illuminate\Support\Str::slug($categoryOther),
                     'icon' => 'fa-solid fa-tag',
                     'sort_order' => \App\Models\Category::max('sort_order') + 1
                 ]
@@ -183,6 +186,9 @@ class AdminController extends Controller
             'features' => 'nullable|array|max:8',
         ]);
 
+        $categoryOther = $data['category_other'] ?? null;
+        unset($data['category_other'], $data['category_ids']);
+
         if ($data['title'] !== $listing->title) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         }
@@ -190,11 +196,11 @@ class AdminController extends Controller
         $listing->update($data);
 
         $categoryIds = $request->category_ids ?? [];
-        if ($request->filled('category_other')) {
+        if ($categoryOther) {
             $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $request->category_other],
+                ['name' => $categoryOther],
                 [
-                    'slug' => \Illuminate\Support\Str::slug($request->category_other),
+                    'slug' => \Illuminate\Support\Str::slug($categoryOther),
                     'icon' => 'fa-solid fa-tag',
                     'sort_order' => \App\Models\Category::max('sort_order') + 1
                 ]

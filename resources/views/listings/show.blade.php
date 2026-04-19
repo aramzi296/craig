@@ -11,7 +11,7 @@
     <div class="listing-details-grid">
         <div class="listing-main-column">
             <!-- Details Header -->
-            <div class="glass" style="padding: 30px; border-radius: var(--radius); background: white; margin-bottom: 25px;">
+            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 25px;">
                 <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
                     {{ $listing->categories->pluck('name')->join(' • ') }}
                 </div>
@@ -25,16 +25,13 @@
             </div>
 
             <!-- Image Component -->
-            <div class="listing-main-image" style="margin-bottom: 25px;">
-                <div class="glass" style="border-radius: var(--radius); overflow: hidden; background: white; line-height: 0;">
-                    <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
-                </div>
+            <div class="glass" style="border-radius: var(--radius); overflow: hidden; line-height: 0; margin-bottom: 25px;">
+                <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
             </div>
 
             <!-- Features Component -->
             @if(!empty($listing->features) && count(array_filter($listing->features)) > 0)
-            <div class="glass" style="padding: 30px; border-radius: var(--radius); background: white; margin-bottom: 25px;">
-                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--text);">Fitur Unggulan</h2>
+            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 0px;">
                 <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
                     @foreach(array_filter($listing->features) as $feature)
                     <li style="display: flex; align-items: center; gap: 12px; font-size: 1rem; color: var(--text); font-weight: 500;">
@@ -46,17 +43,14 @@
             @endif
 
             <!-- Description Component -->
-            <div class="listing-description-box" style="margin-bottom: 25px;">
-                <div class="glass" style="padding: 30px; border-radius: var(--radius); background: white;">
-                    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; color: var(--text);">Deskripsi</h2>
-                    <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
-                        {!! nl2br(e($listing->description)) !!}
-                    </div>
+            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 25px;">
+                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
+                    {!! nl2br(e($listing->description)) !!}
                 </div>
             </div>
 
             <!-- Footer Details (Dan Seterusnya) -->
-            <div class="glass" style="padding: 35px; border-radius: var(--radius); background: white; border: 1px solid var(--border); margin-bottom: 40px;">
+            <div class="glass" style="padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; margin-bottom: 30px;">
                     <div>
                         <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">
@@ -102,7 +96,7 @@
                 </div>
 
                 <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">
-                    Iklan ID: #BT{{ 1000 + $listing->id }} • Diperbarui {{ $listing->updated_at->diffForHumans() }}
+                    Iklan ID: #BT{{ 1000 + $listing->id }} • Dilihat {{ number_format($listing->views_count, 0, ',', '.') }} kali • Diperbarui {{ $listing->updated_at->diffForHumans() }}
                 </div>
             </div>
         </div>

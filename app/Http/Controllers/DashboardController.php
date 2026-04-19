@@ -16,6 +16,7 @@ class DashboardController extends Controller
         $totalListings = $ownListings->count();
         $activeListings = $ownListings->where('is_active', true)->count();
         $premiumListings = $ownListings->where('is_premium', true)->count();
+        $totalViews = $ownListings->sum('views_count');
         
         // Listing display based on tab
         if ($tab == 'favorites') {
@@ -30,7 +31,7 @@ class DashboardController extends Controller
             $tableTitle = 'Iklan Terbaru Saya';
         }
 
-        return view('dashboard', compact('listings', 'totalListings', 'activeListings', 'premiumListings', 'tab', 'tableTitle'));
+        return view('dashboard', compact('listings', 'totalListings', 'activeListings', 'premiumListings', 'totalViews', 'tab', 'tableTitle'));
     }
 
     public function premiumUpgrade($listing_id)

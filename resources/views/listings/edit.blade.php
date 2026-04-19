@@ -28,62 +28,71 @@
             <div class="form-group-horizontal">
                 <label>Kategori</label>
                 <div class="form-input-side">
-                    <div id="category-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                        @php
-                            $selectedIds = old('category_ids', $listing->categories->pluck('id')->toArray());
-                        @endphp
-                        @foreach($categories as $category)
-                            <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
-                                <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" class="category-checkbox"
-                                    {{ in_array($category->id, $selectedIds) ? 'checked' : '' }}
-                                    style="width: 18px; height: 18px;">
-                                {{ $category->name }}
-                            </label>
-                        @endforeach
-                    </div>
+                    <!-- Added Tagify CSS -->
+                    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+                    <style>
+                        .tagify {
+                            --tag-bg: var(--primary);
+                            --tag-hover: var(--primary-dark);
+                            --tag-text-color: #fff;
+                            --tag-border-radius: 8px;
+                            --tag-remove-btn-color: #fff;
+                            --tag-remove-btn-bg--hover: rgba(255, 255, 255, 0.2);
+                            border-radius: var(--radius);
+                            border: 1px solid var(--border);
+                            padding: 5px;
+                            width: 100%;
+                            background: white;
+                        }
+                        .tagify--focus {
+                            border-color: var(--primary);
+                            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+                        }
+                        .tagify__tag > div {
+                            padding: 0.3em 0.7em;
+                            font-weight: 500;
+                        }
+                        .tagify__tag__removeBtn {
+                            margin-right: 0.4em;
+                        }
+                        .tagify__dropdown__item--active {
+                            background: var(--primary);
+                            color: white;
+                        }
+                    </style>
+
+                    @php
+                        $currentCategories = $listing->categories->pluck('name')->toArray();
+                        $initialValue = old('categories', implode(',', $currentCategories));
+                    @endphp
+                    <input name="categories" id="categories-tagify" class="form-control" placeholder="Pilih atau ketik kategori..." value="{{ $initialValue }}">
+                    
                     <small id="category-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Pilih maksimal <strong>{{ config('sebatam.max_category', 3) }}</strong> kategori.
+                        Ketik untuk mencari kategori. Maksimal <strong>{{ config('sebatam.max_category', 3) }}</strong> kategori. 
+                        Jika kategori tidak ada, tekan <strong>Enter</strong> untuk menambahkan sebagai kategori baru.
                     </small>
-                    @error('category_ids')
+                    @error('categories')
                         <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
 
+                    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
-                            const maxCategories = {{ config('sebatam.max_category', 3) }};
-                            const checkboxes = document.querySelectorAll('.category-checkbox');
-                            const otherCategoryContainer = document.getElementById('other-category-container');
+                            const input = document.querySelector('#categories-tagify');
+                            const whitelist = @json($categories->pluck('name'));
                             
-                            function updateVisibility() {
-                                const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
-                                if (checkedCount >= maxCategories) {
-                                    otherCategoryContainer.style.display = 'none';
-                                } else {
-                                    otherCategoryContainer.style.display = 'block';
+                            const tagify = new Tagify(input, {
+                                whitelist: whitelist,
+                                maxTags: {{ config('sebatam.max_category', 3) }},
+                                dropdown: {
+                                    maxItems: 20,
+                                    classname: "tags-look",
+                                    enabled: 0,
+                                    closeOnSelect: true
                                 }
-                            }
-
-                            checkboxes.forEach(checkbox => {
-                                checkbox.addEventListener('change', function() {
-                                    const checkedCount = document.querySelectorAll('.category-checkbox:checked').length;
-                                    
-                                    if (checkedCount > maxCategories) {
-                                        this.checked = false;
-                                        alert('Anda hanya dapat memilih maksimal ' + maxCategories + ' kategori.');
-                                    }
-                                    updateVisibility();
-                                });
                             });
-
-                            // Initial check
-                            updateVisibility();
                         });
                     </script>
-
-                    <div id="other-category-container" style="margin-top: 15px;">
-                        <label for="category_other" style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Tambah Kategori Baru:</label>
-                        <input type="text" name="category_other" id="category_other" class="form-control" placeholder="Tulis nama kategori baru..." value="{{ old('category_other') }}">
-                    </div>
                 </div>
             </div>
 
@@ -124,7 +133,8 @@
             <div class="form-group-horizontal">
                 <label for="description">Deskripsi Lengkap</label>
                 <div class="form-input-side">
-                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $listing->description) }}</textarea>
+                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required maxlength="{{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description) }}</textarea>
+                    <small class="text-muted" style="display: block; margin-top: 5px;">Maksimal {{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }} huruf.@if(!$listing->is_premium) Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.@endif</small>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -136,8 +146,9 @@
                 <div class="form-input-side">
                     <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
                         @for($i = 0; $i < 8; $i++)
-                            <input type="text" name="features[]" class="form-control" placeholder="Fitur {{ $i + 1 }}" value="{{ old('features.'.$i, $listing->features[$i] ?? '') }}">
+                            <input type="text" name="features[]" class="form-control" placeholder="Fitur {{ $i + 1 }}" value="{{ old('features.'.$i, $listing->features[$i] ?? '') }}" maxlength="{{ config('sebatam.huruf_fitur', 40) }}">
                         @endfor
+                        <small class="text-muted" style="display: block; width: 100%; margin-top: 5px;">Maksimal {{ config('sebatam.huruf_fitur', 40) }} huruf per fitur.</small>
                     </div>
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">Maksimal 8 fitur utama yang akan ditampilkan pada ringkasan.</small>
                     @error('features')

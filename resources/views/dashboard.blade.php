@@ -33,7 +33,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Dilihat</div>
-            <div class="stat-value">124</div>
+            <div class="stat-value">{{ number_format($totalViews ?? 0, 0, ',', '.') }}</div>
         </div>
     </div>
     @endif
@@ -48,6 +48,7 @@
                         <th>Iklan</th>
                         <th>Kategori</th>
                         <th>Harga</th>
+                        <th>Dilihat</th>
                         <th>Status</th>
                         <th style="text-align: right;">Aksi</th>
                     </tr>
@@ -72,6 +73,7 @@
                         <td>{{ $listing->categories->take(3)->pluck('name')->join(', ') }}</td>
 
                         <td>Rp {{ number_format($listing->price, 0, ',', '.') }}</td>
+                        <td>{{ number_format($listing->views_count, 0, ',', '.') }}</td>
                         <td>
                             <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">
                                 {{ $listing->is_active ? 'Aktif' : 'Nonaktif' }}

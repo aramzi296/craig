@@ -12,6 +12,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WaLoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/kategori', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────

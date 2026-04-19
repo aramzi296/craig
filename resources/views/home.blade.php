@@ -6,39 +6,25 @@
         <h1>Temukan Segalanya di Batam</h1>
         <p>Langsung Chat WhatsApp Tanpa Ribet.</p>
         
-        <div class="search-box">
+        <form action="{{ route('search') }}" method="GET" class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" placeholder="Apa yang sedang Anda cari hari ini?">
-            <button class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
-        </div>
+            <input type="text" name="q" placeholder="Apa yang sedang Anda cari hari ini?" value="{{ request('q') }}">
+            <button type="submit" class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
+        </form>
     </div>
 </section>
 
 <div class="container page-section" style="padding-top: 20px;">
-    <h2 class="section-title">Kategori Populer</h2>
-    <div class="category-grid">
-        @foreach($categories as $category)
-        <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-card {{ $selectedCategory && $selectedCategory->id == $category->id ? 'active-category' : '' }}">
-            {{ $category->name }}
+    <div class="category-grid" style="justify-content: center; margin-bottom: 20px;">
+        @foreach($listingTypes as $type)
+        <a href="{{ route('search', ['type' => $type->slug]) }}" class="category-card" style="border-color: {{ $type->color ?? 'var(--border)' }}; color: var(--text); padding: 8px 20px; font-size: 0.85rem;">
+            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ $type->color ?? 'var(--primary)' }}; margin-right: 8px;"></span>
+            {{ $type->name }}
         </a>
         @endforeach
     </div>
 
-    <div style="margin-top: 16px; text-align: center;">
-        <a href="{{ route('categories.index') }}" class="btn btn-outline-primary">
-            Lihat Semua Kategori
-        </a>
-    </div>
-
-    @if($selectedCategory)
-        <div style="margin-top: 60px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="font-size: 2rem; font-weight: 700;">Menampilkan: {{ $selectedCategory->name }}</h2>
-            <a href="{{ route('home') }}" style="color: var(--primary); font-weight: 600;">Lihat Semua <i class="fa-solid fa-arrow-right"></i></a>
-        </div>
-    @endif
-
-    @if($premiumListings->count() > 0 && !$selectedCategory)
-    <h2 class="section-title">Iklan Premium</h2>
+    @if($premiumListings->count() > 0)
     <div class="listing-grid">
         @foreach($premiumListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
@@ -79,7 +65,7 @@
     </div>
     @endif
 
-    <h2 class="section-title">{{ $selectedCategory ? 'Listing di ' . $selectedCategory->name : 'Listing Terbaru' }}</h2>
+    <h2 class="section-title">Listing Terbaru</h2>
     <div class="listing-grid">
         @foreach($recentListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
