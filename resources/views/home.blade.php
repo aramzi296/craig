@@ -28,7 +28,9 @@
     <div class="listing-grid">
         @foreach($premiumListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
-            <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+            @if($listing->getThumbnailUrl())
+                <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+            @endif
             <div class="listing-details">
                 <div class="listing-category">
                     {{ $listing->categories->take(3)->pluck('name')->join(', ') }}
@@ -75,7 +77,9 @@
     <div class="listing-grid">
         @foreach($recentListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
-            <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+            @if($listing->getThumbnailUrl())
+                <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+            @endif
             <div class="listing-details">
                 <div class="listing-category">
                     {{ $listing->categories->take(3)->pluck('name')->join(', ') }}

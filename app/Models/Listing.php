@@ -51,7 +51,7 @@ class Listing extends Model
         if ($photo) {
             return asset('storage/' . $photo->photo_path);
         }
-        return "https://picsum.photos/seed/{$this->id}/800/600";
+        return null;
     }
 
     public function getThumbnailUrl()
@@ -60,7 +60,7 @@ class Listing extends Model
         if ($photo) {
             return asset('storage/' . $photo->thumbnail_path);
         }
-        return "https://picsum.photos/seed/{$this->id}/200/200";
+        return null;
     }
 
     public function hasPendingPremiumRequest()

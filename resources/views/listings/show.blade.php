@@ -32,9 +32,11 @@
             </div>
 
             <!-- Image Component -->
+            @if($listing->getImageUrl())
             <div class="glass" style="border-radius: var(--radius); overflow: hidden; line-height: 0; margin-bottom: 25px;">
                 <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
             </div>
+            @endif
 
             <!-- Features Component -->
             @if(!empty($listing->features) && count(array_filter($listing->features)) > 0)

@@ -94,7 +94,9 @@
                 <div class="listing-grid">
                     @foreach($listings as $listing)
                     <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
-                        <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+                        @if($listing->getThumbnailUrl())
+                            <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
+                        @endif
                         <div class="listing-details">
                             <div class="listing-category">
                                 {{ $listing->categories->take(3)->pluck('name')->join(', ') }}
@@ -119,7 +121,13 @@
                             </ul>
                         </div>
                         <div class="listing-right-panel">
-                            <div class="listing-price">Rp {{ number_format($listing->price, 0, ',', '.') }}</div>
+                            <div class="listing-price">
+                                @if($listing->price && $listing->price > 0)
+                                    Rp {{ number_format($listing->price, 0, ',', '.') }}
+                                @else
+                                    Hubungi Kami
+                                @endif
+                            </div>
                             <div class="btn-whatsapp-sm">
                                 <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
                             </div>
