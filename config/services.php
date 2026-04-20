@@ -50,4 +50,10 @@ return [
         'api_pass'  => env('WHATSAPP_API_PASS', ''),
     ],
 
+    'imagekit' => [
+        'public_key'   => env('IMAGEKIT_PUBLIC_KEY'),
+        'private_key'  => env('IMAGEKIT_PRIVATE_KEY'),
+        'url_endpoint' => env('IMAGEKIT_URL_ENDPOINT'),
+    ],
+
 ];

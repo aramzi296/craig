@@ -2,60 +2,89 @@
 
 namespace App\Services;
 
-use Intervention\Image\Laravel\Facades\Image;
-use Illuminate\Support\Facades\Storage;
+use ImageKit\ImageKit;
 use Illuminate\Http\UploadedFile;
 use App\Models\ListingPhoto;
 
 class ImageService
 {
-    public function uploadListingPhoto(UploadedFile $file, int $listingId, string $collection = 'foto_fitur')
+    protected $imageKit;
+
+    public function __construct()
     {
-        return $this->storeFromPath($file->getRealPath(), $file->getClientOriginalExtension(), $listingId, $collection);
+        $this->imageKit = new ImageKit(
+            config('services.imagekit.public_key'),
+            config('services.imagekit.private_key'),
+            config('services.imagekit.url_endpoint')
+        );
     }
 
-    public function storeFromPath(string $path, string $extension, int $listingId, string $collection = 'foto_fitur')
+    /**
+     * Upload listing photo to ImageKit.
+     */
+    public function uploadListingPhoto(UploadedFile $file, int $listingId, string $collection = 'foto_fitur')
     {
-        $folder = "upload/{$listingId}";
-        
-        if (!Storage::disk('public')->exists($folder)) {
-            Storage::disk('public')->makeDirectory($folder);
+        $folder = "/listings/{$listingId}";
+        $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+
+        $upload = $this->imageKit->uploadFile([
+            'file' => base64_encode(file_get_contents($file->getRealPath())),
+            'fileName' => $fileName,
+            'folder' => $folder,
+            'useUniqueFileName' => true,
+        ]);
+
+        if ($upload->error) {
+            throw new \Exception("ImageKit Upload Error: " . $upload->error->message);
         }
 
-        // Force extension to webp
-        $filename = uniqid() . '.webp';
-        $thumbFilename = 'thumb_' . $filename;
+        $result = $upload->result;
 
-        // 1. Process Main Image: Max 200KB
-        $img = Image::read($path);
-        
-        if ($img->width() > 1200) {
-            $img->scale(width: 1200);
-        }
-
-        $quality = 80;
-        $encoded = $img->encodeByExtension('webp', quality: $quality);
-        
-        while (strlen((string)$encoded) > 200 * 1024 && $quality > 10) {
-            $quality -= 10;
-            $encoded = $img->encodeByExtension('webp', quality: $quality);
-        }
-
-        Storage::disk('public')->put("{$folder}/{$filename}", (string)$encoded);
-
-        // 2. Process Thumbnail: 200x200px
-        $thumb = Image::read($path);
-        $thumb->cover(200, 200);
-        $thumbEncoded = $thumb->encodeByExtension('webp', quality: 70);
-        
-        Storage::disk('public')->put("{$folder}/{$thumbFilename}", (string)$thumbEncoded);
-
-        // 3. Save to database
+        // In ImageKit, we store the filePath. 
+        // Thumbnails are generated on-the-fly via URL transformations.
         return ListingPhoto::create([
             'listing_id' => $listingId,
-            'photo_path' => "{$folder}/{$filename}",
-            'thumbnail_path' => "{$folder}/{$thumbFilename}",
+            'photo_path' => $result->filePath,
+            'thumbnail_path' => $result->filePath, 
             'collection' => $collection,
+            'ik_file_id' => $result->fileId,
         ]);
+    }
+
+    /**
+     * Upload profile photo to ImageKit.
+     */
+    public function uploadProfilePhoto(UploadedFile $file, int $userId)
+    {
+        $folder = "foto_profil";
+        $fileName = "user_{$userId}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
+
+        $upload = $this->imageKit->uploadFile([
+            'file' => base64_encode(file_get_contents($file->getRealPath())),
+            'fileName' => $fileName,
+            'folder' => $folder,
+            'useUniqueFileName' => true,
+        ]);
+
+        if ($upload->error) {
+            throw new \Exception("ImageKit Upload Error: " . $upload->error->message);
+        }
+
+        return [
+            'path' => $upload->result->filePath,
+            'fileId' => $upload->result->fileId
+        ];
+    }
+
+    /**
+     * Delete file from ImageKit by fileId.
+     */
+    public function deleteFileById(string $fileId)
+    {
+        try {
+            $this->imageKit->deleteFile($fileId);
+        } catch (\Exception $e) {
+            // Silently fail or log if already deleted
+        }
     }
 }

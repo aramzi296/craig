@@ -31,6 +31,8 @@ class User extends Authenticatable
         'wa_login_token',
         'wa_login_token_expires_at',
         'is_verified',
+        'profile_photo',
+        'ik_file_id',
     ];
 
     /**
@@ -104,6 +106,10 @@ class User extends Authenticatable
 
     public function getProfilePhoto()
     {
+        if ($this->profile_photo) {
+            return rtrim(config('services.imagekit.url_endpoint'), '/') . $this->profile_photo . '?tr=w-200,h-200,fo-auto';
+        }
+
         $dir = public_path('images-contoh');
         if (is_dir($dir)) {
             $files = glob($dir . '/*.{jpg,jpeg,png,webp}', GLOB_BRACE);

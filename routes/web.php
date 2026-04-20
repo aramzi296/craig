@@ -47,9 +47,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/listing/{id}', [ListingController::class, 'update'])->name('listings.update');
     Route::post('/listing/{id}/toggle', [ListingController::class, 'toggleStatus'])->name('listings.toggle');
     Route::delete('/listing/{id}', [ListingController::class, 'destroy'])->name('listings.destroy');
+    Route::delete('/listing/photo/{id}', [ListingController::class, 'deletePhoto'])->name('listings.photos.destroy');
 
     // Comment Actions
     Route::post('/listing/{id}/comment', [CommentController::class, 'store'])->name('comments.store');
+
+    // Profile Actions
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
     
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {

@@ -10,11 +10,103 @@
 
     <div class="listing-details-grid">
         <div class="listing-main-column">
-            <!-- Image Component -->
-            @if($listing->getImageUrl())
-            <div class="glass" style="border-radius: var(--radius); overflow: hidden; line-height: 0; margin-bottom: 5px;">
-                <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
+            <!-- Layout Galeri & Lightbox -->
+            @if($listing->photos->count() > 0)
+            <div class="glass" style="border-radius: var(--radius); overflow: hidden; margin-bottom: 25px;">
+                <!-- Foto Utama -->
+                <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; cursor: pointer;" onclick="openLightbox(0)">
+                    <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+
+                <!-- Galeri Thumbnail -->
+                @if($listing->photos->count() > 1)
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; padding: 10px; background: #f8fafc; border-top: 1px solid var(--border);">
+                    @foreach($listing->photos as $index => $photo)
+                    <div style="aspect-ratio: 1/1; border-radius: 6px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
+                         onclick="openLightbox({{ $index }})"
+                         onmouseover="this.style.borderColor='var(--primary)'" 
+                         onmouseout="this.style.borderColor='transparent'">
+                        <img src="{{ $photo->getThumbnailUrl() }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    @endforeach
+                </div>
+                @endif
             </div>
+
+            <!-- Lightbox Modal Modern -->
+            <div id="lightbox" style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; padding: 20px; user-select: none;">
+                <!-- Close Button -->
+                <span style="position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; font-weight: 300; cursor: pointer; line-height: 1; z-index: 10001;" onclick="closeLightbox()">&times;</span>
+                
+                <!-- Nav Buttons -->
+                <button onclick="prevImage()" style="position: absolute; left: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                    <i class="fa-solid fa-chevron-left" style="font-size: 2rem;"></i>
+                </button>
+                
+                <button onclick="nextImage()" style="position: absolute; right: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                    <i class="fa-solid fa-chevron-right" style="font-size: 2rem;"></i>
+                </button>
+
+                <!-- Image Area -->
+                <div style="max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
+                    <img id="lightbox-img" style="max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: opacity 0.3s ease-in-out;">
+                    <div id="lightbox-counter" style="color: rgba(255,255,255,0.6); font-size: 0.9rem; font-weight: 500; background: rgba(255,255,255,0.1); padding: 4px 15px; border-radius: 20px;"></div>
+                </div>
+            </div>
+
+            <script>
+                const galleryImages = @json($listing->photos->map(fn($p) => $p->getUrl()));
+                let currentIndex = 0;
+
+                function openLightbox(index) {
+                    currentIndex = index;
+                    updateLightboxContent();
+                    document.getElementById('lightbox').style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+
+                function closeLightbox() {
+                    document.getElementById('lightbox').style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+
+                function updateLightboxContent() {
+                    const img = document.getElementById('lightbox-img');
+                    const counter = document.getElementById('lightbox-counter');
+                    
+                    img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.src = galleryImages[currentIndex];
+                        counter.innerText = `${currentIndex + 1} / ${galleryImages.length}`;
+                        img.style.opacity = '1';
+                    }, 150);
+                }
+
+                function nextImage() {
+                    currentIndex = (currentIndex + 1) % galleryImages.length;
+                    updateLightboxContent();
+                }
+
+                function prevImage() {
+                    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
+                    updateLightboxContent();
+                }
+
+                // Keyboard Support
+                document.addEventListener('keydown', function(e) {
+                    const lightbox = document.getElementById('lightbox');
+                    if (lightbox.style.display === 'flex') {
+                        if (e.key === 'ArrowRight') nextImage();
+                        if (e.key === 'ArrowLeft') prevImage();
+                        if (e.key === 'Escape') closeLightbox();
+                    }
+                });
+
+                // Close on click outside
+                document.getElementById('lightbox').onclick = function(e) {
+                    if (e.target.id === 'lightbox') closeLightbox();
+                };
+            </script>
             @endif
 
             <!-- Details Header -->
@@ -148,13 +240,33 @@
                 @else
                     <!-- Comment Form -->
                     @auth
+                        @php $maxChars = config('sebatam.max_karakter_komentar', 250); @endphp
                         <form action="{{ route('comments.store', $listing->id) }}" method="POST" style="margin-bottom: 30px;">
                             @csrf
-                            <textarea name="content" rows="3" class="form-control" placeholder="Tulis komentar atau pertanyaan Anda di sini..." style="border-radius: 12px; padding: 15px; margin-bottom: 12px;" required></textarea>
+                            <div style="position: relative;">
+                                <textarea name="content" id="comment-textarea" rows="3" class="form-control" placeholder="Tulis komentar atau pertanyaan Anda di sini..." style="border-radius: 12px; padding: 15px; margin-bottom: 5px; resize: none;" required maxlength="{{ $maxChars }}" oninput="updateCharCount()"></textarea>
+                                <div id="char-count" style="text-align: right; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px;">0 / {{ $maxChars }}</div>
+                            </div>
                             <div style="display: flex; justify-content: flex-end;">
                                 <button type="submit" class="btn btn-primary" style="padding: 10px 25px;">Kirim Komentar</button>
                             </div>
                         </form>
+                        
+                        <script>
+                            function updateCharCount() {
+                                const textarea = document.getElementById('comment-textarea');
+                                const counter = document.getElementById('char-count');
+                                const maxChars = {{ $maxChars }};
+                                const length = textarea.value.length;
+                                counter.innerText = `${length} / ${maxChars}`;
+                                
+                                if (length >= maxChars) {
+                                    counter.style.color = '#ef4444';
+                                } else {
+                                    counter.style.color = 'var(--text-muted)';
+                                }
+                            }
+                        </script>
                     @else
                         @if($listing->comment_visibility == 1)
                             <div style="text-align: center; padding: 25px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px;">
@@ -215,14 +327,22 @@
                     <div class="listing-grid">
                         @foreach($sidebarPremiumListings as $premium)
                         <a href="{{ route('listings.show', $premium->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center; border-left: 3px solid #f59e0b; background: #fffbeb;">
-                            <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            @if($premium->getThumbnailUrl())
+                                <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            @endif
                             <div class="listing-details" style="padding: 0; flex: 1;">
                                 <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px;">
                                     <span class="badge badge-premium" style="font-size: 0.55rem; padding: 2px 4px;">PREMIUM</span>
                                     <span>{{ $premium->categories->first()->name ?? '' }}</span>
                                 </div>
                                 <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
-                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">Rp {{ number_format($premium->price, 0, ',', '.') }}</div>
+                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
+                                    @if($premium->price && $premium->price > 0)
+                                        Rp {{ number_format($premium->price, 0, ',', '.') }}
+                                    @else
+                                        Hubungi Kami
+                                    @endif
+                                </div>
                             </div>
                         </a>
                         @endforeach
@@ -237,7 +357,9 @@
                     <div class="listing-grid">
                         @foreach($relatedListings as $related)
                         <a href="{{ route('listings.show', $related->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center;">
-                            <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            @if($related->getThumbnailUrl())
+                                <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            @endif
                             <div class="listing-details" style="padding: 0; flex: 1;">
                                 <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
                                     @if($related->listingType)
@@ -248,7 +370,13 @@
                                     <span>{{ $related->categories->take(1)->pluck('name')->join(', ') }}</span>
                                 </div>
                                 <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
-                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">Rp {{ number_format($related->price, 0, ',', '.') }}</div>
+                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
+                                    @if($related->price && $related->price > 0)
+                                        Rp {{ number_format($related->price, 0, ',', '.') }}
+                                    @else
+                                        Hubungi Kami
+                                    @endif
+                                </div>
                                 <div class="listing-location" style="font-size: 0.75rem; margin: 0; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $related->location }}</div>
                             </div>
                         </a>

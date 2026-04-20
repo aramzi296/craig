@@ -49,7 +49,7 @@ class Listing extends Model
     {
         $photo = $this->photos()->where('collection', 'foto_fitur')->first();
         if ($photo) {
-            return asset('storage/' . $photo->photo_path);
+            return $photo->getUrl();
         }
         return null;
     }
@@ -58,7 +58,7 @@ class Listing extends Model
     {
         $photo = $this->photos()->where('collection', 'foto_fitur')->first();
         if ($photo) {
-            return asset('storage/' . $photo->thumbnail_path);
+            return $photo->getThumbnailUrl();
         }
         return null;
     }

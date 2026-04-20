@@ -41,7 +41,7 @@
             </li>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
             <li class="sidebar-item">
-                <a href="#" class="sidebar-link">
+                <a href="{{ route('profile.edit') }}" class="sidebar-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">
                     <i class="fa-solid fa-user"></i> Profil
                 </a>
             </li>
@@ -55,6 +55,24 @@
     </aside>
 
     <main class="dashboard-content">
+        @if(session('success'))
+            <div class="alert alert-success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbf7d0;">
+                <i class="fa-solid fa-circle-check"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #fecaca;">
+                <i class="fa-solid fa-circle-xmark"></i> {{ session('error') }}
+            </div>
+        @endif
+
+        @if(session('warning'))
+            <div class="alert alert-warning" style="background: #fef9c3; color: #854d0e; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #fef08a;">
+                <i class="fa-solid fa-triangle-exclamation"></i> {{ session('warning') }}
+            </div>
+        @endif
+
         @yield('dashboard_content')
     </main>
 </div>

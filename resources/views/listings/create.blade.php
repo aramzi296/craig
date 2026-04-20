@@ -163,11 +163,13 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="photos">Foto Fitur</label>
+                <label for="photos">Galeri Foto</label>
                 <div class="form-input-side">
-                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos.*') is-invalid @enderror" multiple accept="image/*">
-                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">Anda bisa memilih lebih dari satu foto. Setiap foto akan otomatis dioptimalkan.</small>
-                    @error('photos.*')
+                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Maksimal <strong>{{ config('sebatam.max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ config('sebatam.max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
+                    </small>
+                    @error('photos')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

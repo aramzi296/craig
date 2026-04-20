@@ -44,6 +44,24 @@ class ListingController extends Controller
 
         $listing = \App\Models\Listing::create($data);
 
+        // Upload Photos
+        if ($request->hasFile('photos')) {
+            $maxPhotos = config('sebatam.max_foto_iklan', 0);
+            // Since it's a new listing, we'll check if it's premium. 
+            // BUT wait, premium is usually set AFTER creation or via listing type?
+            // Let's check listing type.
+            $type = \App\Models\ListingType::find($data['listing_type_id']);
+            // If the type is premium, use premium limit.
+            // For now, let's assume if it's premium type, it gets the limit.
+            if ($type && $type->slug == 'premium') {
+                $maxPhotos = config('sebatam.max_foto_iklan_premium', 8);
+            }
+
+            foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
+                $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
+            }
+        }
+
         // Process Categories from Tagify
         $categoryIds = [];
         if ($request->filled('categories')) {
@@ -65,13 +83,6 @@ class ListingController extends Controller
         }
 
         $listing->categories()->sync($categoryIds);
-
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $index => $file) {
-                // Defaulting new uploads to 'foto_fitur'
-                $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
-            }
-        }
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil dikirim dan ditayangkan.');
     }
@@ -109,7 +120,36 @@ class ListingController extends Controller
         }
 
         $listing->update($data);
-        
+
+        // Upload New Photos
+        if ($request->hasFile('photos')) {
+            $currentCount = $listing->photos()->count();
+            
+            // Determine limit based on type
+            $maxPhotos = config('sebatam.max_foto_iklan', 4);
+            $type = \App\Models\ListingType::find($request->listing_type_id);
+            if (($type && $type->slug == 'premium') || $listing->is_premium) {
+                $maxPhotos = config('sebatam.max_foto_iklan_premium', 12);
+            }
+            
+            $remaining = $maxPhotos - $currentCount;
+
+            if ($remaining > 0) {
+                $files = $request->file('photos');
+                if (!is_array($files)) { $files = [$files]; }
+                
+                foreach (array_slice($files, 0, $remaining) as $file) {
+                    $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
+                }
+                
+                if (count($files) > $remaining) {
+                    session()->flash('warning', 'Beberapa foto dilewati karena sudah mencapai batas maksimal.');
+                }
+            } else {
+                session()->flash('error', 'Gagal menambah foto: Jatah foto sudah penuh.');
+            }
+        }
+
         // Process Categories from Tagify
         $categoryIds = [];
         if ($request->filled('categories')) {
@@ -132,14 +172,6 @@ class ListingController extends Controller
 
         $listing->categories()->sync($categoryIds);
 
-        if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $index => $file) {
-                // If the listing already has a featured photo, maybe these should be something else?
-                // For now, we'll keep adding to 'foto_fitur' as requested
-                $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
-            }
-        }
-
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil diperbarui.');
     }
 
@@ -155,8 +187,31 @@ class ListingController extends Controller
     public function destroy($id)
     {
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
+        
+        // Delete photos from ImageKit
+        foreach ($listing->photos as $photo) {
+            if ($photo->ik_file_id) {
+                $this->imageService->deleteFileById($photo->ik_file_id);
+            }
+        }
+
         $listing->delete();
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda telah dihapus.');
+    }
+
+    public function deletePhoto($id)
+    {
+        $photo = \App\Models\ListingPhoto::whereHas('listing', function($q) {
+            $q->where('user_id', auth()->id());
+        })->findOrFail($id);
+
+        if ($photo->ik_file_id) {
+            $this->imageService->deleteFileById($photo->ik_file_id);
+        }
+
+        $photo->delete();
+
+        return back()->with('success', 'Foto berhasil dihapus.');
     }
 }

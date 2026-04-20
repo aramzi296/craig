@@ -159,27 +159,43 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label>Foto Saat Ini</label>
+                <label>Galeri Foto Saat Ini</label>
                 <div class="form-input-side">
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
                         @forelse($listing->photos as $photo)
-                            <div style="position: relative; width: 60px; height: 60px; border: 1px solid var(--border); border-radius: 4px; overflow: hidden;">
-                                <img src="{{ asset('storage/' . $photo->thumbnail_path) }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; group;">
+                                <img src="{{ $photo->getThumbnailUrl() }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                                <button type="button" 
+                                        onclick="if(confirm('Hapus foto ini?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
+                                        style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
                             </div>
                         @empty
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto.</p>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto galeri.</p>
                         @endforelse
                     </div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 10px;">
+                        Saat ini ada {{ $listing->photos->count() }} foto. 
+                        Jatah sisa: {{ ($listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0)) - $listing->photos->count() }} foto.
+                    </small>
                 </div>
             </div>
 
+
+
             <div class="form-group-horizontal">
-                <label for="photos">Tambah Foto</label>
+                <label for="photos">Tambah Foto Galeri</label>
                 <div class="form-input-side">
-                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos.*') is-invalid @enderror" multiple accept="image/*">
-                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">Anda bisa menambah foto baru. Setiap foto akan otomatis dioptimalkan.</small>
+                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Unggah foto tambahan. Maksimal total foto adalah <strong>{{ $listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0) }}</strong>.
+                    </small>
+                    @error('photos')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
                     @error('photos.*')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
@@ -227,4 +243,12 @@
             </div>
         </form>
     </div>
+
+    <!-- Hidden Delete Forms -->
+    @foreach($listing->photos as $photo)
+        <form id="delete-photo-{{ $photo->id }}" action="{{ route('listings.photos.destroy', $photo->id) }}" method="POST" style="display: none;">
+            @csrf
+            @method('DELETE')
+        </form>
+    @endforeach
 @endsection
