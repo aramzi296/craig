@@ -8,7 +8,8 @@ class Listing extends Model
 {
     protected $fillable = [
         'user_id', 'listing_type_id', 'title', 'slug', 'description', 
-        'price', 'location', 'is_featured', 'is_premium', 'is_active', 'features'
+        'price', 'location', 'is_featured', 'is_premium', 'is_active', 'features', 
+        'whatsapp_visibility', 'comment_visibility'
     ];
 
     protected $casts = [
@@ -67,6 +68,11 @@ class Listing extends Model
         return \App\Models\PremiumRequest::where('listing_id', $this->id)
             ->where('status', 'pending')
             ->exists();
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class)->latest();
     }
 }
 

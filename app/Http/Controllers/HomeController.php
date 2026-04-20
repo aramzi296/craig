@@ -66,7 +66,7 @@ class HomeController extends Controller
 
     public function show($slug)
     {
-        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user'])
+        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();

@@ -48,6 +48,7 @@
                         <th>Iklan</th>
                         <th>Kategori</th>
                         <th>Harga</th>
+                        <th>Komentar</th>
                         <th>Dilihat</th>
                         <th>Status</th>
                         <th style="text-align: right;">Aksi</th>
@@ -72,7 +73,19 @@
                         </td>
                         <td>{{ $listing->categories->take(3)->pluck('name')->join(', ') }}</td>
 
-                        <td>Rp {{ number_format($listing->price, 0, ',', '.') }}</td>
+                        <td>
+                            @if($listing->price && $listing->price > 0)
+                                Rp {{ number_format($listing->price, 0, ',', '.') }}
+                            @else
+                                <span style="color: var(--text-muted); font-style: italic;">Hubungi Kami</span>
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('listings.show', $listing->slug) }}#comments-section" style="display: flex; align-items: center; gap: 6px; color: {{ $listing->comments_count > 0 ? 'var(--primary)' : 'var(--text-muted)' }}; font-weight: {{ $listing->comments_count > 0 ? '700' : '400' }};">
+                                <i class="fa-{{ $listing->comments_count > 0 ? 'solid' : 'regular' }} fa-comment"></i>
+                                <span>{{ $listing->comments_count }}</span>
+                            </a>
+                        </td>
                         <td>{{ number_format($listing->views_count, 0, ',', '.') }}</td>
                         <td>
                             <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">

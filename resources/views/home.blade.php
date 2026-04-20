@@ -55,7 +55,13 @@
                 </ul>
             </div>
             <div class="listing-right-panel">
-                <div class="listing-price">Rp {{ number_format($listing->price, 0, ',', '.') }}</div>
+                <div class="listing-price">
+                    @if($listing->price && $listing->price > 0)
+                        Rp {{ number_format($listing->price, 0, ',', '.') }}
+                    @else
+                        Hubungi Kami
+                    @endif
+                </div>
                 <div class="btn-whatsapp-sm">
                     <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
                 </div>
@@ -96,7 +102,13 @@
                 </ul>
             </div>
             <div class="listing-right-panel">
-                <div class="listing-price">Rp {{ number_format($listing->price, 0, ',', '.') }}</div>
+                <div class="listing-price">
+                    @if($listing->price && $listing->price > 0)
+                        Rp {{ number_format($listing->price, 0, ',', '.') }}
+                    @else
+                        Hubungi Kami
+                    @endif
+                </div>
                 <div class="btn-whatsapp-sm">
                     <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
                 </div>

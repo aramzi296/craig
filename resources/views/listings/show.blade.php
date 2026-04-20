@@ -61,7 +61,11 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; margin-bottom: 30px;">
                     <div>
                         <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">
-                            Rp {{ number_format($listing->price, 0, ',', '.') }}
+                            @if($listing->price && $listing->price > 0)
+                                Rp {{ number_format($listing->price, 0, ',', '.') }}
+                            @else
+                                Hubungi Kami
+                            @endif
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-top: 10px; font-size: 1.05rem; font-weight: 500;">
                             <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->location }}, Batam
@@ -88,9 +92,28 @@
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di Sebatam: {{ $listing->title }}. Apakah masih tersedia%3F" target="_blank" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px;">
-                        <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via WhatsApp
-                    </a>
+                    @php
+                        $canSeeContact = false;
+                        if ($listing->whatsapp_visibility == 2) {
+                            $canSeeContact = true;
+                        } elseif ($listing->whatsapp_visibility == 1) {
+                            $canSeeContact = auth()->check();
+                        }
+                    @endphp
+
+                    @if($canSeeContact)
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di Sebatam: {{ $listing->title }}. Apakah masih tersedia%3F" target="_blank" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via WhatsApp
+                        </a>
+                    @elseif($listing->whatsapp_visibility == 1)
+                        <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-lock"></i> Login untuk Chat WA
+                        </a>
+                    @else
+                        <div class="btn btn-secondary disabled" style="padding: 18px; font-size: 1rem; border-radius: 12px; cursor: not-allowed; opacity: 0.7; display: flex; align-items: center; justify-content: center; gap: 8px; background: #e2e8f0; color: #64748b; border: none;">
+                            <i class="fa-solid fa-eye-slash"></i> WA Dinonaktifkan
+                        </div>
+                    @endif
                     
                     @auth
                         <form action="{{ route('listings.favorite', $listing->id) }}" method="POST">
@@ -110,6 +133,73 @@
                 <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">
                     Iklan ID: #BT{{ 1000 + $listing->id }} • Dilihat {{ number_format($listing->views_count, 0, ',', '.') }} kali • Diperbarui {{ $listing->updated_at->diffForHumans() }}
                 </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div id="comments-section" class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 25px; margin-bottom: 40px;">
+                <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; color: var(--text);">Komentar ({{ $listing->comments->count() }})</h3>
+                
+                @if($listing->comment_visibility == 0)
+                    <div style="text-align: center; padding: 30px; color: var(--text-muted); background: #f8fafc; border-radius: 12px; border: 1px dashed var(--border);">
+                        <i class="fa-solid fa-comment-slash" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        Fitur komentar dinonaktifkan oleh pemilik postingan.
+                    </div>
+                @else
+                    <!-- Comment Form -->
+                    @auth
+                        <form action="{{ route('comments.store', $listing->id) }}" method="POST" style="margin-bottom: 30px;">
+                            @csrf
+                            <textarea name="content" rows="3" class="form-control" placeholder="Tulis komentar atau pertanyaan Anda di sini..." style="border-radius: 12px; padding: 15px; margin-bottom: 12px;" required></textarea>
+                            <div style="display: flex; justify-content: flex-end;">
+                                <button type="submit" class="btn btn-primary" style="padding: 10px 25px;">Kirim Komentar</button>
+                            </div>
+                        </form>
+                    @else
+                        @if($listing->comment_visibility == 1)
+                            <div style="text-align: center; padding: 25px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 30px;">
+                                <i class="fa-solid fa-lock" style="color: var(--primary); margin-bottom: 10px; display: block; font-size: 1.5rem;"></i>
+                                <span style="font-weight: 600; color: var(--text);">Login untuk melihat dan menulis komentar</span>
+                                <div style="margin-top: 15px;">
+                                    <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Login Sekarang</a>
+                                </div>
+                            </div>
+                        @else
+                            <div style="margin-bottom: 30px; padding: 15px; background: #f0f9ff; border-radius: 10px; border: 1px solid #bae6fd; color: #0369a1; font-size: 0.9rem;">
+                                <i class="fa-solid fa-circle-info"></i> Silakan <a href="{{ route('login') }}" style="font-weight: 700; text-decoration: underline;">Login</a> untuk menulis komentar.
+                            </div>
+                        @endif
+                    @endauth
+
+                    <!-- Comments List -->
+                    @php
+                        $canSeeComments = ($listing->comment_visibility == 2 || ($listing->comment_visibility == 1 && auth()->check()));
+                    @endphp
+
+                    @if($canSeeComments)
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            @forelse($listing->comments as $comment)
+                                <div style="display: flex; gap: 15px;">
+                                    <img src="{{ $comment->user->getProfilePhoto() }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;" alt="">
+                                    <div style="flex: 1;">
+                                        <div style="background: #f8fafc; padding: 15px; border-radius: 0 15px 15px 15px; border: 1px solid var(--border);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                                <span style="font-weight: 700; font-size: 0.95rem;">{{ $comment->user->name }}</span>
+                                                <span style="font-size: 0.75rem; color: var(--text-muted);">{{ $comment->created_at->diffForHumans() }}</span>
+                                            </div>
+                                            <div style="font-size: 0.95rem; line-height: 1.5; color: var(--text);">
+                                                {{ nl2br(e($comment->content)) }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div style="text-align: center; padding: 20px; color: var(--text-muted);">
+                                    Belum ada komentar. Jadilah yang pertama bertanya!
+                                </div>
+                            @endforelse
+                        </div>
+                    @endif
+                @endif
             </div>
         </div>
 

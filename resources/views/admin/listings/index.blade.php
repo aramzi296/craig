@@ -76,7 +76,13 @@
                         {{ $listing->categories->pluck('name')->join(', ') }}
                     </div>
                 </td>
-                <td>Rp {{ number_format($listing->price, 0, ',', '.') }}</td>
+                <td>
+                    @if($listing->price && $listing->price > 0)
+                        Rp {{ number_format($listing->price, 0, ',', '.') }}
+                    @else
+                        -
+                    @endif
+                </td>
                 <td>
                     <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">
                         {{ $listing->is_active ? 'Aktif' : 'Nonaktif' }}

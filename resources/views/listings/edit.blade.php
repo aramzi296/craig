@@ -107,9 +107,10 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="price">Harga (Rp)</label>
+                <label for="price">Harga (Opsional)</label>
                 <div class="form-input-side">
-                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" required>
+                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" placeholder="kosongkan jika tidak ada">
+                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
                     @error('price')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -180,6 +181,43 @@
                     @error('photos.*')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal" style="align-items: flex-start;">
+                <label>Visibilitas Kontak & Interaksi</label>
+                <div class="form-input-side" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <!-- WhatsApp Setting -->
+                    <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
+                        <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 15px; color: var(--text);"><i class="fa-brands fa-whatsapp"></i> Tombol WhatsApp</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="whatsapp_visibility" value="0" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == '0' ? 'checked' : '' }}> Tidak ditampilkan
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="whatsapp_visibility" value="1" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == '1' ? 'checked' : '' }}> Hanya user login
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="whatsapp_visibility" value="2" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == '2' ? 'checked' : '' }}> Semua pengunjung
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Comments Setting -->
+                    <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
+                        <p style="font-weight: 700; font-size: 0.9rem; margin-bottom: 15px; color: var(--text);"><i class="fa-solid fa-comments"></i> Kolom Komentar</p>
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="comment_visibility" value="0" {{ old('comment_visibility', $listing->comment_visibility) == '0' ? 'checked' : '' }}> Tidak ditampilkan
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="comment_visibility" value="1" {{ old('comment_visibility', $listing->comment_visibility) == '1' ? 'checked' : '' }}> Hanya user login
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
+                                <input type="radio" name="comment_visibility" value="2" {{ old('comment_visibility', $listing->comment_visibility) == '2' ? 'checked' : '' }}> Semua pengunjung
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 

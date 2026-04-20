@@ -28,12 +28,14 @@ class ListingController extends Controller
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . config('sebatam.huruf_deskripsi_iklan', 100),
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'location' => 'required|string|max:255',
             'features' => 'nullable|array|max:8',
             'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'whatsapp_visibility' => 'required|integer|in:0,1,2',
+            'comment_visibility' => 'required|integer|in:0,1,2',
         ]);
 
         $data['user_id'] = auth()->id();
@@ -92,12 +94,14 @@ class ListingController extends Controller
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . ($listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100)),
-            'price' => 'required|numeric|min:0',
+            'price' => 'nullable|numeric|min:0',
             'location' => 'required|string|max:255',
             'features' => 'nullable|array|max:8',
             'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'whatsapp_visibility' => 'required|integer|in:0,1,2',
+            'comment_visibility' => 'required|integer|in:0,1,2',
         ]);
 
         if ($data['title'] !== $listing->title) {

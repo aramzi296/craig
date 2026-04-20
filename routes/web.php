@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\CommentController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WaLoginController;
 
@@ -46,6 +47,9 @@ Route::middleware('auth')->group(function () {
     Route::put('/listing/{id}', [ListingController::class, 'update'])->name('listings.update');
     Route::post('/listing/{id}/toggle', [ListingController::class, 'toggleStatus'])->name('listings.toggle');
     Route::delete('/listing/{id}', [ListingController::class, 'destroy'])->name('listings.destroy');
+
+    // Comment Actions
+    Route::post('/listing/{id}/comment', [CommentController::class, 'store'])->name('comments.store');
     
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
