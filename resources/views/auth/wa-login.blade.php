@@ -27,7 +27,8 @@
                 Belum punya kode OTP?
             </div>
             <p>
-                Buka WhatsApp dan kirim pesan <code>login</code> ke nomor bot kami.
+                Buka WhatsApp dan kirim pesan <code>login</code> ke nomor bot kami 
+                (<a href="https://wa.me/{{ env('WHATSAPP_ADMIN_NUMBER', '6282172292230') }}?text=login" target="_blank" style="color: inherit; font-weight: 700; text-decoration: underline;">{{ env('WHATSAPP_ADMIN_NUMBER', '6282172292230') }}</a>).
                 Sistem akan membalas dengan dua kode OTP yang berlaku <strong>10 menit</strong>.
             </p>
         </div>
