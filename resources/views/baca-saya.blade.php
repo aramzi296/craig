@@ -159,7 +159,7 @@
                 </div>
 
                 <!-- Question 5 -->
-                <div class="faq-card legal-card glass" style="background: #1e293b; color: white;">
+                <!-- <div class="faq-card legal-card glass" style="background: #1e293b; color: white;">
                     <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: rgba(255,255,255,0.1); color: #fbbf24; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-crown"></i>
@@ -185,7 +185,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
             </div>
         </div>
