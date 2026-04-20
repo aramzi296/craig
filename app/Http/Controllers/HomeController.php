@@ -66,21 +66,33 @@ class HomeController extends Controller
 
     public function show($slug)
     {
-        $listing = \App\Models\Listing::where('slug', $slug)->where('is_active', true)->firstOrFail();
+        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user'])
+            ->where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
         
         // Increment view count
         $listing->increment('views_count');
 
-        $relatedListings = \App\Models\Listing::whereHas('categories', function($q) use ($listing) {
+        $relatedListings = \App\Models\Listing::with(['categories', 'listingType'])
+            ->whereHas('categories', function($q) use ($listing) {
                 $q->whereIn('categories.id', $listing->categories->pluck('id'));
             })
             ->where('id', '!=', $listing->id)
             ->where('is_active', true)
             ->latest()
-            ->take(4)
+            ->take(6)
             ->get();
 
-        return view('listings.show', compact('listing', 'relatedListings'));
+        $sidebarPremiumListings = \App\Models\Listing::with(['categories', 'listingType'])
+            ->where('is_premium', true)
+            ->where('is_active', true)
+            ->where('id', '!=', $listing->id)
+            ->inRandomOrder()
+            ->take(5)
+            ->get();
+
+        return view('listings.show', compact('listing', 'relatedListings', 'sidebarPremiumListings'));
     }
 
     public function categories()

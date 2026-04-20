@@ -23,12 +23,12 @@
         </div>
         
         <div style="width: 200px;">
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Kategori</label>
-            <select name="category_id" class="form-control" style="padding: 10px 15px;">
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
-                        {{ $category->name }}
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Tipe Listing</label>
+            <select name="listing_type_id" class="form-control" style="padding: 10px 15px;">
+                <option value="">Semua Tipe</option>
+                @foreach($listingTypes as $type)
+                    <option value="{{ $type->id }}" {{ request('listing_type_id') == $type->id ? 'selected' : '' }}>
+                        {{ $type->name }}
                     </option>
                 @endforeach
             </select>
@@ -56,7 +56,7 @@
             <tr>
                 <th>Iklan</th>
                 <th>Pemilik</th>
-                <th>Kategori</th>
+                <th>Tipe / Kategori</th>
                 <th>Harga</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -71,9 +71,10 @@
                 </td>
                 <td>{{ $listing->user->name }}</td>
                 <td>
-                    @foreach($listing->categories as $category)
-                        <div class="badge" style="background: #eff6ff; color: var(--primary); margin-bottom: 2px;">{{ $category->name }}</div>
-                    @endforeach
+                    <div style="font-weight: 600;">{{ $listing->listingType->name ?? '-' }}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted);">
+                        {{ $listing->categories->pluck('name')->join(', ') }}
+                    </div>
                 </td>
                 <td>Rp {{ number_format($listing->price, 0, ',', '.') }}</td>
                 <td>

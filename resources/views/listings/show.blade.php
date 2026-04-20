@@ -12,8 +12,15 @@
         <div class="listing-main-column">
             <!-- Details Header -->
             <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 25px;">
-                <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
-                    {{ $listing->categories->pluck('name')->join(' • ') }}
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    @if($listing->listingType)
+                        <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {{ $listing->listingType->name }}
+                        </span>
+                    @endif
+                    <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                        {{ $listing->categories->pluck('name')->join(' • ') }}
+                    </div>
                 </div>
                 
                 <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 0; color: var(--text); line-height: 1.2;">
@@ -59,6 +66,11 @@
                         <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-top: 10px; font-size: 1.05rem; font-weight: 500;">
                             <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->location }}, Batam
                         </div>
+                        @if($listing->listingType)
+                        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-top: 10px; font-size: 1.05rem; font-weight: 500;">
+                            <i class="fa-solid fa-tag" style="color: var(--secondary); font-size: 1.2rem;"></i> Tipe Iklan: {{ $listing->listingType->name }}
+                        </div>
+                        @endif
                     </div>
                     
                     <div style="display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
@@ -101,26 +113,74 @@
             </div>
         </div>
 
-        <!-- Sidebar (Related Listings) -->
-        <aside class="listing-sidebar-info" style="position: sticky; top: 100px;">
-            <h2 class="section-title" style="margin-top: 0; margin-bottom: 25px; font-size: 1.5rem;">Postingan Lainnya</h2>
-            <div class="listing-grid">
-                @foreach($relatedListings as $related)
-                <a href="{{ route('listings.show', $related->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center;">
-                    <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 100px; height: 100px; margin: 0; border-radius: 8px; flex-shrink: 0;">
-                    <div class="listing-details" style="padding: 0; flex: 1;">
-                        <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 2px;">
-                            {{ $related->categories->take(config('sebatam.max_category', 2))->pluck('name')->join(', ') }}
-                        </div>
-                        <h3 class="listing-title" style="font-size: 0.95rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
-                        <div class="listing-price" style="font-size: 1.05rem; margin-bottom: 4px; color: var(--primary); font-weight: 700;">Rp {{ number_format($related->price, 0, ',', '.') }}</div>
-                        <div class="listing-location" style="font-size: 0.75rem; margin: 0;"><i class="fa-solid fa-location-dot"></i> {{ $related->location }}</div>
+        <!-- Sidebar Column -->
+        <aside class="listing-sidebar-info">
+            <!-- Premium Listings Section -->
+            @if($sidebarPremiumListings->count() > 0)
+                <div style="margin-bottom: 40px;">
+                    <h2 class="section-title" style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem; display: flex; align-items: center; gap: 10px; color: #b45309;">
+                        <i class="fa-solid fa-crown"></i> Postingan Premium
+                    </h2>
+                    <div class="listing-grid">
+                        @foreach($sidebarPremiumListings as $premium)
+                        <a href="{{ route('listings.show', $premium->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center; border-left: 3px solid #f59e0b; background: #fffbeb;">
+                            <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            <div class="listing-details" style="padding: 0; flex: 1;">
+                                <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px;">
+                                    <span class="badge badge-premium" style="font-size: 0.55rem; padding: 2px 4px;">PREMIUM</span>
+                                    <span>{{ $premium->categories->first()->name ?? '' }}</span>
+                                </div>
+                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
+                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">Rp {{ number_format($premium->price, 0, ',', '.') }}</div>
+                            </div>
+                        </a>
+                        @endforeach
                     </div>
-                </a>
-                @endforeach
-            </div>
+                </div>
+            @endif
+
+            <!-- Related Listings Section -->
+            @if($relatedListings->count() > 0)
+                <div>
+                    <h2 class="section-title" style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem;">Postingan Terkait</h2>
+                    <div class="listing-grid">
+                        @foreach($relatedListings as $related)
+                        <a href="{{ route('listings.show', $related->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center;">
+                            <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
+                            <div class="listing-details" style="padding: 0; flex: 1;">
+                                <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                    @if($related->listingType)
+                                        <span style="background: {{ $related->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700;">
+                                            {{ $related->listingType->name }}
+                                        </span>
+                                    @endif
+                                    <span>{{ $related->categories->take(1)->pluck('name')->join(', ') }}</span>
+                                </div>
+                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
+                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">Rp {{ number_format($related->price, 0, ',', '.') }}</div>
+                                <div class="listing-location" style="font-size: 0.75rem; margin: 0; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $related->location }}</div>
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
             
-            <a href="{{ route('home') }}" class="btn btn-outline" style="width: 100%; margin-top: 20px;">Lihat Semua Iklan</a>
+            <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
+                <a href="{{ route('home') }}" class="btn btn-outline" style="width: 100%;">Lihat Semua Iklan</a>
+                @auth
+                    @if($listing->user_id == auth()->id())
+                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-outline" style="width: 100%; border-color: var(--accent); color: var(--accent);">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
+                        </a>
+                        @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
+                            <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" class="btn btn-primary" style="width: 100%; background: #f59e0b; border-color: #f59e0b;">
+                                <i class="fa-solid fa-crown"></i> Upgrade ke Premium
+                            </a>
+                        @endif
+                    @endif
+                @endauth
+            </div>
         </aside>
     </div>
 </div>

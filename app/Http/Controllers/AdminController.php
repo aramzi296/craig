@@ -84,7 +84,7 @@ class AdminController extends Controller
 
     public function listings(Request $request)
     {
-        $query = \App\Models\Listing::query()->with(['categories', 'user']);
+        $query = \App\Models\Listing::query()->with(['categories', 'user', 'listingType']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -95,13 +95,8 @@ class AdminController extends Controller
             });
         }
 
-        if ($request->filled('category_id')) {
-            $categoryId = $request->category_id;
-            $query->whereIn('id', function($sq) use ($categoryId) {
-                $sq->select('listing_id')
-                   ->from('category_listing')
-                   ->where('category_id', $categoryId);
-            });
+        if ($request->filled('listing_type_id')) {
+            $query->where('listing_type_id', $request->listing_type_id);
         }
 
         if ($request->filled('status')) {
@@ -109,9 +104,9 @@ class AdminController extends Controller
         }
 
         $listings = $query->latest()->paginate(20)->withQueryString();
-        $categories = \App\Models\Category::orderBy('sort_order')->orderBy('name')->get();
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
 
-        return view('admin.listings.index', compact('listings', 'categories'));
+        return view('admin.listings.index', compact('listings', 'listingTypes'));
     }
 
     public function createListing()
