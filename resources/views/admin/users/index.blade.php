@@ -24,6 +24,7 @@
             <tr>
                 <th>Nama</th>
                 <th>Email</th>
+                <th>WhatsApp</th>
                 <th>Status</th>
                 <th>Peran</th>
                 <th>Bergabung</th>
@@ -35,6 +36,15 @@
             <tr>
                 <td style="font-weight: 600;">{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>
+                <td>
+                    @if($user->whatsapp)
+                        <a href="https://wa.me/{{ $user->whatsapp }}" target="_blank" style="color: #166534; font-weight: 600; display: flex; align-items: center; gap: 5px;">
+                            <i class="fa-brands fa-whatsapp"></i> {{ $user->whatsapp }}
+                        </a>
+                    @else
+                        -
+                    @endif
+                </td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         @if($user->is_verified)
