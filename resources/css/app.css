@@ -230,8 +230,8 @@ header {
 .dropdown-menu {
     position: absolute;
     top: 100%;
-    left: 0;
-    width: 200px;
+    right: 0;
+    min-width: 200px;
     margin-top: 15px;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
@@ -268,6 +268,32 @@ header {
 .dropdown-item:hover {
     background: rgba(14, 165, 233, 0.1);
     color: var(--primary) !important;
+}
+
+@media (max-width: 768px) {
+    .dropdown {
+        width: 100%;
+        text-align: center;
+    }
+    .dropdown-trigger {
+        justify-content: center;
+        width: 100%;
+        padding: 10px 0;
+    }
+    .dropdown-menu {
+        position: static;
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: rgba(0,0,0,0.03);
+        margin-top: 5px;
+        padding: 5px;
+    }
+    .dropdown-item {
+        justify-content: center;
+    }
 }
 
 .btn {

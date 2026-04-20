@@ -35,22 +35,46 @@
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
                 <a href="{{ route('baca-saya') }}" class="{{ request()->routeIs('baca-saya') ? 'active' : '' }}">Baca Saya</a>
                 
+                @guest
+                    <a href="{{ route('listings.create') }}" class="{{ request()->routeIs('listings.create') ? 'active' : '' }}">Pasang Iklan</a>
+                @endguest
+
                 <div class="nav-divider"></div>
 
                 @guest
                     <a href="{{ route('login') }}" style="font-weight: 600; color: var(--text);">Masuk</a>
                     <a href="{{ route('register') }}" class="btn btn-primary">Daftar</a>
                 @else
-                    <div class="nav-user-info">
-                        <span class="nav-greeting">Halo, <strong>{{ auth()->user()->name }}</strong></span>
-                        <a href="{{ route('dashboard') }}" class="btn btn-outline">Dashboard</a>
-                        @if(auth()->user()->is_admin)
-                            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary" style="background: var(--secondary);">Admin</a>
-                        @endif
-                        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                            @csrf
-                            <button type="submit" class="btn-logout">Keluar</button>
-                        </form>
+                    <div class="dropdown">
+                        <div class="dropdown-trigger">
+                            <img src="{{ auth()->user()->getProfilePhoto() }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
+                            <span class="nav-greeting">Halo, <strong>{{ auth()->user()->name }}</strong></span>
+                            <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--text-muted);"></i>
+                        </div>
+                        <div class="dropdown-menu glass">
+                            <a href="{{ route('listings.create') }}" class="dropdown-item" style="font-weight: 700; color: var(--primary) !important;">
+                                <i class="fa-solid fa-plus-circle"></i> Pasang Iklan
+                            </a>
+                            <div style="border-top: 1px solid var(--border); margin: 5px 0;"></div>
+                            <a href="{{ route('dashboard') }}" class="dropdown-item">
+                                <i class="fa-solid fa-gauge-high"></i> Dashboard
+                            </a>
+                            <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                <i class="fa-solid fa-user-gear"></i> Profil Saya
+                            </a>
+                            @if(auth()->user()->is_admin)
+                                <a href="{{ route('admin.dashboard') }}" class="dropdown-item" style="color: var(--secondary) !important;">
+                                    <i class="fa-solid fa-user-shield" style="color: var(--secondary);"></i> Admin Site
+                                </a>
+                            @endif
+                            <div style="border-top: 1px solid var(--border); margin: 5px 0;"></div>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; cursor: pointer; color: #ef4444 !important;">
+                                    <i class="fa-solid fa-right-from-bracket" style="color: #ef4444;"></i> Keluar
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @endguest
             </nav>
