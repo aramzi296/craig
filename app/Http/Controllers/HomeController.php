@@ -10,7 +10,7 @@ class HomeController extends Controller
     {
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         
-        $query = \App\Models\Listing::query()->where('is_active', true);
+        $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
 
         $premiumListings = (clone $query)->where('is_premium', true)->latest()->take(6)->get();
 
@@ -21,7 +21,7 @@ class HomeController extends Controller
 
     public function search(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Listing::query()->where('is_active', true);
+        $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
 
         // Filter by Keyword
         if ($request->filled('q')) {
@@ -69,6 +69,7 @@ class HomeController extends Controller
         $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user'])
             ->where('slug', $slug)
             ->where('is_active', true)
+            ->notExpired()
             ->firstOrFail();
         
         // Increment view count
@@ -80,6 +81,7 @@ class HomeController extends Controller
             })
             ->where('id', '!=', $listing->id)
             ->where('is_active', true)
+            ->notExpired()
             ->latest()
             ->take(6)
             ->get();
@@ -87,6 +89,7 @@ class HomeController extends Controller
         $sidebarPremiumListings = \App\Models\Listing::with(['categories', 'listingType'])
             ->where('is_premium', true)
             ->where('is_active', true)
+            ->notExpired()
             ->where('id', '!=', $listing->id)
             ->inRandomOrder()
             ->take(5)

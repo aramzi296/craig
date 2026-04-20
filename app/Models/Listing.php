@@ -9,7 +9,7 @@ class Listing extends Model
     protected $fillable = [
         'user_id', 'listing_type_id', 'title', 'slug', 'description', 
         'price', 'location', 'is_featured', 'is_premium', 'is_active', 'features', 
-        'whatsapp_visibility', 'comment_visibility'
+        'whatsapp_visibility', 'comment_visibility', 'expires_at'
     ];
 
     protected $casts = [
@@ -17,6 +17,7 @@ class Listing extends Model
         'is_featured' => 'boolean',
         'is_premium' => 'boolean',
         'is_active' => 'boolean',
+        'expires_at' => 'datetime',
     ];
 
 
@@ -28,6 +29,19 @@ class Listing extends Model
     public function categories()
     {
         return $this->belongsToMany(Category::class);
+    }
+
+    public function isExpired()
+    {
+        return $this->expires_at && $this->expires_at->isPast();
+    }
+
+    public function scopeNotExpired($query)
+    {
+        return $query->where(function($q) {
+            $q->whereNull('expires_at')
+              ->orWhere('expires_at', '>', now());
+        });
     }
 
     public function listingType()

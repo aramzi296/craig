@@ -8,4 +8,6 @@ return [
     'max_foto_iklan' => 4,                      // jumlah foto untuk sebuah listing
     'max_foto_iklan_premium' => 12,             // jumlah foto untuk sebuah listing premium
     'max_karakter_komentar' => 250,             // jumlah karakter untuk sebuah komentar
+    'expire_iklan' => 30,                      // default expire iklan dalam hari
+    'expire_iklan_premium' => 30,              // default expire iklan premium dalam hari
 ];

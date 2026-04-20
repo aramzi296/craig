@@ -21,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
     {
         \Illuminate\Pagination\Paginator::useBootstrapFive();
 
+        \App\Models\Listing::observe(\App\Observers\ListingObserver::class);
+
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
             $view->with('globalCategories', \App\Models\Category::orderBy('sort_order')->get());
         });
