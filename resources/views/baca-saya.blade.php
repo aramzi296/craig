@@ -40,6 +40,10 @@
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">PROYEK:</strong> Jika Anda mau menawarkan proyek atau pekerjaan kepada pihak lain untuk mengerjakan proyek atau pekerjaan tersebut. Contoh: mencari pemborong bangunan, mencari tukang las, mencari tukang ledeng, mencari tukang cat, dll.</span>
+                                </li>
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
                                     <span><strong style="color: #1e293b; font-weight: 850;">JASA:</strong> Jika anda mau menawarkan jasa Anda. Contoh: service AC, jasa anggutan puing, tukang, jasa desain grafis, jasa pembuatan website, jasa perbaikan elektronik, jasa kebersihan, dll.</span>
                                 </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
@@ -59,10 +63,7 @@
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
                                     <span><strong style="color: #1e293b; font-weight: 850;">AGENDA:</strong> Jika Anda mau memberitahukan agenda kegiatan (gratis atau berbayar). Contoh: kegiatan seminar, pelatihan, workshop, dll.</span>
                                 </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">PELUANG:</strong> Jika Anda mau menawarkan kerjasama usaha atau peluang usaha kepada warga batam. Contoh: affiliate marketing, dropship, patungan usaha, dll.</span>
-                                </li>
+                                
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #10b981;"></i>
                                     <span><strong style="color: #1e293b; font-weight: 850;">PROMO:</strong> Jika Anda mau menawarkan promo: diskon, bonus, cashback, doorprice, luckydraw, kupon, dll.</span>
