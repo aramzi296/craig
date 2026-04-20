@@ -10,8 +10,21 @@
 
     <div class="listing-details-grid">
         <div class="listing-main-column">
+            <!-- Image Component -->
+            @if($listing->getImageUrl())
+            <div class="glass" style="border-radius: var(--radius); overflow: hidden; line-height: 0; margin-bottom: 5px;">
+                <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
+            </div>
+            @endif
+
             <!-- Details Header -->
-            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 25px;">
+            <div class="glass" style="padding: 10px; border-radius: var(--radius); margin-bottom: 15px;">
+                <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; color: var(--text); line-height: 1.2;">
+                    {{ $listing->title }}
+                    @if($listing->is_premium)
+                        <span class="badge badge-premium" style="font-size: 0.8rem; vertical-align: middle; margin-top: -5px; display: inline-block;">PREMIUM</span>
+                    @endif
+                </h1>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
                     @if($listing->listingType)
                         <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -21,26 +34,18 @@
                     <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
                         {{ $listing->categories->pluck('name')->join(' • ') }}
                     </div>
+
+                    <div style="color: var(--text-muted); font-size: 1.05rem; font-weight: 500;">
+                            <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->location }}, Batam
+                        </div>
                 </div>
                 
-                <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 0; color: var(--text); line-height: 1.2;">
-                    {{ $listing->title }}
-                    @if($listing->is_premium)
-                        <span class="badge badge-premium" style="font-size: 0.8rem; vertical-align: middle; margin-top: -5px; display: inline-block;">PREMIUM</span>
-                    @endif
-                </h1>
+                
             </div>
-
-            <!-- Image Component -->
-            @if($listing->getImageUrl())
-            <div class="glass" style="border-radius: var(--radius); overflow: hidden; line-height: 0; margin-bottom: 25px;">
-                <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: auto; object-fit: cover; display: block;">
-            </div>
-            @endif
 
             <!-- Features Component -->
             @if(!empty($listing->features) && count(array_filter($listing->features)) > 0)
-            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 0px;">
+            <div class="glass" style="padding: 10px; border-radius: var(--radius); margin-bottom: 15px;">
                 <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
                     @foreach(array_filter($listing->features) as $feature)
                     <li style="display: flex; align-items: center; gap: 12px; font-size: 1rem; color: var(--text); font-weight: 500;">
@@ -52,14 +57,14 @@
             @endif
 
             <!-- Description Component -->
-            <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-bottom: 25px;">
+            <div class="glass" style="padding: 15px; border-radius: var(--radius); margin-bottom: 25px;">
                 <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
                     {!! nl2br(e($listing->description)) !!}
                 </div>
             </div>
 
             <!-- Footer Details (Dan Seterusnya) -->
-            <div class="glass" style="padding: 35px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
+            <div class="glass" style="padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; margin-bottom: 30px;">
                     <div>
                         <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">
@@ -69,14 +74,8 @@
                                 Hubungi Kami
                             @endif
                         </div>
-                        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-top: 10px; font-size: 1.05rem; font-weight: 500;">
-                            <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->location }}, Batam
-                        </div>
-                        @if($listing->listingType)
-                        <div style="display: flex; align-items: center; gap: 10px; color: var(--text-muted); margin-top: 10px; font-size: 1.05rem; font-weight: 500;">
-                            <i class="fa-solid fa-tag" style="color: var(--secondary); font-size: 1.2rem;"></i> Tipe Iklan: {{ $listing->listingType->name }}
-                        </div>
-                        @endif
+                        
+                        
                     </div>
                     
                     <div style="display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
