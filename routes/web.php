@@ -55,6 +55,7 @@ Route::middleware('auth')->group(function () {
     // Profile Actions
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [\App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
     
     // Admin Routes
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {

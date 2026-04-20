@@ -57,6 +57,43 @@
         </form>
     </div>
 
+    {{-- Ganti Password Section --}}
+    <div class="dashboard-header" style="margin-top: 40px;">
+        <h2>Keamanan Akun</h2>
+    </div>
+
+    @if(session('success_password'))
+        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px; max-width: 600px;">
+            {{ session('success_password') }}
+        </div>
+    @endif
+
+    <div class="glass" style="padding: 30px; border-radius: var(--radius); max-width: 600px; margin-bottom: 40px;">
+        <form action="{{ route('profile.password.update') }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 25px;">
+                Gunakan fitur ini untuk membuat atau mengganti password Anda. Password ini digunakan jika Anda ingin masuk menggunakan alamat email.
+            </p>
+
+            <div style="margin-bottom: 20px;">
+                <label for="password" style="display: block; font-weight: 700; margin-bottom: 8px;">Password Baru</label>
+                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" required placeholder="Minimal 8 karakter">
+                @error('password')
+                    <div style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div style="margin-bottom: 30px;">
+                <label for="password_confirmation" style="display: block; font-weight: 700; margin-bottom: 8px;">Konfirmasi Password Baru</label>
+                <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required placeholder="Ulangi password baru">
+            </div>
+
+            <button type="submit" class="btn btn-outline" style="width: 100%; padding: 15px; border-color: var(--primary); color: var(--primary);">Perbarui Password</button>
+        </form>
+    </div>
+
     <script>
         function previewImage(input) {
             if (input.files && input.files[0]) {

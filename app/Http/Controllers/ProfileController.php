@@ -44,4 +44,22 @@ class ProfileController extends Controller
  
         return back()->with('success', 'Profil Anda berhasil diperbarui.');
     }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'Password baru wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
+        ]);
+
+        $user = auth()->user();
+        $user->update([
+            'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        ]);
+
+        return back()->with('success_password', 'Password Anda berhasil diperbarui.');
+    }
 }
