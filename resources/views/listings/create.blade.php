@@ -1,12 +1,12 @@
-@extends('layouts.dashboard')
+@extends($layout)
 
-@section('dashboard_content')
-    <div style="margin-bottom: 40px;">
+@section($section)
+    <div style="margin-bottom: 40px; text-align: center;">
         <h1 style="font-size: 2.5rem; font-weight: 700;">Pasang Iklan Baru</h1>
         <p style="color: var(--text-muted);">Bagikan apa yang Anda tawarkan ke seluruh komunitas di Batam.</p>
     </div>
 
-    <div class="form-card">
+    <div class="form-card" style="margin: 0 auto;">
         <form action="{{ route('listings.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
@@ -121,15 +121,15 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="location">Lokasi di Batam</label>
+                <label for="district_id">Lokasi di Batam</label>
                 <div class="form-input-side">
-                    <select name="location" id="location" class="form-control @error('location') is-invalid @enderror" required>
+                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
                         <option value="">Pilih Lokasi</option>
-                        @foreach(['Batam Centre', 'Nagoya', 'Sekupang', 'Batu Ampar', 'Bengkong', 'Sei Beduk', 'Nongsa', 'Sagulung', 'Batu Aji'] as $loc)
-                            <option value="{{ $loc }}" {{ old('location') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                        @foreach($districts as $dist)
+                            <option value="{{ $dist->id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                         @endforeach
                     </select>
-                    @error('location')
+                    @error('district_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -212,10 +212,56 @@
                 </div>
             </div>
 
+            <div style="background: var(--primary-light, #f0f9ff); padding: 25px; border-radius: 12px; border: 1px solid var(--primary); margin: 30px 0;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Verifikasi Kepemilikan & Autentikasi</h3>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                    Untuk menerbitkan iklan, silakan verifikasi nomor WhatsApp Anda. 
+                    Jika Anda belum memiliki akun, sistem akan membuatkannya otomatis.
+                </p>
+
+                <div class="form-group-horizontal">
+                    <label for="whatsapp_number">Nomor WhatsApp</label>
+                    <div class="form-input-side">
+                        <input type="text" name="whatsapp_number" id="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" value="{{ old('whatsapp_number', auth()->user()->whatsapp ?? '') }}" placeholder="Contoh: 0812xxxx (tanpa spasi)" required {{ auth()->check() ? 'readonly' : '' }}>
+                        @error('whatsapp_number')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-group-horizontal">
+                    <label for="otp">Kode OTP</label>
+                    <div class="form-input-side">
+                        <input type="text" name="otp" id="otp" class="form-control @error('otp') is-invalid @enderror" placeholder="6 digit kode OTP" required>
+                        <small style="color: var(--text-muted); display: block; margin-top: 8px; line-height: 1.5;">
+                            Kirim pesan <strong style="color: var(--primary);">OTP</strong> ke nomor WhatsApp bot admin kami untuk mendapatkan kode.
+                            <br>
+                            <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '628XXXXXXXXX') }}?text=OTP" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+                                <i class="fa-brands fa-whatsapp"></i> Klik di sini untuk Chat Bot (ketik OTP)
+                            </a>
+                        </small>
+                        @error('otp')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
-                <a href="{{ route('dashboard') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
+                <a href="{{ route('home') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
                 <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Terbitkan Iklan</button>
             </div>
         </form>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem; max-width: 900px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+        <p>
+            <i class="fa-solid fa-circle-info"></i> Jika Anda ingin melakukan perubahan terhadap postingan Anda, silakan lakukan melalui <strong>Dashboard Member</strong>.
+            <br>
+            Untuk masuk ke dashboard, kirimkan pesan <strong style="color: var(--primary);">login</strong> ke 
+            <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '628XXXXXXXXX') }}?text=login" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                Chatbot Sebatam
+            </a>.
+        </p>
     </div>
 @endsection

@@ -62,7 +62,8 @@
         <div class="form-group-horizontal">
             <label for="price">Harga (Rp)</label>
             <div class="form-input-side">
-                <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="0" required>
+                <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="Contoh: 500000 (kosongkan jika tidak ada)">
+                <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
                 @error('price')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
@@ -70,15 +71,15 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="location">Lokasi di Batam</label>
+            <label for="district_id">Lokasi di Batam</label>
             <div class="form-input-side">
-                <select name="location" id="location" class="form-control @error('location') is-invalid @enderror" required>
+                <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
                     <option value="">Pilih Lokasi</option>
-                    @foreach(['Batam Centre', 'Nagoya', 'Sekupang', 'Batu Ampar', 'Bengkong', 'Sei Beduk', 'Nongsa', 'Sagulung', 'Batu Aji'] as $loc)
-                        <option value="{{ $loc }}" {{ old('location') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                    @foreach($districts as $dist)
+                        <option value="{{ $dist->id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                     @endforeach
                 </select>
-                @error('location')
+                @error('district_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>

@@ -118,14 +118,14 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="location">Lokasi di Batam</label>
+                <label for="district_id">Lokasi di Batam</label>
                 <div class="form-input-side">
-                    <select name="location" id="location" class="form-control @error('location') is-invalid @enderror" required>
-                        @foreach(['Batam Centre', 'Nagoya', 'Sekupang', 'Batu Ampar', 'Bengkong', 'Sei Beduk', 'Nongsa', 'Sagulung', 'Batu Aji'] as $loc)
-                            <option value="{{ $loc }}" {{ old('location', $listing->location) == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                        @foreach($districts as $dist)
+                            <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                         @endforeach
                     </select>
-                    @error('location')
+                    @error('district_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>

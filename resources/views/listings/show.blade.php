@@ -196,15 +196,15 @@
 
                     @if($canSeeContact)
                         <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di Sebatam: {{ $listing->title }}. Apakah masih tersedia%3F" target="_blank" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px;">
-                            <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via WhatsApp
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via whatsapp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)
                         <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <i class="fa-solid fa-lock"></i> Login untuk Chat WA
+                            <i class="fa-solid fa-lock"></i> Login untuk kirim WA
                         </a>
                     @else
                         <div class="btn btn-secondary disabled" style="padding: 18px; font-size: 1rem; border-radius: 12px; cursor: not-allowed; opacity: 0.7; display: flex; align-items: center; justify-content: center; gap: 8px; background: #e2e8f0; color: #64748b; border: none;">
-                            <i class="fa-solid fa-eye-slash"></i> WA Dinonaktifkan
+                            <i class="fa-solid fa-eye-slash"></i> WA tidak ditampilkan
                         </div>
                     @endif
                     

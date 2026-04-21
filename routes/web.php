@@ -35,14 +35,16 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Listing Routes (Public with OTP)
+Route::get('/listing/create', [ListingController::class, 'create'])->name('listings.create');
+Route::post('/listing', [ListingController::class, 'store'])->name('listings.store');
+
 // Protected Routes
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/listing/{id}/favorite', [FavoriteController::class, 'toggle'])->name('listings.favorite');
     
     // Member Listing Actions
-    Route::get('/listing/create', [ListingController::class, 'create'])->name('listings.create');
-    Route::post('/listing', [ListingController::class, 'store'])->name('listings.store');
     Route::get('/listing/{id}/edit', [ListingController::class, 'edit'])->name('listings.edit');
     Route::put('/listing/{id}', [ListingController::class, 'update'])->name('listings.update');
     Route::post('/listing/{id}/toggle', [ListingController::class, 'toggleStatus'])->name('listings.toggle');

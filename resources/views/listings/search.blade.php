@@ -3,17 +3,22 @@
 @section('content')
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <form action="{{ route('search') }}" method="GET" class="search-box">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            <input type="text" name="q" placeholder="Cari apa saja di Batam..." value="{{ request('q') }}">
-            
-            <!-- Hidden inputs to preserve filters when searching via keyword -->
-            @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
-            @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
-            @if(request('location')) <input type="hidden" name="location" value="{{ request('location') }}"> @endif
-            
-            <button type="submit" class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
-        </form>
+        <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
+            <form action="{{ route('search') }}" method="GET" class="search-box" style="margin: 0; width: 100%; max-width: 600px;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" name="q" placeholder="Cari apa saja di Batam..." value="{{ request('q') }}">
+                
+                <!-- Hidden inputs to preserve filters when searching via keyword -->
+                @if(request('category')) <input type="hidden" name="category" value="{{ request('category') }}"> @endif
+                @if(request('type')) <input type="hidden" name="type" value="{{ request('type') }}"> @endif
+                @if(request('location')) <input type="hidden" name="location" value="{{ request('location') }}"> @endif
+                
+                <button type="submit" class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
+            </form>
+            <a href="{{ route('listings.create') }}" class="btn btn-primary" style="border-radius: 50px; padding: 15px 30px; height: 58px; background: var(--secondary); border: none; box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);">
+                <i class="fa-solid fa-plus"></i> Pasang Iklan Anda
+            </a>
+        </div>
     </div>
 </section>
 
@@ -132,7 +137,7 @@
                 </div>
 
                 <div style="margin-top: 40px; display: flex; justify-content: center;">
-                    {{ $listings->appends(request()->query())->links() }}
+                    {{ $listings->appends(request()->query())->links('vendor.pagination.simple-custom') }}
                 </div>
             @else
                 <div style="text-align: center; padding: 100px 20px; background: white; border-radius: var(--radius); border: 1px dashed var(--border);">

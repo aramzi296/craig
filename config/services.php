@@ -47,7 +47,8 @@ return [
         'api_url'   => env('WHATSAPP_API_URL', ''),
         'device_id' => env('WHATSAPP_DEVICE_ID', 'default'),
         'api_user'  => env('WHATSAPP_API_USER', 'admin'),
-        'api_pass'  => env('WHATSAPP_API_PASS', ''),
+        'api_pass'   => env('WHATSAPP_API_PASS', ''),
+        'bot_number' => env('WHATSAPP_BOT_NUMBER', '628XXXXXXXXX'),
     ],
 
     'imagekit' => [

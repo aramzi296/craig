@@ -42,6 +42,12 @@ class WhatsappBotService
         $text      = trim($message);
         $lowerText = strtolower($text);
 
+        // ── Keyword: otp ────────────────────────────────────────────────────
+        if ($lowerText === 'otp') {
+            $this->handleOtpKeyword($phone);
+            return;
+        }
+
         // ── Keyword: login ──────────────────────────────────────────────────
         if ($lowerText === 'login') {
             $this->handleLoginKeyword($phone);
@@ -79,6 +85,61 @@ class WhatsappBotService
 
         // Nomor sudah terdaftar – buat dua OTP dan kirim
         $this->issueLoginOtps($phone, $user);
+    }
+
+    private function handleOtpKeyword(string $phone): void
+    {
+        $user = User::where('whatsapp', $phone)->first();
+
+        if (!$user) {
+            // Jika belum ada, buatkan user baru sesuai request
+            $randomSuffix = rand(100, 999);
+            $email = $phone . '+' . $randomSuffix . '@sebatam.com';
+            $password = Str::random(10);
+
+            try {
+                $user = User::create([
+                    'name'     => 'WA ' . $phone,
+                    'whatsapp' => $phone,
+                    'email'    => $email,
+                    'password' => Hash::make($password),
+                ]);
+                Log::info('WA Bot: dynamic user created for OTP request', ['phone' => $phone, 'user_id' => $user->id]);
+            } catch (\Throwable $e) {
+                Log::error('WA Bot: failed to create dynamic user', ['error' => $e->getMessage()]);
+                $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
+                return;
+            }
+        }
+
+        // Kirim OTP
+        $this->issueAdPostingOtp($phone, $user);
+    }
+
+    private function issueAdPostingOtp(string $phone, User $user): void
+    {
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $user->update([
+            'wa_otp1'            => Hash::make($otp),
+            'wa_otp1_lookup'     => hash('sha256', $otp),
+            'wa_otp1_expires_at' => now()->addMinutes(15),
+        ]);
+
+        $this->whatsapp->sendMessage(
+            $phone,
+            "🔐 *Kode OTP Pasang Iklan*\n\n" .
+            "Halo! Ini adalah kode OTP Anda untuk memasang iklan di Sebatam:\n\n" .
+            "🔑 *KODE OTP : {$otp}*\n\n" .
+            "Kode ini berlaku selama *15 menit*.\n" .
+            "Masukkan kode ini pada form pasang iklan di website.\n\n" .
+            "_Jangan berikan kode ini kepada siapapun._"
+        );
+
+        Log::info('WA Bot: ad posting OTP issued', [
+            'user_id'   => $user->id,
+            'phone_sfx' => $this->sfx($phone),
+        ]);
     }
 
     /**

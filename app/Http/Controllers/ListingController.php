@@ -17,28 +17,69 @@ class ListingController extends Controller
     {
         $categories = \App\Models\Category::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
+        
+        $layout = auth()->check() ? 'layouts.dashboard' : 'layouts.app';
+        $section = auth()->check() ? 'dashboard_content' : 'content';
 
-        return view('listings.create', compact('categories', 'listingTypes'));
+        return view('listings.create', compact('categories', 'listingTypes', 'districts', 'layout', 'section'));
     }
 
     public function store(\Illuminate\Http\Request $request)
     {
-        $data = $request->validate([
+        $rules = [
             'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . config('sebatam.huruf_deskripsi_iklan', 100),
-            'price' => 'nullable|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'price' => 'nullable|numeric',
+            'district_id' => 'required|exists:districts,id',
             'features' => 'nullable|array|max:8',
             'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
             'whatsapp_visibility' => 'required|integer|in:0,1,2',
             'comment_visibility' => 'required|integer|in:0,1,2',
+        ];
+
+        // ADD OTP and WhatsApp validation
+        $rules['whatsapp_number'] = 'required|string';
+        $rules['otp'] = 'required|digits:6';
+
+        $data = $request->validate($rules);
+
+        // ── Verify OTP ──────────────────────────────────────────────────────
+        $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['whatsapp_number']);
+        $otp = $data['otp'];
+        $lookup = hash('sha256', $otp);
+
+        $user = \App\Models\User::where('whatsapp', $whatsapp)
+            ->where('wa_otp1_lookup', $lookup)
+            ->first();
+
+        if (!$user || ! \Illuminate\Support\Facades\Hash::check($otp, $user->wa_otp1)) {
+            return back()->withErrors(['otp' => 'Kode OTP tidak valid.'])->withInput();
+        }
+
+        if ($user->wa_otp1_expires_at->isPast()) {
+            return back()->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa.'])->withInput();
+        }
+
+        // OTP is valid! Associate listing with this user.
+        $data['user_id'] = $user->id;
+        
+        // Login user if they are guest
+        if (!auth()->check()) {
+            auth()->login($user, true);
+        }
+
+        // Clear OTP
+        $user->update([
+            'wa_otp1' => null,
+            'wa_otp1_lookup' => null,
+            'wa_otp1_expires_at' => null,
         ]);
 
-        $data['user_id'] = auth()->id();
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = true;
 
@@ -92,8 +133,9 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
         $categories = \App\Models\Category::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+        $districts = \App\Models\District::orderBy('name')->get();
 
-        return view('listings.edit', compact('listing', 'categories', 'listingTypes'));
+        return view('listings.edit', compact('listing', 'categories', 'listingTypes', 'districts'));
     }
 
     public function update(\Illuminate\Http\Request $request, $id)
@@ -105,8 +147,8 @@ class ListingController extends Controller
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . ($listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100)),
-            'price' => 'nullable|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'price' => 'nullable|numeric',
+            'district_id' => 'required|exists:districts,id',
             'features' => 'nullable|array|max:8',
             'features.*' => 'nullable|string|max:' . config('sebatam.huruf_fitur', 40),
             'photos' => 'nullable|array',

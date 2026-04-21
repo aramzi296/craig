@@ -67,7 +67,7 @@
             <tr>
                 <td>
                     <div style="font-weight: 600;">{{ $listing->title }}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $listing->location }}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $listing->district->name ?? 'Batam' }}</div>
                 </td>
                 <td>{{ $listing->user->name }}</td>
                 <td>

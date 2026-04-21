@@ -91,7 +91,9 @@ class AdminController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('title', 'like', "%{$search}%")
                   ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('location', 'like', "%{$search}%");
+                  ->orWhereHas('district', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
             });
         }
 
@@ -113,7 +115,8 @@ class AdminController extends Controller
     {
         $categories = \App\Models\Category::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
-        return view('admin.listings.create', compact('categories', 'listingTypes'));
+        $districts = \App\Models\District::orderBy('name')->get();
+        return view('admin.listings.create', compact('categories', 'listingTypes', 'districts'));
     }
 
     public function storeListing(\Illuminate\Http\Request $request)
@@ -125,8 +128,8 @@ class AdminController extends Controller
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'price' => 'nullable|numeric',
+            'district_id' => 'required|exists:districts,id',
             'features' => 'nullable|array|max:8',
         ]);
 
@@ -162,7 +165,8 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::findOrFail($id);
         $categories = \App\Models\Category::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
-        return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes'));
+        $districts = \App\Models\District::orderBy('name')->get();
+        return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes', 'districts'));
     }
 
     public function updateListing(\Illuminate\Http\Request $request, $id)
@@ -176,8 +180,8 @@ class AdminController extends Controller
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
-            'location' => 'required|string|max:255',
+            'price' => 'nullable|numeric',
+            'district_id' => 'required|exists:districts,id',
             'features' => 'nullable|array|max:8',
         ]);
 
