@@ -99,7 +99,7 @@ class WhatsappBotService
 
             try {
                 $user = User::create([
-                    'name'     => 'WA ' . $phone,
+                    'name'     => 'user-' . rand(100000, 999999),
                     'whatsapp' => $phone,
                     'email'    => $email,
                     'password' => Hash::make($password),
