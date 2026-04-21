@@ -116,9 +116,10 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone,
-            "🔐 *Kode OTP Sebatam*\n\n" .
-            "Halo, *{$user->name}*! Berikut adalah kode OTP Anda:\n\n" .
-            "🔑 *KODE OTP : {$otp}*\n\n" .
+            "🔐 *Login Via WhatsApp*\n\n" .
+            "Halo, *{$user->name}*! Berikut kode login Anda:\n\n" .
+            "🔑 *Nomor WA : {$phone}*\n" .
+            "🔑 *OTP      : {$otp}*\n\n" .
             "Kode ini berlaku selama *15 menit*.\n" .
             "Gunakan nomor WA ini dan kode di atas untuk login atau pasang iklan.\n\n" .
             "Halaman Login:\n{$loginUrl}\n\n" .
@@ -166,12 +167,12 @@ class WhatsappBotService
         $this->whatsapp->sendMessage(
             $phone,
             "🔐 *Login Via WhatsApp*\n\n" .
-            "Halo, *{$user->name}*! Berikut dua kode OTP untuk login:\n\n" .
-            "🔑 *OTP Pertama : {$otp1}*\n" .
-            "🔑 *OTP Kedua   : {$otp2}*\n\n" .
-            "Kedua kode ini berlaku selama *10 menit*.\n\n" .
+            "Halo, *{$user->name}*! Berikut kode login Anda:\n\n" .
+            "🔑 *Nomor WA : {$phone}*\n" .
+            "🔑 *OTP      : {$otp1}*\n\n" .
+            "Kode ini berlaku selama *10 menit*.\n\n" .
             "Buka halaman login di:\n{$loginUrl}\n" .
-            "Lalu masukkan kedua kode di atas.\n\n" .
+            "Lalu masukkan nomor WA dan OTP di atas.\n\n" .
             "_Jangan berikan kode ini kepada siapapun._"
         );
 

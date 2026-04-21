@@ -16,7 +16,7 @@
             </div>
             <div>
                 <h1>Login via WhatsApp</h1>
-                <p>Gunakan nomor WA dan kode OTP untuk masuk</p>
+                <p>Gunakan nomor WA dan OTP untuk masuk</p>
             </div>
         </div>
 
@@ -61,7 +61,7 @@
             <div class="form-group">
                 <label for="whatsapp">
                     <i class="fa-brands fa-whatsapp" style="color: #25D366; margin-right: 5px;"></i>
-                    Nomor WhatsApp
+                    Nomor WA
                 </label>
                 <input
                     type="text"
@@ -84,7 +84,7 @@
             <div class="form-group" style="margin-top: 18px;">
                 <label for="otp">
                     <i class="fa-solid fa-key" style="color: #f97316; margin-right: 5px;"></i>
-                    Kode OTP
+                    OTP
                 </label>
                 <div class="otp-wrap">
                     <input
