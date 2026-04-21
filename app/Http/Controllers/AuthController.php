@@ -16,17 +16,29 @@ class AuthController extends Controller
 
     public function login(\Illuminate\Http\Request $request)
     {
-        return $this->showLogin();
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (\Illuminate\Support\Facades\Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            return redirect()->intended('dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Email atau password salah.',
+        ])->onlyInput('email');
     }
 
-    public function showRegister()
+    public function showRegister(Request $request)
     {
         return redirect()->route('wa-login')->with('info', 'Registrasi sementara dialihkan melalui WhatsApp. Kirim pesan "otp" ke bot kami.');
     }
 
     public function register(\Illuminate\Http\Request $request)
     {
-        return $this->showRegister();
+        return $this->showRegister($request);
     }
 
     public function logout(\Illuminate\Http\Request $request)
