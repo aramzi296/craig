@@ -3,7 +3,8 @@
 @section('content')
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <!-- <h1>Sebut Ape Nak Carek di Batam</h1> -->
+        <h1>Cari Apa Saja Sebatam</h1>
+        <p>Gunakan kata kunci untuk menemukan berbagai iklan dan penawaran terbaik di Batam dengan mudah dan cepat.</p>
         <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
             <form action="{{ route('search') }}" method="GET" class="search-box" style="margin: 0; width: 100%; max-width: 600px;">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -23,7 +24,7 @@
     <h2 class="section-title" style="margin-top: 20px;">Postingan Premium</h2>
     <div class="listing-grid">
         @foreach($premiumListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
+        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
             @if($listing->getThumbnailUrl())
                 <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             @endif
@@ -72,7 +73,7 @@
     <h2 class="section-title">Listing Terbaru</h2>
     <div class="listing-grid">
         @foreach($recentListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
+        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
             @if($listing->getThumbnailUrl())
                 <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             @endif

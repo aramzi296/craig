@@ -23,7 +23,7 @@
 </section>
 
 <div class="container page-section" style="padding-top: 0;">
-    <div class="search-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 40px;">
+    <div class="search-layout">
         
         <!-- Sidebar Filters -->
         <aside class="search-sidebar">
@@ -75,6 +75,9 @@
 
         <!-- Results Area -->
         <main class="search-results">
+            <button id="mobile-filter-toggle" onclick="toggleMobileFilter()">
+                <i class="fa-solid fa-filter"></i> Tampilkan Filter
+            </button>
             <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                 <h2 class="section-title" style="margin: 0; font-size: 1.6rem;">
                     @if(request('q')) 
@@ -93,7 +96,7 @@
             @if($listings->count() > 0)
                 <div class="listing-grid">
                     @foreach($listings as $listing)
-                    <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
+                    <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
                         @if($listing->getThumbnailUrl())
                             <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
                         @endif
@@ -154,13 +157,86 @@
 </div>
 
 <style>
+    .search-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 40px;
+    }
+
+    #mobile-filter-toggle {
+        display: none;
+        width: 100%;
+        margin-bottom: 20px;
+        background: white;
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 12px;
+        border-radius: 12px;
+        font-weight: 700;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
     @media (max-width: 992px) {
         .search-layout {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr !important;
+            gap: 0 !important;
         }
+        
+        #mobile-filter-toggle {
+            display: flex;
+        }
+
         .search-sidebar {
-            display: none; /* We could implement a drawer for mobile later */
+            display: none !important;
+            margin-bottom: 30px;
+        }
+
+        .search-sidebar.active {
+            display: block !important;
+        }
+
+        .search-sidebar div[style*="position: sticky"] {
+            position: static !important;
+            box-shadow: none !important;
+            padding: 20px !important;
+        }
+        
+        .listing-card {
+            flex-direction: column !important;
+            height: auto !important;
+            gap: 15px !important;
+        }
+
+        .listing-image {
+            width: 100% !important;
+            height: 200px !important;
+        }
+
+        .listing-right-panel {
+            flex-direction: row !important;
+            align-items: center !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            border-left: none !important;
+            border-top: 1px solid var(--border) !important;
+            padding-top: 15px !important;
+            justify-content: space-between !important;
         }
     }
 </style>
+
+<script>
+    function toggleMobileFilter() {
+        const sidebar = document.querySelector('.search-sidebar');
+        const btn = document.getElementById('mobile-filter-toggle');
+        const isShowing = sidebar.classList.toggle('active');
+        
+        btn.innerHTML = isShowing 
+            ? '<i class="fa-solid fa-xmark"></i> Tutup Filter' 
+            : '<i class="fa-solid fa-filter"></i> Tampilkan Filter';
+    }
+</script>
 @endsection

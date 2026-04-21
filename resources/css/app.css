@@ -797,6 +797,10 @@ header {
     align-items: start;
 }
 
+.listing-details-grid.premium-layout {
+    grid-template-columns: 1fr;
+}
+
 .listing-main-column {
     display: flex;
     flex-direction: column;

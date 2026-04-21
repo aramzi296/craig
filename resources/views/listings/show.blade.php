@@ -8,7 +8,7 @@
         {{ $listing->title }}
     </nav>
 
-    <div class="listing-details-grid">
+    <div class="listing-details-grid {{ $listing->is_premium ? 'premium-layout' : '' }}">
         <div class="listing-main-column">
             <!-- Layout Galeri & Lightbox -->
             @if($listing->photos->count() > 0)
@@ -327,6 +327,7 @@
             </div>
         </div>
 
+        @if(!$listing->is_premium)
         <!-- Sidebar Column -->
         <aside class="listing-sidebar-info">
             <!-- Premium Listings Section -->
@@ -337,7 +338,7 @@
                     </h2>
                     <div class="listing-grid">
                         @foreach($sidebarPremiumListings as $premium)
-                        <a href="{{ route('listings.show', $premium->slug) }}" class="listing-card" target="_blank" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center; border-left: 3px solid #f59e0b; background: #fffbeb;">
+                        <a href="{{ route('listings.show', $premium->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center; border-left: 3px solid #f59e0b; background: #fffbeb;">
                             @if($premium->getThumbnailUrl())
                                 <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
                             @endif
@@ -367,7 +368,7 @@
                     <h2 class="section-title" style="margin-top: 0; margin-bottom: 20px; font-size: 1.3rem;">Postingan Terkait</h2>
                     <div class="listing-grid">
                         @foreach($relatedListings as $related)
-                        <a href="{{ route('listings.show', $related->slug) }}" class="listing-card" target="_blank" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center;">
+                        <a href="{{ route('listings.show', $related->slug) }}" class="listing-card" style="height: auto; flex-direction: row; padding: 12px; gap: 15px; align-items: center;">
                             @if($related->getThumbnailUrl())
                                 <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
                             @endif
@@ -412,6 +413,7 @@
                 @endauth
             </div>
         </aside>
+        @endif
     </div>
 </div>
 @endsection
