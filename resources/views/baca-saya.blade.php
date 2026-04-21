@@ -23,7 +23,7 @@
             <div style="display: flex; flex-direction: column; gap: 40px;">
                 
                 <!-- Question 1 -->
-                <div class="faq-card legal-card glass">
+                <div class="faq-card legal-card glass" style="width: 100%;">
                     <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #eef2ff; color: #4f46e5; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-rocket"></i>
@@ -53,7 +53,7 @@
                 </div>
 
                 <!-- Question 2: Why Us -->
-                <div class="faq-card legal-card glass">
+                <div class="faq-card legal-card glass" style="width: 100%;">
                     <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #f5f3ff; color: #8b5cf6; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-bolt"></i>
@@ -64,6 +64,10 @@
                                 Kami memberikan pengalaman berbeda dalam beriklan dan mencari informasi:
                             </p>
                             <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
+                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
+                                    <span><strong style="color: #1e293b; font-weight: 850;">SUMBER UTAMA:</strong> Platform ini akan menjadi sumber utama informasi bagi warga Batam. Anda tak akan rugi beriklan di sini.</span>
+                                </li>
                                 <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
                                     <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
                                     <span><strong style="color: #1e293b; font-weight: 850;">FOKUS LOKAL:</strong> 100% didedikasikan untuk komunitas di Batam.</span>
@@ -85,37 +89,8 @@
                     </div>
                 </div>
 
-                <!-- Question 3 -->
-                <div class="faq-card legal-card glass">
-                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
-                        <div style="min-width: 60px; height: 60px; background: #fff7ed; color: #f97316; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
-                            <i class="fas fa-paper-plane"></i>
-                        </div>
-                        <div>
-                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Bagaimana cara memasang iklan?</h2>
-                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Kami merancang proses posting yang sangat mudah dan tanpa ribet:
-                            </p>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 25px;">
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">01</span>
-                                    <p style="font-weight: 600; color: #1e293b;">Daftar/Masuk via WhatsApp</p>
-                                </div>
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">02</span>
-                                    <p style="font-weight: 600; color: #1e293b;">Klik Pasang Iklan</p>
-                                </div>
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">03</span>
-                                    <p style="font-weight: 600; color: #1e293b;">Isi Detail & Publish</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Question 4 -->
-                <div class="faq-card legal-card glass">
+                    <!-- Question 4 -->
+                <div class="faq-card legal-card glass" style="width: 100%;">
                     <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
                         <div style="min-width: 60px; height: 60px; background: #ecfdf5; color: #10b981; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
                             <i class="fas fa-hand-holding-dollar"></i>
@@ -129,6 +104,37 @@
                     </div>
                 </div>
 
+
+                <!-- Question 3 -->
+                <div class="faq-card legal-card glass" style="width: 100%;">
+                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
+                        <div style="min-width: 60px; height: 60px; background: #fff7ed; color: #f97316; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Bagaimana cara memasang iklan?</h2>
+                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
+                                Kami merancang proses posting yang sangat mudah dan tanpa ribet:
+                            </p>
+                            <div class="posting-steps-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 25px;">
+                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
+                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">01</span>
+                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Daftar/Masuk via WhatsApp</p>
+                                </div>
+                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
+                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">02</span>
+                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Klik Pasang Iklan</p>
+                                </div>
+                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
+                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">03</span>
+                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Isi Detail & Publish</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            
                 <!-- Question 5 -->
                 <!-- <div class="faq-card legal-card glass" style="background: #1e293b; color: white;">
                     <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
@@ -184,6 +190,7 @@
         .faq-card { padding: 25px 20px !important; border-radius: 20px !important; }
         .faq-card-content { flex-direction: column !important; gap: 15px !important; }
         .faq-card h2 { font-size: 1.5rem !important; }
+        .posting-steps-grid { grid-template-columns: 1fr !important; }
     }
 </style>
 @endsection
