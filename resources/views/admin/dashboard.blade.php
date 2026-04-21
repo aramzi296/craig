@@ -43,7 +43,7 @@
                 <td>{{ $listing->title }}</td>
                 <td>{{ $listing->user->name }}</td>
                 <td>{{ $listing->categories->pluck('name')->join(', ') }}</td>
-                <td>{{ $listing->location }}</td>
+                <td>{{ $listing->district?->name ?? 'Batam' }}</td>
                 <td>
                     <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">
                         {{ $listing->is_active ? 'Aktif' : 'Draft' }}

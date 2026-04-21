@@ -110,7 +110,7 @@
                                 @endif
                             </div>
                             <h3 class="listing-title">{{ $listing->title }}</h3>
-                            <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district->name ?? 'Batam' }}</div>
+                            <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
                             @php
                                 $cleanFeatures = array_slice(array_filter(array_map('trim', $listing->features ?? [])), 0, 4);
                             @endphp

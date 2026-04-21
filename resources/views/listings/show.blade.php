@@ -128,8 +128,8 @@
                     </div>
 
                     <div style="color: var(--text-muted); font-size: 1.05rem; font-weight: 500;">
-                            <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->location }}, Batam
-                        </div>
+                    <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->district?->name ?? 'Batam' }}, Batam
+                </div>
                 </div>
                 
                 
@@ -388,7 +388,7 @@
                                         Hubungi Kami
                                     @endif
                                 </div>
-                                <div class="listing-location" style="font-size: 0.75rem; margin: 0; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $related->location }}</div>
+                                <div class="listing-location" style="font-size: 0.75rem; margin: 0; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $related->district?->name ?? 'Batam' }}</div>
                             </div>
                         </a>
                         @endforeach
