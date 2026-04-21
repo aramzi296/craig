@@ -88,9 +88,7 @@
                     <span style="font-weight: 500; color: var(--text-muted); font-size: 1rem; margin-left: 10px;">({{ $listings->total() }} iklan)</span>
                 </h2>
                 
-                <div style="font-size: 0.9rem; color: var(--text-muted); background: white; padding: 8px 15px; border-radius: 50px; border: 1px solid var(--border);">
-                    Urutkan: <strong style="color: var(--text);">Terbaru</strong>
-                </div>
+
             </div>
 
             @if($listings->count() > 0)
