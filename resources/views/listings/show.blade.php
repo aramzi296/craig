@@ -168,7 +168,7 @@
 
             <!-- Footer Details (Dan Seterusnya) -->
             <div class="glass" style="padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: center; margin-bottom: 30px;">
+                <div class="listing-footer-row">
                     <div>
                         <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">
                             @if($listing->price && $listing->price > 0)
@@ -195,7 +195,7 @@
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="listing-footer-buttons">
                     @php
                         $canSeeContact = false;
                         if ($listing->whatsapp_visibility == 2) {
@@ -416,4 +416,44 @@
         @endif
     </div>
 </div>
+
+<style>
+    .listing-footer-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .listing-footer-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    @media (max-width: 640px) {
+        .listing-footer-row,
+        .listing-footer-buttons {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .listing-footer-row {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .listing-footer-row div:first-child {
+            order: 1;
+        }
+        .listing-footer-row div:last-child {
+            order: 2;
+        }
+
+        .listing-footer-row div[style*="font-size: 2.6rem"] {
+            font-size: 2rem !important;
+        }
+    }
+</style>
 @endsection
