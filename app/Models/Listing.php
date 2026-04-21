@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Listing extends Model
 {
     protected $fillable = [
-        'user_id', 'listing_type_id', 'title', 'slug', 'description', 
-        'price', 'location', 'is_featured', 'is_premium', 'is_active', 'features', 
+        'user_id', 'listing_type_id', 'district_id', 'title', 'slug', 'description', 
+        'price', 'is_featured', 'is_premium', 'is_active', 'features', 
         'whatsapp_visibility', 'comment_visibility', 'expires_at'
     ];
 
@@ -25,6 +25,11 @@ class Listing extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
 
     public function categories()
     {

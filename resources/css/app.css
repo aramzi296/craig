@@ -124,7 +124,8 @@ header {
 }
 
 .logo span {
-    color: #ff4d00; /* Warna Oranye-Merah sesuai gambar */
+    color: #ff4d00;
+    /* Warna Oranye-Merah sesuai gambar */
 }
 
 .nav-links {
@@ -149,6 +150,7 @@ header {
         gap: 20px;
         text-align: center;
     }
+
     .nav-links.show {
         display: flex;
     }
@@ -178,7 +180,9 @@ header {
 }
 
 @media (max-width: 768px) {
-    .nav-divider { display: none; }
+    .nav-divider {
+        display: none;
+    }
 }
 
 .nav-user-info {
@@ -275,11 +279,13 @@ header {
         width: 100%;
         text-align: center;
     }
+
     .dropdown-trigger {
         justify-content: center;
         width: 100%;
         padding: 10px 0;
     }
+
     .dropdown-menu {
         position: static;
         width: 100%;
@@ -287,10 +293,11 @@ header {
         visibility: visible;
         transform: none;
         box-shadow: none;
-        background: rgba(0,0,0,0.03);
+        background: rgba(0, 0, 0, 0.03);
         margin-top: 5px;
         padding: 5px;
     }
+
     .dropdown-item {
         justify-content: center;
     }
@@ -353,7 +360,7 @@ header {
 
 /* Hero Section */
 .hero {
-    padding: 100px 0;
+    padding: 50px 0;
     text-align: center;
     background: url('/gelombang.png') no-repeat center center;
     background-size: cover;
@@ -370,7 +377,10 @@ header {
 .hero::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     background: rgba(255, 255, 255, 0.4);
     z-index: 1;
 }
@@ -456,7 +466,8 @@ header {
     font-size: 0.75rem;
 }
 
-.category-card:hover, .category-card.active-category {
+.category-card:hover,
+.category-card.active-category {
     color: white;
     border-color: var(--primary);
     transform: translateY(-2px);
@@ -601,12 +612,12 @@ header {
         height: auto;
         gap: 15px;
     }
-    
+
     .listing-image {
         width: 100%;
         height: 200px;
     }
-    
+
     .listing-right-panel {
         flex-direction: row;
         align-items: center;
@@ -664,7 +675,7 @@ header {
         z-index: 2000;
         border-right: 1px solid var(--border);
     }
-    
+
     .sidebar.show {
         left: 0;
     }
@@ -673,8 +684,11 @@ header {
 .sidebar-overlay {
     display: none;
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.4);
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(2px);
     z-index: 1500;
 }
@@ -732,10 +746,12 @@ header {
         align-items: flex-start;
         gap: 15px;
     }
+
     .dashboard-header h1 {
         font-size: 1.5rem;
         line-height: 1.2;
     }
+
     .dashboard-header .btn {
         width: 100%;
         display: flex;
@@ -784,7 +800,8 @@ header {
 .listing-main-column {
     display: flex;
     flex-direction: column;
-    gap: 0; /* Gap handled by internal margins if needed */
+    gap: 0;
+    /* Gap handled by internal margins if needed */
 }
 
 @media (max-width: 992px) {
@@ -792,20 +809,25 @@ header {
         grid-template-columns: 1fr;
         gap: 30px;
     }
-    
+
     .listing-sidebar-info {
         position: static !important;
     }
 }
-.listing-detail-container, .page-section {
+
+.listing-detail-container,
+.page-section {
     padding: 60px 20px;
 }
 
 @media (max-width: 768px) {
-    .listing-detail-container, .page-section {
+
+    .listing-detail-container,
+    .page-section {
         padding: 30px 15px;
     }
 }
+
 .pagination {
     display: flex;
     gap: 8px;
@@ -871,6 +893,7 @@ header {
         font-size: 0.85rem;
         gap: 8px;
     }
+
     .sidebar hr {
         display: none;
     }
@@ -966,9 +989,21 @@ header {
     font-weight: 600;
 }
 
-.badge-success { background: #dcfce7; color: #166534; }
-.badge-pending { background: #fef9c3; color: #854d0e; }
-.badge-premium { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+.badge-success {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.badge-pending {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.badge-premium {
+    background: #fff7ed;
+    color: #c2410c;
+    border: 1px solid #ffedd5;
+}
 
 .verified-badge {
     color: #0ea5e9;
@@ -1049,7 +1084,7 @@ header {
         gap: 30px;
         align-items: baseline;
     }
-    
+
     .form-group-horizontal label {
         margin-bottom: 0 !important;
         text-align: right;
@@ -1094,7 +1129,7 @@ header {
     .legal-section {
         padding: 30px 0;
     }
-    
+
     .legal-card {
         padding: 25px 20px;
         border-radius: 16px;
@@ -1108,6 +1143,7 @@ header {
     .dashboard-layout {
         grid-template-columns: 1fr;
     }
+
     .hero h1 {
         font-size: 2rem;
     }

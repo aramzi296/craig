@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="search-header" style="background: white; border-bottom: 1px solid var(--border); padding: 30px 0;">
+<section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <form action="{{ route('search') }}" method="GET" class="search-box" style="box-shadow: none; border: 1px solid var(--border); max-width: 800px; margin: 0 auto;">
+        <form action="{{ route('search') }}" method="GET" class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="q" placeholder="Cari apa saja di Batam..." value="{{ request('q') }}">
             
@@ -15,21 +15,32 @@
             <button type="submit" class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
         </form>
     </div>
-</div>
+</section>
 
-<div class="container page-section" style="padding-top: 40px;">
+<div class="container page-section" style="padding-top: 0;">
     <div class="search-layout" style="display: grid; grid-template-columns: 280px 1fr; gap: 40px;">
         
         <!-- Sidebar Filters -->
         <aside class="search-sidebar">
-            <div style="position: sticky; top: 100px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h3 style="font-size: 1.2rem; font-weight: 700;">Filter</h3>
-                    <a href="{{ route('search', ['q' => request('q')]) }}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">Reset</a>
+            <div style="position: sticky; top: 100px; background: white; padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h3 style="font-size: 1.2rem; font-weight: 800; margin: 0; color: var(--text);">Filter</h3>
+                    <a href="{{ route('search') }}" style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">Reset</a>
                 </div>
 
                 <form action="{{ route('search') }}" method="GET" id="filter-form">
                     @if(request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
+
+                    <!-- Type Filter -->
+                    <div class="filter-group" style="margin-bottom: 30px;">
+                        <label style="display: block; font-weight: 700; margin-bottom: 12px; font-size: 0.95rem;">Tipe Iklan</label>
+                        <select name="type" class="form-control" onchange="this.form.submit()" style="background: white; border-radius: 8px;">
+                            <option value="">Semua Tipe</option>
+                            @foreach($listingTypes as $type)
+                                <option value="{{ $type->slug }}" {{ request('type') == $type->slug ? 'selected' : '' }}>{{ $type->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
                     <!-- Category Filter -->
                     <div class="filter-group" style="margin-bottom: 30px;">
@@ -42,30 +53,14 @@
                         </select>
                     </div>
 
-                    <!-- Type Filter -->
-                    <div class="filter-group" style="margin-bottom: 30px;">
-                        <label style="display: block; font-weight: 700; margin-bottom: 12px; font-size: 0.95rem;">Tipe Iklan</label>
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            @foreach($listingTypes as $type)
-                                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
-                                    <input type="radio" name="type" value="{{ $type->slug }}" onchange="this.form.submit()" {{ (request('type') == $type->id || request('type') == $type->slug) ? 'checked' : '' }}>
-                                    {{ $type->name }}
-                                </label>
-                            @endforeach
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.9rem;">
-                                <input type="radio" name="type" value="" onchange="this.form.submit()" {{ !request('type') ? 'checked' : '' }}>
-                                Semua Tipe
-                            </label>
-                        </div>
-                    </div>
 
                     <!-- Location Filter -->
                     <div class="filter-group" style="margin-bottom: 30px;">
                         <label style="display: block; font-weight: 700; margin-bottom: 12px; font-size: 0.95rem;">Lokasi</label>
                         <select name="location" class="form-control" onchange="this.form.submit()" style="background: white; border-radius: 8px;">
                             <option value="">Semua Lokasi</option>
-                            @foreach($locations as $loc)
-                                <option value="{{ $loc }}" {{ request('location') == $loc ? 'selected' : '' }}>{{ $loc }}</option>
+                            @foreach($districts as $dist)
+                                <option value="{{ $dist->id }}" {{ request('location') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -75,25 +70,25 @@
 
         <!-- Results Area -->
         <main class="search-results">
-            <div style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
-                <h1 style="font-size: 1.5rem; font-weight: 700;">
+            <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <h2 class="section-title" style="margin: 0; font-size: 1.6rem;">
                     @if(request('q')) 
                         Hasil untuk "{{ request('q') }}"
                     @else
                         Semua Iklan
                     @endif
-                    <span style="font-weight: 500; color: var(--text-muted); font-size: 1rem; margin-left: 10px;">({{ $listings->total() }} iklan ditemukan)</span>
-                </h1>
+                    <span style="font-weight: 500; color: var(--text-muted); font-size: 1rem; margin-left: 10px;">({{ $listings->total() }} iklan)</span>
+                </h2>
                 
-                <div style="font-size: 0.9rem; color: var(--text-muted);">
-                    Urutkan: <strong>Terbaru</strong>
+                <div style="font-size: 0.9rem; color: var(--text-muted); background: white; padding: 8px 15px; border-radius: 50px; border: 1px solid var(--border);">
+                    Urutkan: <strong style="color: var(--text);">Terbaru</strong>
                 </div>
             </div>
 
             @if($listings->count() > 0)
                 <div class="listing-grid">
                     @foreach($listings as $listing)
-                    <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
+                    <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
                         @if($listing->getThumbnailUrl())
                             <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
                         @endif
@@ -110,7 +105,7 @@
                                 @endif
                             </div>
                             <h3 class="listing-title">{{ $listing->title }}</h3>
-                            <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->location }}</div>
+                            <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district->name ?? 'Batam' }}</div>
                             @php
                                 $cleanFeatures = array_slice(array_filter(array_map('trim', $listing->features ?? [])), 0, 4);
                             @endphp

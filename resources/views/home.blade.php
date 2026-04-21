@@ -3,9 +3,7 @@
 @section('content')
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <h1>Temukan Segalanya di Batam</h1>
-        <p>Langsung Chat WhatsApp Tanpa Ribet.</p>
-        
+        <!-- <h1>Sebut Ape Nak Carek di Batam</h1> -->
         <form action="{{ route('search') }}" method="GET" class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="q" placeholder="Apa yang sedang Anda cari hari ini?" value="{{ request('q') }}">
@@ -15,19 +13,12 @@
 </section>
 
 <div class="container page-section" style="padding-top: 20px;">
-    <div class="category-grid" style="justify-content: center; margin-bottom: 20px;">
-        @foreach($listingTypes as $type)
-        <a href="{{ route('search', ['type' => $type->slug]) }}" class="category-card" style="border-color: {{ $type->color ?? 'var(--border)' }}; color: var(--text); padding: 8px 20px; font-size: 0.85rem;">
-            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: {{ $type->color ?? 'var(--primary)' }}; margin-right: 8px;"></span>
-            {{ $type->name }}
-        </a>
-        @endforeach
-    </div>
 
     @if($premiumListings->count() > 0)
+    <h2 class="section-title">Postingan Premium</h2>
     <div class="listing-grid">
         @foreach($premiumListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
+        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
             @if($listing->getThumbnailUrl())
                 <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             @endif
@@ -46,7 +37,7 @@
                     @endif
                 </div>
                 <h3 class="listing-title">{{ $listing->title }}</h3>
-                <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->location }}</div>
+                <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district->name ?? 'Batam' }}</div>
                 @php
                     $cleanFeatures = array_slice(array_filter(array_map('trim', $listing->features ?? [])), 0, 4);
                 @endphp
@@ -76,7 +67,7 @@
     <h2 class="section-title">Listing Terbaru</h2>
     <div class="listing-grid">
         @foreach($recentListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
+        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card" target="_blank">
             @if($listing->getThumbnailUrl())
                 <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
             @endif
@@ -95,7 +86,7 @@
                     @endif
                 </div>
                 <h3 class="listing-title">{{ $listing->title }}</h3>
-                <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->location }}</div>
+                <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district->name ?? 'Batam' }}</div>
                 @php
                     $cleanFeatures = array_slice(array_filter(array_map('trim', $listing->features ?? [])), 0, 4);
                 @endphp

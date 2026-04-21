@@ -8,15 +8,14 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         
         $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
 
         $premiumListings = (clone $query)->where('is_premium', true)->latest()->take(6)->get();
 
-        $recentListings = $query->latest()->paginate(12);
+        $recentListings = $query->with('district')->latest()->paginate(12);
 
-        return view('home', compact('listingTypes', 'premiumListings', 'recentListings'));
+        return view('home', compact('premiumListings', 'recentListings'));
     }
 
     public function search(\Illuminate\Http\Request $request)
@@ -32,14 +31,9 @@ class HomeController extends Controller
             });
         }
 
-        // Filter by Category
-        if ($request->filled('category')) {
-            $category = \App\Models\Category::where('slug', $request->category)->first();
-            if ($category) {
-                $query->whereHas('categories', function($q) use ($category) {
-                    $q->where('categories.id', $category->id);
-                });
-            }
+        // Filter by District
+        if ($request->filled('location')) {
+            $query->where('district_id', $request->location);
         }
 
         // Filter by Type (Slug or ID)
@@ -50,23 +44,35 @@ class HomeController extends Controller
             }
         }
 
-        // Filter by Location
-        if ($request->filled('location')) {
-            $query->where('location', $request->location);
+        // Fetch categories that have at least one active, non-expired listing
+        $categories = \App\Models\Category::whereHas('listings', function($q) {
+            $q->where('is_active', true)->notExpired();
+        })->orderBy('name')->get();
+
+        // Filter by Category (Apply this LAST to the listings query only)
+        if ($request->filled('category')) {
+            $category = \App\Models\Category::where('slug', $request->category)->first();
+            if ($category) {
+                $query->whereHas('categories', function($q) use ($category) {
+                    $q->where('categories.id', $category->id);
+                });
+                
+                // Ensure the selected category stays in the list even if it has no results 
+                // (though with this logic, it should have results if it's selected)
+            }
         }
 
-        $listings = $query->latest()->paginate(20);
+        $listings = $query->orderBy('is_premium', 'desc')->latest()->paginate(20);
         
-        $categories = \App\Models\Category::orderBy('name')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
-        $locations = ['Batam Centre', 'Nagoya', 'Sekupang', 'Batu Ampar', 'Bengkong', 'Sei Beduk', 'Nongsa', 'Sagulung', 'Batu Aji'];
+        $districts = \App\Models\District::orderBy('name')->get();
 
-        return view('listings.search', compact('listings', 'categories', 'listingTypes', 'locations'));
+        return view('listings.search', compact('listings', 'categories', 'listingTypes', 'districts'));
     }
 
     public function show($slug)
     {
-        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user'])
+        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->notExpired()
