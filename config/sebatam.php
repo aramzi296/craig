@@ -10,4 +10,6 @@ return [
     'max_karakter_komentar' => 250,             // jumlah karakter untuk sebuah komentar
     'expire_iklan' => 30,                      // default expire iklan dalam hari
     'expire_iklan_premium' => 30,              // default expire iklan premium dalam hari
+    'link_website' => true,                     // link website untuk listing gratis
+    'link_website_premium' => true,             // link website untuk listing premium
 ];

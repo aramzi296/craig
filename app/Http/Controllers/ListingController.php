@@ -40,6 +40,7 @@ class ListingController extends Controller
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
             'whatsapp_visibility' => 'required|integer|in:0,1,2',
             'comment_visibility' => 'required|integer|in:0,1,2',
+            'website' => 'nullable|url|max:255',
         ];
 
         // ADD OTP and WhatsApp validation ONLY for guests
@@ -159,6 +160,7 @@ class ListingController extends Controller
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
             'whatsapp_visibility' => 'required|integer|in:0,1,2',
             'comment_visibility' => 'required|integer|in:0,1,2',
+            'website' => 'nullable|url|max:255',
         ]);
 
         if ($data['title'] !== $listing->title) {

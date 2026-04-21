@@ -3,7 +3,7 @@
 @section($section)
     <div style="margin-bottom: 40px; text-align: center;">
         <h1 style="font-size: 2.5rem; font-weight: 700;">Pasang Iklan Baru</h1>
-        <p style="color: var(--text-muted);">Bagikan apa yang Anda tawarkan ke seluruh komunitas di Batam.</p>
+        <p style="color: var(--text-muted);">Bagikan apa yang Anda tawarkan/umumkan ke seluruh komunitas di Batam.</p>
     </div>
 
     <div class="form-card" style="margin: 0 auto;">
@@ -16,7 +16,7 @@
                     <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
                         <option value="">Pilih Tipe</option>
                         @foreach($listingTypes as $type)
-                            <option value="{{ $type->id }}" {{ old('listing_type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                            <option value="{{ $type->id }}" data-slug="{{ $type->slug }}" {{ old('listing_type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
                         @endforeach
                     </select>
                     @error('listing_type_id')
@@ -24,6 +24,34 @@
                     @enderror
                 </div>
             </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const typeSelect = document.getElementById('listing_type_id');
+                    const websiteWrapper = document.getElementById('website-field-wrapper');
+                    
+                    if (typeSelect && websiteWrapper) {
+                        const linkWebsite = {{ config('sebatam.link_website') ? 'true' : 'false' }};
+                        const linkWebsitePremium = {{ config('sebatam.link_website_premium') ? 'true' : 'false' }};
+
+                        function toggleWebsiteField() {
+                            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                            const isPremium = selectedOption ? (selectedOption.getAttribute('data-slug') === 'premium') : false;
+
+                            if (linkWebsite) {
+                                websiteWrapper.style.display = '';
+                            } else if (linkWebsitePremium && isPremium) {
+                                websiteWrapper.style.display = '';
+                            } else {
+                                websiteWrapper.style.display = 'none';
+                            }
+                        }
+
+                        typeSelect.addEventListener('change', toggleWebsiteField);
+                        toggleWebsiteField(); // Initial check
+                    }
+                });
+            </script>
 
             <div class="form-group-horizontal">
                 <label>Kategori</label>
@@ -119,6 +147,19 @@
                     @enderror
                 </div>
             </div>
+
+            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
+            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') ? 'display: none;' : '' }}">
+                <label for="website">Link Website (Opsional)</label>
+                <div class="form-input-side">
+                    <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" placeholder="https://example.com">
+                    <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+                    @error('website')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            @endif
 
             <div class="form-group-horizontal">
                 <label for="district_id">Lokasi di Batam</label>

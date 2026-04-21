@@ -150,9 +150,20 @@
 
             <!-- Description Component -->
             <div class="glass" style="padding: 15px; border-radius: var(--radius); margin-bottom: 25px;">
-                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
+                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem; margin-bottom: 20px;">
                     {!! nl2br(e($listing->description)) !!}
                 </div>
+
+                @if($listing->website)
+                    <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+                        <a href="{{ $listing->website }}" target="_blank" rel="nofollow" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 25px; border-radius: 12px; font-weight: 700; width: auto; color: var(--primary); border-color: var(--primary);">
+                            <i class="fa-solid fa-globe"></i> Kunjungi Website
+                        </a>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
+                            <i class="fa-solid fa-circle-info"></i> Link eksternal: {{ parse_url($listing->website, PHP_URL_HOST) }}
+                        </p>
+                    </div>
+                @endif
             </div>
 
             <!-- Footer Details (Dan Seterusnya) -->
