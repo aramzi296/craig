@@ -36,8 +36,8 @@
                         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">2. Penggunaan Informasi</h2>
                         <p>Informasi Anda digunakan untuk:</p>
                         <ul style="list-style: none; padding: 0;">
-                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menampilkan profil usaha Anda di direktori publik.</span></li>
-                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menghubungi Anda terkait verifikasi akun atau laporan.</span></li>
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menampilkan profil iklan dan pengumuman Anda di halaman website.</span></li>
+                            <li style="display: flex; gap: 12px; margin-bottom: 10px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Menghubungi Anda terkait iklan dan pengumuman yang Anda terbitkan.</span></li>
                             <li style="display: flex; gap: 12px;"><i class="fas fa-arrow-right" style="color: var(--secondary); margin-top: 6px;"></i> <span>Meningkatkan performa dan keamanan situs kami.</span></li>
                         </ul>
                     </div>
@@ -49,14 +49,34 @@
 
                     <div style="margin-bottom: 40px;">
                         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px;">4. Hak Anda atas Data</h2>
-                        <p>Anda berhak untuk mengakses, memperbarui, atau meminta penghapusan akun dan data pribadi Anda kapan saja melalui dashboard pengguna atau dengan menghubungi admin kami.</p>
+                        <p>Anda berhak untuk mengakses, memperbarui, atau menghapus akun dan data pribadi Anda kapan saja melalui dashboard pengguna atau dengan menghubungi admin kami.</p>
                     </div>
 
                     <hr style="border: none; border-top: 1px solid var(--border); margin: 40px 0;">
 
-                    <div style="text-align: center; background: #f8fafc; padding: 30px; border-radius: 16px;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px;">Butuh Bantuan?</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 0;">Hubungi kami di <a href="mailto:admin@sebatam.com" style="color: var(--primary); font-weight: 600;">admin@sebatam.com</a></p>
+                    <div style="text-align: center; background: #f8fafc; padding: 40px 30px; border-radius: 20px; border: 1px solid var(--border);">
+                        <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 8px;">Butuh Bantuan?</h3>
+                        <p style="color: var(--text-muted); margin-bottom: 25px; max-width: 500px; margin-left: auto; margin-right: auto;">Tim kami siap membantu Anda terkait pertanyaan kebijakan privasi atau keamanan data di platform kami.</p>
+                        
+                        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                            <a href="https://wa.me/{{ config('services.whatsapp.bot_number') }}" target="_blank" 
+                               style="display: inline-flex; align-items: center; gap: 10px; background: #25D366; color: white; padding: 14px 28px; border-radius: 14px; text-decoration: none; font-weight: 700; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 15px rgba(37, 211, 102, 0.25); filter: drop-shadow(0 0 0 transparent);"
+                               onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(37, 211, 102, 0.4)';"
+                               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(37, 211, 102, 0.25)';"
+                            >
+                                <i class="fab fa-whatsapp" style="font-size: 1.4rem;"></i>
+                                Chat Admin WhatsApp
+                            </a>
+                            
+                            <a href="mailto:admin@sebatam.com" 
+                               style="display: inline-flex; align-items: center; gap: 10px; background: white; color: var(--text); border: 1px solid var(--border); padding: 14px 28px; border-radius: 14px; text-decoration: none; font-weight: 600; transition: all 0.3s ease;"
+                               onmouseover="this.style.background='#f1f5f9'; this.style.borderColor='var(--primary)';"
+                               onmouseout="this.style.background='white'; this.style.borderColor='var(--border)';"
+                            >
+                                <i class="far fa-envelope"></i>
+                                Email Support
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
