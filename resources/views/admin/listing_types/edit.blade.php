@@ -39,6 +39,15 @@
             @enderror
         </div>
 
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label for="keterangan">Keterangan</label>
+            <textarea name="keterangan" id="keterangan" class="form-control @error('keterangan') is-invalid @enderror" rows="4" placeholder="Deskripsi untuk panduan di halaman Baca Saya">{{ old('keterangan', $listingType->keterangan) }}</textarea>
+            <small style="color: var(--text-muted); display: block; margin-top: 8px;">Muncul sebagai penjelasan di halaman panduan/baca-saya.</small>
+            @error('keterangan')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <div style="display: flex; gap: 15px; margin-top: 20px;">
             <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Tipe</button>
             <a href="{{ route('admin.listing_types') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>

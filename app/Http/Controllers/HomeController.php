@@ -114,4 +114,10 @@ class HomeController extends Controller
 
         return view('categories.index', compact('groupedCategories'));
     }
+
+    public function bacaSaya()
+    {
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+        return view('baca-saya', compact('listingTypes'));
+    }
 }

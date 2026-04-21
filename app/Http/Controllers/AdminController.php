@@ -298,6 +298,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'required|string|max:7',
             'sort_order' => 'nullable|integer|min:0',
+            'keterangan' => 'nullable|string',
         ]);
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
         \App\Models\ListingType::create($data);
@@ -317,6 +318,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'color' => 'required|string|max:7',
             'sort_order' => 'nullable|integer|min:0',
+            'keterangan' => 'nullable|string',
         ]);
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
         $listingType->update($data);

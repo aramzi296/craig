@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
 
 
 // Static pages routes
-Route::view('/baca-saya', 'baca-saya')->name('baca-saya');
+Route::get('/baca-saya', [HomeController::class, 'bacaSaya'])->name('baca-saya');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');

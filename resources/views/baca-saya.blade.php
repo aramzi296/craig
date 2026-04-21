@@ -34,48 +34,19 @@
                                 Sebatam.com adalah platform penawaran dan papan pengumuman modern khusus untuk warga Batam. Tipe penawaran atau iklan yang tersedia:
                             </p>
                             <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">JUAL/BELI:</strong> Jika anda mau menjual atau membeli produk/barang. Baik baru atau bekas. Contoh: mobil, motor, HP, laptop, sepeda, furniture, pakaian, dll.</span>
+                                @foreach($listingTypes as $type)
+                                <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #64748b;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; margin-top: 5px;"></i>
+                                    <span>
+                                        <strong style="color: #1e293b; font-weight: 850;">{{ strtoupper($type->name) }}:</strong> 
+                                        @if($type->keterangan)
+                                            {!! nl2br(e($type->keterangan)) !!}
+                                        @else
+                                            Informasi mengenai {{ strtolower($type->name) }}.
+                                        @endif
+                                    </span>
                                 </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">PROYEK:</strong> Jika Anda mau menawarkan proyek atau pekerjaan kepada pihak lain untuk mengerjakan proyek atau pekerjaan tersebut. Contoh: mencari pemborong bangunan, mencari tukang las, mencari tukang ledeng, mencari tukang cat, dll.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">JASA:</strong> Jika anda mau menawarkan jasa Anda. Contoh: service AC, jasa anggutan puing, tukang, jasa desain grafis, jasa pembuatan website, jasa perbaikan elektronik, jasa kebersihan, dll.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">DIREKTORI:</strong> Jika Anda mau informasi usaha Anda dapat ditemukan oleh warga Batam.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">CARI KERJA:</strong> Jika Anda mau mencari pekerjaan dan menawarkan profil Anda kepada warga Batam.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">LOWONGAN:</strong> Jika Anda mau memasang informasi lowongan kerja.</span>
-                                </li>
-                                
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">AGENDA:</strong> Jika Anda mau memberitahukan agenda kegiatan (gratis atau berbayar). Contoh: kegiatan seminar, pelatihan, workshop, dll.</span>
-                                </li>
-                                
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">PROMO:</strong> Jika Anda mau menawarkan promo: diskon, bonus, cashback, doorprice, luckydraw, kupon, dll.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">PENGUMUMAN:</strong> Jika Anda mau memberikan pengumuman publik lainnya kepada warga Batam lainnya. Contoh: berita kehilangan barang/hewan peliharaan, dll.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">LAINNYA:</strong> Untuk menampung informasi yang belum masuk dalam kategori di atas.</span>
-                                </li>
+                                @endforeach
                             </ul>
                         </div>
                     </div>
