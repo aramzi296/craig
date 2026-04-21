@@ -16,9 +16,17 @@
             </div>
             <div>
                 <h1>Login via WhatsApp</h1>
-                <p>Masukkan dua kode OTP yang dikirim ke WhatsApp Anda</p>
+                <p>Gunakan nomor WA dan kode OTP untuk masuk</p>
             </div>
         </div>
+
+        {{-- ── Closure Info ────────────────────────────────────────────────── --}}
+        @if(session('info'))
+            <div class="wa-alert wa-alert-info" role="alert" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; margin-bottom: 20px; display: flex; align-items: flex-start; gap: 10px; border-radius: 10px; padding: 12px 15px; font-size: 0.88rem; line-height: 1.5;">
+                <i class="fa-solid fa-circle-info" style="margin-top: 2px;"></i>
+                <div>{{ session('info') }}</div>
+            </div>
+        @endif
 
         {{-- ── Cara mendapatkan OTP ─────────────────────────────────────── --}}
         <div class="wa-how-to">
@@ -27,9 +35,9 @@
                 Belum punya kode OTP?
             </div>
             <p>
-                Buka WhatsApp dan kirim pesan <code>login</code> ke nomor bot kami 
-                (<a href="https://wa.me/{{ env('WHATSAPP_ADMIN_NUMBER', '6282172292230') }}?text=login" target="_blank" style="color: inherit; font-weight: 700; text-decoration: underline;">{{ env('WHATSAPP_ADMIN_NUMBER', '6282172292230') }}</a>).
-                Sistem akan membalas dengan dua kode OTP yang berlaku <strong>10 menit</strong>.
+                Kirim pesan <code>otp</code> ke nomor bot kami 
+                (<a href="https://wa.me/{{ config('services.whatsapp.bot_number') }}?text=otp" target="_blank" style="color: inherit; font-weight: 700; text-decoration: underline;">{{ config('services.whatsapp.bot_number') }}</a>).
+                Sistem akan membuatkan akun secara otomatis untuk Anda.
             </p>
         </div>
 
@@ -45,65 +53,57 @@
             </div>
         @endif
 
-        {{-- ── Form: OTP1 + OTP2 ───────────────────────────────────────────── --}}
+        {{-- ── Form: WhatsApp + OTP ─────────────────────────────────────────── --}}
         <form action="{{ route('wa-login.verify') }}" method="POST" id="wa-otp-form" autocomplete="off">
             @csrf
 
-            {{-- OTP 1 --}}
+            {{-- WhatsApp Number --}}
             <div class="form-group">
-                <label for="otp1">
-                    <span class="otp-badge badge-1">1</span>
-                    OTP Pertama
+                <label for="whatsapp">
+                    <i class="fa-brands fa-whatsapp" style="color: #25D366; margin-right: 5px;"></i>
+                    Nomor WhatsApp
                 </label>
-                <div class="otp-wrap">
-                    <input
-                        type="text"
-                        name="otp1"
-                        id="otp1"
-                        class="form-control otp-input @error('otp1') is-invalid @enderror"
-                        placeholder="• • • • • •"
-                        maxlength="6"
-                        inputmode="numeric"
-                        autocomplete="one-time-code"
-                        required
-                        autofocus
-                        value="{{ old('otp1') }}"
-                    >
-                    <button type="button" class="otp-eye" onclick="toggleOtp('otp1',this)" aria-label="Tampilkan OTP 1">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
-                </div>
-                @error('otp1')
+                <input
+                    type="text"
+                    name="whatsapp"
+                    id="whatsapp"
+                    class="form-control @error('whatsapp') is-invalid @enderror"
+                    placeholder="Contoh: 0812xxxx"
+                    required
+                    autofocus
+                    value="{{ old('whatsapp') }}"
+                >
+                @error('whatsapp')
                     <div class="field-error">
                         <i class="fa-solid fa-triangle-exclamation"></i> {{ $message }}
                     </div>
                 @enderror
             </div>
 
-            {{-- OTP 2 --}}
+            {{-- OTP --}}
             <div class="form-group" style="margin-top: 18px;">
-                <label for="otp2">
-                    <span class="otp-badge badge-2">2</span>
-                    OTP Kedua
+                <label for="otp">
+                    <i class="fa-solid fa-key" style="color: #f97316; margin-right: 5px;"></i>
+                    Kode OTP
                 </label>
                 <div class="otp-wrap">
                     <input
                         type="text"
-                        name="otp2"
-                        id="otp2"
-                        class="form-control otp-input @error('otp2') is-invalid @enderror"
+                        name="otp"
+                        id="otp"
+                        class="form-control otp-input @error('otp') is-invalid @enderror"
                         placeholder="• • • • • •"
                         maxlength="6"
                         inputmode="numeric"
-                        autocomplete="off"
+                        autocomplete="one-time-code"
                         required
-                        value="{{ old('otp2') }}"
+                        value="{{ old('otp') }}"
                     >
-                    <button type="button" class="otp-eye" onclick="toggleOtp('otp2',this)" aria-label="Tampilkan OTP 2">
+                    <button type="button" class="otp-eye" onclick="toggleOtp('otp',this)" aria-label="Tampilkan OTP">
                         <i class="fa-regular fa-eye"></i>
                     </button>
                 </div>
-                @error('otp2')
+                @error('otp')
                     <div class="field-error">
                         <i class="fa-solid fa-triangle-exclamation"></i> {{ $message }}
                     </div>
@@ -117,16 +117,8 @@
             </button>
         </form>
 
-        {{-- ── Divider + link email login ─────────────────────────────────── --}}
-        <div class="wa-divider"><span>atau</span></div>
-
-        <a href="{{ route('login') }}" class="btn btn-outline btn-block">
-            <i class="fa-solid fa-envelope"></i>
-            Login dengan Email &amp; Password
-        </a>
-
         <div class="wa-footer">
-            Belum punya akun? <a href="{{ route('register') }}">Daftar sekarang</a>
+            Belum punya akun? <a href="{{ route('listings.create') }}">Pasang Iklan Sekarang</a>
         </div>
 
     </div>
@@ -338,8 +330,9 @@ function toggleOtp(id, btn) {
 }
 
 // ── Digits only ───────────────────────────────────────────────────────────
-['otp1', 'otp2'].forEach(function (id) {
+['otp'].forEach(function (id) {
     var el = document.getElementById(id);
+    if (!el) return;
     el.addEventListener('keydown', function (e) {
         if (e.key.length === 1 && !/\d/.test(e.key) && !e.ctrlKey && !e.metaKey) {
             e.preventDefault();
@@ -348,13 +341,6 @@ function toggleOtp(id, btn) {
     el.addEventListener('input', function () {
         this.value = this.value.replace(/\D/g, '');
     });
-});
-
-// ── Auto-advance: OTP1 full → focus OTP2 ─────────────────────────────────
-document.getElementById('otp1').addEventListener('input', function () {
-    if (this.value.length >= 6) {
-        document.getElementById('otp2').focus();
-    }
 });
 </script>
 @endsection

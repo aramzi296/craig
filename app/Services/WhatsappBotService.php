@@ -12,12 +12,13 @@ use Illuminate\Support\Str;
  * WhatsappBotService — handles the "login" keyword chatbot flow.
  *
  * Flow:
- *  1. User mengirim "login"
+ *  1. User mengirim "otp" atau "login"
  *  2. Sistem cek apakah nomor WA sudah terdaftar:
- *     a. Belum terdaftar → mulai alur registrasi (kumpulkan nama, email)
- *     b. Sudah terdaftar → buat dua OTP dan kirim ke user
- *  3. User memasukkan kedua OTP tersebut di halaman /wa-login
- *  4. Jika keduanya valid → buat wa_login_token, redirect ke dashboard
+ *     a. Belum terdaftar → buatkan akun otomatis (user-XXXXXX)
+ *     b. Sudah terdaftar → langsung ke langkah 3
+ *  3. Buat SATU kode OTP dan kirim ke user
+ *  4. User memasukkan nomor WA + OTP di halaman /wa-login atau form iklan
+ *  5. Jika valid → Login user
  */
 class WhatsappBotService
 {
@@ -42,15 +43,9 @@ class WhatsappBotService
         $text      = trim($message);
         $lowerText = strtolower($text);
 
-        // ── Keyword: otp ────────────────────────────────────────────────────
-        if ($lowerText === 'otp') {
-            $this->handleOtpKeyword($phone);
-            return;
-        }
-
-        // ── Keyword: login ──────────────────────────────────────────────────
-        if ($lowerText === 'login') {
-            $this->handleLoginKeyword($phone);
+        // ── Keyword: otp / login ───────────────────────────────────────────
+        if ($lowerText === 'otp' || $lowerText === 'login') {
+            $this->handleOtpRequest($phone);
             return;
         }
 
@@ -66,33 +61,12 @@ class WhatsappBotService
     //  LOGIN keyword handler
     // ─────────────────────────────────────────────────────────────────────────
 
-    private function handleLoginKeyword(string $phone): void
+    private function handleOtpRequest(string $phone): void
     {
         $user = User::where('whatsapp', $phone)->first();
 
         if (!$user) {
-            // Nomor belum terdaftar – tawarkan registrasi
-            $this->setState($phone, ['step' => 'awaiting_reg_confirm']);
-            $this->whatsapp->sendMessage(
-                $phone,
-                "👋 Halo! Nomor WhatsApp ini belum terdaftar di sistem kami.\n\n" .
-                "Apakah Anda ingin *mendaftar akun baru*?\n\n" .
-                "Balas *YA* untuk mendaftar atau *TIDAK* untuk batal."
-            );
-            Log::info('WA Bot: login keyword – user not found, offering registration', ['phone_sfx' => $this->sfx($phone)]);
-            return;
-        }
-
-        // Nomor sudah terdaftar – buat dua OTP dan kirim
-        $this->issueLoginOtps($phone, $user);
-    }
-
-    private function handleOtpKeyword(string $phone): void
-    {
-        $user = User::where('whatsapp', $phone)->first();
-
-        if (!$user) {
-            // Jika belum ada, buatkan user baru sesuai request
+            // Jika belum ada, buatkan user baru otomatis (Registrasi Cepat)
             $randomSuffix = rand(100, 999);
             $email = $phone . '+' . $randomSuffix . '@sebatam.com';
             $password = Str::random(10);
@@ -110,13 +84,22 @@ class WhatsappBotService
                 $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
                 return;
             }
+
+            // Kirim pesan selamat datang untuk user baru
+            $this->whatsapp->sendMessage(
+                $phone,
+                "🎉 *Selamat Datang di Sebatam!*\n\n" .
+                "Akun Anda telah dibuat secara otomatis.\n" .
+                "📧 Email: *{$email}*\n\n" .
+                "Anda bisa login menggunakan nomor WA ini."
+            );
         }
 
-        // Kirim OTP
-        $this->issueAdPostingOtp($phone, $user);
+        // Kirim Kode OTP
+        $this->issueOtp($phone, $user);
     }
 
-    private function issueAdPostingOtp(string $phone, User $user): void
+    private function issueOtp(string $phone, User $user): void
     {
         $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
@@ -124,19 +107,25 @@ class WhatsappBotService
             'wa_otp1'            => Hash::make($otp),
             'wa_otp1_lookup'     => hash('sha256', $otp),
             'wa_otp1_expires_at' => now()->addMinutes(15),
+            // Reset OTP2 for cleanliness
+            'wa_otp2'            => null,
+            'wa_otp2_expires_at' => null,
         ]);
+
+        $loginUrl = rtrim(config('app.url', 'http://localhost'), '/') . '/wa-login';
 
         $this->whatsapp->sendMessage(
             $phone,
-            "🔐 *Kode OTP Pasang Iklan*\n\n" .
-            "Halo! Ini adalah kode OTP Anda untuk memasang iklan di Sebatam:\n\n" .
+            "🔐 *Kode OTP Sebatam*\n\n" .
+            "Halo, *{$user->name}*! Berikut adalah kode OTP Anda:\n\n" .
             "🔑 *KODE OTP : {$otp}*\n\n" .
             "Kode ini berlaku selama *15 menit*.\n" .
-            "Masukkan kode ini pada form pasang iklan di website.\n\n" .
+            "Gunakan nomor WA ini dan kode di atas untuk login atau pasang iklan.\n\n" .
+            "Halaman Login:\n{$loginUrl}\n\n" .
             "_Jangan berikan kode ini kepada siapapun._"
         );
 
-        Log::info('WA Bot: ad posting OTP issued', [
+        Log::info('WA Bot: single OTP issued', [
             'user_id'   => $user->id,
             'phone_sfx' => $this->sfx($phone),
         ]);

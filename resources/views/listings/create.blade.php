@@ -236,8 +236,8 @@
                         <small style="color: var(--text-muted); display: block; margin-top: 8px; line-height: 1.5;">
                             Kirim pesan <strong style="color: var(--primary);">OTP</strong> ke nomor WhatsApp bot admin kami untuk mendapatkan kode.
                             <br>
-                            <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '628XXXXXXXXX') }}?text=OTP" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">
-                                <i class="fa-brands fa-whatsapp"></i> Klik di sini untuk Chat Bot (ketik OTP)
+                            <a href="https://wa.me/{{ config('services.whatsapp.bot_number') }}?text=OTP" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">
+                                <i class="fa-brands fa-whatsapp"></i> Chat Bot: {{ config('services.whatsapp.bot_number') }} (ketik OTP)
                             </a>
                         </small>
                         @error('otp')
