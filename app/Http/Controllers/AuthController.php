@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLogin(Request $request)
     {
+        if ($request->has('admin_login')) {
+            return view('auth.login');
+        }
         return redirect()->route('wa-login')->with('info', 'Login menggunakan email sementara ditutup. Silakan masuk menggunakan WhatsApp.');
     }
 
