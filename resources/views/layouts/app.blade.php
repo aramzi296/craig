@@ -126,6 +126,8 @@
 
                 |
                 <a href="{{ route('privacy.policy') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kebijakan Privasi</a>
+                |
+                <a href="{{ route('disclaimer') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Disclaimer</a>
             </nav>
         </div>
     </footer>

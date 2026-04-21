@@ -129,6 +129,7 @@ Route::view('/contact', 'contact')->name('contact');
 Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');
 
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
+Route::view('/disclaimer', 'disclaimer')->name('disclaimer');
 
 Route::get('/test-tailwind', function () {
     return view('test-tailwind');
