@@ -212,6 +212,7 @@
                 </div>
             </div>
 
+            @guest
             <div style="background: var(--primary-light, #f0f9ff); padding: 25px; border-radius: 12px; border: 1px solid var(--primary); margin: 30px 0;">
                 <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Verifikasi Kepemilikan & Autentikasi</h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
@@ -222,7 +223,7 @@
                 <div class="form-group-horizontal">
                     <label for="whatsapp_number">Nomor WhatsApp</label>
                     <div class="form-input-side">
-                        <input type="text" name="whatsapp_number" id="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" value="{{ old('whatsapp_number', auth()->user()->whatsapp ?? '') }}" placeholder="Contoh: 0812xxxx (tanpa spasi)" required {{ auth()->check() ? 'readonly' : '' }}>
+                        <input type="text" name="whatsapp_number" id="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" value="{{ old('whatsapp_number') }}" placeholder="Contoh: 0812xxxx (tanpa spasi)" required>
                         @error('whatsapp_number')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
@@ -246,6 +247,7 @@
                     </div>
                 </div>
             </div>
+            @endguest
 
             <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
                 <a href="{{ route('home') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>

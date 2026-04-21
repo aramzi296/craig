@@ -42,43 +42,47 @@ class ListingController extends Controller
             'comment_visibility' => 'required|integer|in:0,1,2',
         ];
 
-        // ADD OTP and WhatsApp validation
-        $rules['whatsapp_number'] = 'required|string';
-        $rules['otp'] = 'required|digits:6';
+        // ADD OTP and WhatsApp validation ONLY for guests
+        if (!auth()->check()) {
+            $rules['whatsapp_number'] = 'required|string';
+            $rules['otp'] = 'required|digits:6';
+        }
 
         $data = $request->validate($rules);
 
-        // ── Verify OTP ──────────────────────────────────────────────────────
-        $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['whatsapp_number']);
-        $otp = $data['otp'];
-        $lookup = hash('sha256', $otp);
-
-        $user = \App\Models\User::where('whatsapp', $whatsapp)
-            ->where('wa_otp1_lookup', $lookup)
-            ->first();
-
-        if (!$user || ! \Illuminate\Support\Facades\Hash::check($otp, $user->wa_otp1)) {
-            return back()->withErrors(['otp' => 'Kode OTP tidak valid.'])->withInput();
-        }
-
-        if ($user->wa_otp1_expires_at->isPast()) {
-            return back()->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa.'])->withInput();
-        }
-
-        // OTP is valid! Associate listing with this user.
-        $data['user_id'] = $user->id;
-        
-        // Login user if they are guest
         if (!auth()->check()) {
-            auth()->login($user, true);
-        }
+            // ── Verify OTP ──────────────────────────────────────────────────────
+            $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['whatsapp_number']);
+            $otp = $data['otp'];
+            $lookup = hash('sha256', $otp);
 
-        // Clear OTP
-        $user->update([
-            'wa_otp1' => null,
-            'wa_otp1_lookup' => null,
-            'wa_otp1_expires_at' => null,
-        ]);
+            $user = \App\Models\User::where('whatsapp', $whatsapp)
+                ->where('wa_otp1_lookup', $lookup)
+                ->first();
+
+            if (!$user || ! \Illuminate\Support\Facades\Hash::check($otp, $user->wa_otp1)) {
+                return back()->withErrors(['otp' => 'Kode OTP tidak valid.'])->withInput();
+            }
+
+            if ($user->wa_otp1_expires_at->isPast()) {
+                return back()->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa.'])->withInput();
+            }
+
+            // OTP is valid! Associate listing with this user.
+            $data['user_id'] = $user->id;
+            
+            // Login user
+            auth()->login($user, true);
+
+            // Clear OTP
+            $user->update([
+                'wa_otp1' => null,
+                'wa_otp1_lookup' => null,
+                'wa_otp1_expires_at' => null,
+            ]);
+        } else {
+            $data['user_id'] = auth()->id();
+        }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = true;
