@@ -31,7 +31,7 @@
                         <div>
                             <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Apa yang bisa Anda lakukan dengan website ini?</h2>
                             <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Sebatam.com adalah platform penawaran dan papan pengumuman modern khusus untuk warga Batam. Tipe penawaran atau iklan yang tersedia:
+                                Sebatam.com adalah platform iklan dan pengumuman online khusus untuk warga Batam. Tipe iklan dan pengumuman yang tersedia:
                             </p>
                             <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
                                 @foreach($listingTypes as $type)
