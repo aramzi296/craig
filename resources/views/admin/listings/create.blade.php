@@ -95,17 +95,6 @@
             </div>
         </div>
 
-        <div class="form-group-horizontal">
-            <label>Fitur Penawaran</label>
-            <div class="form-input-side">
-                <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                    @for($i = 0; $i < 8; $i++)
-                        <input type="text" name="features[]" class="form-control" placeholder="Fitur {{ $i + 1 }}" value="{{ old('features.'.$i) }}">
-                    @endfor
-                </div>
-                <small style="color: var(--text-muted); display: block; margin-top: 8px;">Maksimal 8 fitur utama.</small>
-            </div>
-        </div>
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
             <a href="{{ route('admin.listings') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>

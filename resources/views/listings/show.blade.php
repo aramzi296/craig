@@ -109,89 +109,99 @@
             </script>
             @endif
 
-            <!-- Details Header -->
-            <div class="glass" style="padding: 10px; border-radius: var(--radius); margin-bottom: 15px;">
-                <h1 style="font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; color: var(--text); line-height: 1.2;">
+            <!-- 1. Judul (Title) -->
+            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
+                <h1 style="font-size: 2.2rem; font-weight: 700; margin: 0; color: var(--text); line-height: 1.2;">
                     {{ $listing->title }}
                     @if($listing->is_premium)
                         <span class="badge badge-premium" style="font-size: 0.8rem; vertical-align: middle; margin-top: -5px; display: inline-block;">PREMIUM</span>
                     @endif
                 </h1>
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    @if($listing->listingType)
-                        <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 4px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">
-                            {{ $listing->listingType->name }}
-                        </span>
-                    @endif
-                    <div style="color: var(--primary); font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                        {{ $listing->categories->pluck('name')->join(' • ') }}
-                    </div>
-
-                    <div style="color: var(--text-muted); font-size: 1.05rem; font-weight: 500;">
-                    <i class="fa-solid fa-location-dot" style="color: var(--secondary); font-size: 1.2rem;"></i> {{ $listing->district?->name ?? 'Batam' }}, Batam
-                </div>
-                </div>
-                
-                
             </div>
 
-            <!-- Features Component -->
-            @if(!empty($listing->features) && count(array_filter($listing->features)) > 0)
-            <div class="glass" style="padding: 10px; border-radius: var(--radius); margin-bottom: 15px;">
-                <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
-                    @foreach(array_filter($listing->features) as $feature)
-                    <li style="display: flex; align-items: center; gap: 12px; font-size: 1rem; color: var(--text); font-weight: 500;">
-                        <i class="fa-solid fa-circle-check" style="color: #10b981; font-size: 1.2rem;"></i> {{ $feature }}
-                    </li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            <!-- Description Component -->
-            <div class="glass" style="padding: 15px; border-radius: var(--radius); margin-bottom: 25px;">
-                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem; margin-bottom: 20px;">
+            <!-- 2. Keterangan (Description) -->
+            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                    Deskripsi
+                </h3>
+                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
                     {!! nl2br(e($listing->description)) !!}
                 </div>
-
-                @if($listing->website)
-                    <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
-                        <a href="{{ $listing->website }}" target="_blank" rel="nofollow" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 10px; padding: 12px 25px; border-radius: 12px; font-weight: 700; width: auto; color: var(--primary); border-color: var(--primary);">
-                            <i class="fa-solid fa-globe"></i> Kunjungi Website
-                        </a>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 8px;">
-                            <i class="fa-solid fa-circle-info"></i> Link eksternal: {{ parse_url($listing->website, PHP_URL_HOST) }}
-                        </p>
-                    </div>
-                @endif
             </div>
 
-            <!-- Footer Details (Dan Seterusnya) -->
-            <div class="glass" style="padding: 10px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
-                <div class="listing-footer-row">
-                    <div>
-                        <div style="font-size: 2.6rem; font-weight: 800; color: var(--primary); letter-spacing: -1px;">
+            <!-- 3. Atribut (Attributes) -->
+            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                    Atribut & Informasi
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <!-- Harga -->
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Harga</span>
+                        <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
                             @if($listing->price && $listing->price > 0)
                                 Rp {{ number_format($listing->price, 0, ',', '.') }}
                             @else
                                 Hubungi Kami
                             @endif
-                        </div>
-                        
-                        
+                        </span>
                     </div>
-                    
-                    <div style="display: flex; align-items: center; gap: 12px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
-                        <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;" alt="">
+
+                    <!-- Lokasi -->
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Lokasi</span>
+                        <span style="font-size: 1.1rem; font-weight: 600; color: var(--text);">
+                            <i class="fa-solid fa-location-dot" style="color: var(--secondary);"></i> {{ $listing->district?->name ?? 'Batam' }}, Batam
+                        </span>
+                    </div>
+
+                    <!-- Kategori -->
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Kategori</span>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            @if($listing->listingType)
+                                <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 2px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">
+                                    {{ $listing->listingType->name }}
+                                </span>
+                            @endif
+                            <span style="font-size: 1rem; font-weight: 600; color: var(--primary);">
+                                {{ $listing->categories->pluck('name')->join(' • ') }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Website -->
+                    @if($listing->website)
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Website</span>
+                        <a href="{{ $listing->website }}" target="_blank" rel="nofollow" style="font-size: 1rem; font-weight: 600; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                            <i class="fa-solid fa-globe"></i> Kunjungi Situs
+                        </a>
+                    </div>
+                    @endif
+                </div>
+            </div>
+
+
+            <!-- 4. Kontak & User (Interaction) -->
+            <div class="glass" style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
+                <div class="listing-footer-row">
+                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
+                        <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover;" alt="">
                         <div>
-                            <div style="font-weight: 700; font-size: 1rem; display: flex; align-items: center; gap: 4px;">
+                            <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
                                 {{ $listing->user->name }}
                                 @if($listing->user->is_verified)
-                                    <i class="fa-solid fa-circle-check verified-badge" style="font-size: 0.8rem;" title="Akun Terverifikasi"></i>
+                                    <i class="fa-solid fa-circle-check verified-badge" style="font-size: 0.9rem;" title="Akun Terverifikasi"></i>
                                 @endif
                             </div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
                         </div>
+                    </div>
+                    
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.85rem; color: var(--text-muted);">Terbit: {{ $listing->created_at->format('d M Y') }}</div>
                     </div>
                 </div>
 
@@ -343,11 +353,11 @@
                                 <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
                             @endif
                             <div class="listing-details" style="padding: 0; flex: 1;">
-                                <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px;">
+                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
+                                <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
                                     <span class="badge badge-premium" style="font-size: 0.55rem; padding: 2px 4px;">PREMIUM</span>
                                     <span>{{ $premium->categories->first()->name ?? '' }}</span>
                                 </div>
-                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
                                 <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
                                     @if($premium->price && $premium->price > 0)
                                         Rp {{ number_format($premium->price, 0, ',', '.') }}
@@ -357,6 +367,7 @@
                                 </div>
                             </div>
                         </a>
+
                         @endforeach
                     </div>
                 </div>
@@ -373,7 +384,8 @@
                                 <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}" class="listing-image" style="width: 80px; height: 80px; margin: 0; border-radius: 8px; flex-shrink: 0;">
                             @endif
                             <div class="listing-details" style="padding: 0; flex: 1;">
-                                <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
+                                <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
                                     @if($related->listingType)
                                         <span style="background: {{ $related->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700;">
                                             {{ $related->listingType->name }}
@@ -381,8 +393,7 @@
                                     @endif
                                     <span>{{ $related->categories->take(1)->pluck('name')->join(', ') }}</span>
                                 </div>
-                                <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
-                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
+                                <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 2px; color: var(--primary); font-weight: 700;">
                                     @if($related->price && $related->price > 0)
                                         Rp {{ number_format($related->price, 0, ',', '.') }}
                                     @else
@@ -392,6 +403,7 @@
                                 <div class="listing-location" style="font-size: 0.75rem; margin: 0; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $related->district?->name ?? 'Batam' }}</div>
                             </div>
                         </a>
+
                         @endforeach
                     </div>
                 </div>

@@ -130,7 +130,6 @@ class AdminController extends Controller
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
-            'features' => 'nullable|array|max:8',
         ]);
 
         $categoryOther = $data['category_other'] ?? null;
@@ -182,7 +181,6 @@ class AdminController extends Controller
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
-            'features' => 'nullable|array|max:8',
         ]);
 
         $categoryOther = $data['category_other'] ?? null;

@@ -99,38 +99,39 @@
                             <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
                         @endif
                         <div class="listing-details">
-                            <div class="listing-category">
-                                {{ $listing->categories->take(3)->pluck('name')->join(', ') }}
+                            <h3 class="listing-title">
+                                {{ $listing->title }}
                                 @if($listing->is_premium)
-                                    <span class="badge badge-premium" style="margin-left: 5px; vertical-align: middle;">PREMIUM</span>
+                                    <span class="badge badge-premium" style="vertical-align: middle; font-size: 0.6rem;">PREMIUM</span>
                                 @endif
-                                @if($listing->listingType)
-                                    <span style="background: {{ $listing->listingType->color }}; color: white; padding: 2px 8px; border-radius: 4px; margin-left: 5px; font-size: 0.65rem; vertical-align: middle; display: inline-block;">
-                                        {{ $listing->listingType->name }}
-                                    </span>
-                                @endif
+                            </h3>
+                            
+                            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 5px 0 10px 0;">
+                                {{ \Illuminate\Support\Str::limit($listing->description, 150) }}
+                            </p>
+
+                            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: auto;">
+                                <div class="listing-price" style="font-size: 1.2rem; margin: 0; color: var(--primary);">
+                                    @if($listing->price && $listing->price > 0)
+                                        Rp {{ number_format($listing->price, 0, ',', '.') }}
+                                    @else
+                                        Hubungi Kami
+                                    @endif
+                                </div>
+                                <div class="listing-location" style="margin: 0; font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
+                                <div class="listing-category" style="margin: 0; font-size: 0.7rem; display: flex; align-items: center; gap: 5px;">
+                                    {{ $listing->categories->take(1)->pluck('name')->join('') }}
+                                    @if($listing->listingType)
+                                        <span style="background: {{ $listing->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem;">
+                                            {{ $listing->listingType->name }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
-                            <h3 class="listing-title">{{ $listing->title }}</h3>
-                            <div class="listing-location"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
-                            @php
-                                $cleanFeatures = array_slice(array_filter(array_map('trim', $listing->features ?? [])), 0, 4);
-                            @endphp
-                            <ul class="listing-features-summary {{ count($cleanFeatures) > 2 ? 'two-columns' : '' }}">
-                                @foreach($cleanFeatures as $feature)
-                                    <li><i class="fa-solid fa-check"></i> {{ $feature }}</li>
-                                @endforeach
-                            </ul>
                         </div>
-                        <div class="listing-right-panel">
-                            <div class="listing-price">
-                                @if($listing->price && $listing->price > 0)
-                                    Rp {{ number_format($listing->price, 0, ',', '.') }}
-                                @else
-                                    Hubungi Kami
-                                @endif
-                            </div>
+                        <div class="listing-right-panel" style="min-width: 140px; justify-content: center;">
                             <div class="btn-whatsapp-sm">
-                                <i class="fa-brands fa-whatsapp"></i> Chat WhatsApp
+                                <i class="fa-brands fa-whatsapp"></i> WhatsApp
                             </div>
                         </div>
                     </a>

@@ -187,21 +187,6 @@
                 </div>
             </div>
 
-            <div class="form-group-horizontal">
-                <label>Fitur Penawaran</label>
-                <div class="form-input-side">
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
-                        @for($i = 0; $i < 8; $i++)
-                            <input type="text" name="features[]" class="form-control" placeholder="Fitur {{ $i + 1 }}" value="{{ old('features.'.$i) }}" maxlength="{{ config('sebatam.huruf_fitur', 40) }}">
-                        @endfor
-                        <small class="text-muted" style="display: block; width: 100%; margin-top: 5px;">Maksimal {{ config('sebatam.huruf_fitur', 40) }} huruf per fitur.</small>
-                    </div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">Maksimal 8 fitur utama yang akan ditampilkan pada ringkasan.</small>
-                    @error('features')
-                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
 
             <div class="form-group-horizontal">
                 <label for="photos">Galeri Foto</label>
