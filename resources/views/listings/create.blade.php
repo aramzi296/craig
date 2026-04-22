@@ -54,6 +54,79 @@
             </script>
 
             <div class="form-group-horizontal">
+                <label for="title">Judul Iklan</label>
+                <div class="form-input-side">
+                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Honda Vario 2022 Mulus" required>
+                    @error('title')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="description">Deskripsi Lengkap</label>
+                <div class="form-input-side">
+                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan kondisi barang, kelengkapan, dsb." required maxlength="{{ config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
+                    <small class="text-muted">Maksimal {{ config('sebatam.huruf_deskripsi_iklan', 100) }} huruf. Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.</small>
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="price">Harga (Opsional)</label>
+                <div class="form-input-side">
+                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="Contoh: 500000 (kosongkan jika tidak ada)">
+                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
+                    @error('price')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="photos">Galeri Foto</label>
+                <div class="form-input-side">
+                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Maksimal <strong>{{ config('sebatam.max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ config('sebatam.max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
+                    </small>
+                    @error('photos')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
+            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') ? 'display: none;' : '' }}">
+                <label for="website">Link Website (Opsional)</label>
+                <div class="form-input-side">
+                    <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" placeholder="https://example.com">
+                    <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+                    @error('website')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            @endif
+
+            <div class="form-group-horizontal">
+                <label for="district_id">Lokasi di Batam</label>
+                <div class="form-input-side">
+                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                        <option value="">Pilih Lokasi</option>
+                        @foreach($districts as $dist)
+                            <option value="{{ $dist->id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('district_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
                 <label>Kategori</label>
                 <div class="form-input-side">
                     <!-- Added Tagify CSS -->
@@ -70,11 +143,13 @@
                             border: 1px solid var(--border);
                             padding: 5px;
                             width: 100%;
-                            background: white;
+                            background: #f8fafc;
+                            transition: all 0.2s;
                         }
                         .tagify--focus {
                             border-color: var(--primary);
-                            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+                            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+                            background: white;
                         }
                         .tagify__tag > div {
                             padding: 0.3em 0.7em;
@@ -127,79 +202,7 @@
                 </div>
             </div>
 
-            <div class="form-group-horizontal">
-                <label for="title">Judul Iklan</label>
-                <div class="form-input-side">
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Honda Vario 2022 Mulus" required>
-                    @error('title')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
 
-            <div class="form-group-horizontal">
-                <label for="price">Harga (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="Contoh: 500000 (kosongkan jika tidak ada)">
-                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
-                    @error('price')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
-            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') ? 'display: none;' : '' }}">
-                <label for="website">Link Website (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" placeholder="https://example.com">
-                    <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
-                    @error('website')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-            @endif
-
-            <div class="form-group-horizontal">
-                <label for="district_id">Lokasi di Batam</label>
-                <div class="form-input-side">
-                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
-                        <option value="">Pilih Lokasi</option>
-                        @foreach($districts as $dist)
-                            <option value="{{ $dist->id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('district_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="form-group-horizontal">
-                <label for="description">Deskripsi Lengkap</label>
-                <div class="form-input-side">
-                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan kondisi barang, kelengkapan, dsb." required maxlength="{{ config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
-                    <small class="text-muted">Maksimal {{ config('sebatam.huruf_deskripsi_iklan', 100) }} huruf. Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.</small>
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-
-            <div class="form-group-horizontal">
-                <label for="photos">Galeri Foto</label>
-                <div class="form-input-side">
-                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
-                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Maksimal <strong>{{ config('sebatam.max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ config('sebatam.max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
-                    </small>
-                    @error('photos')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
 
             <div class="form-group-horizontal" style="align-items: flex-start;">
                 <label>Visibilitas Kontak & Interaksi</label>

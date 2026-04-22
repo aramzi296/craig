@@ -26,37 +26,20 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label>Kategori</label>
-            <div class="form-input-side">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                    @php
-                        $selectedIds = old('category_ids', $listing->categories->pluck('id')->toArray());
-                    @endphp
-                    @foreach($categories as $category)
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
-                            <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" 
-                                {{ in_array($category->id, $selectedIds) ? 'checked' : '' }}
-                                style="width: 18px; height: 18px;">
-                            {{ $category->name }}
-                        </label>
-                    @endforeach
-                </div>
-                @error('category_ids')
-                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
-                @enderror
-
-                <div style="margin-top: 15px;">
-                    <label for="category_other" style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Tambah Kategori Baru:</label>
-                    <input type="text" name="category_other" id="category_other" class="form-control" placeholder="Tulis nama kategori baru..." value="{{ old('category_other') }}">
-                </div>
-            </div>
-        </div>
-
-        <div class="form-group-horizontal">
             <label for="title">Judul Iklan</label>
             <div class="form-input-side">
                 <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" required>
                 @error('title')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="description">Deskripsi Lengkap</label>
+            <div class="form-input-side">
+                <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $listing->description) }}</textarea>
+                @error('description')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
@@ -88,12 +71,29 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="description">Deskripsi Lengkap</label>
+            <label>Kategori</label>
             <div class="form-input-side">
-                <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required>{{ old('description', $listing->description) }}</textarea>
-                @error('description')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+                    @php
+                        $selectedIds = old('category_ids', $listing->categories->pluck('id')->toArray());
+                    @endphp
+                    @foreach($categories as $category)
+                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
+                            <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" 
+                                {{ in_array($category->id, $selectedIds) ? 'checked' : '' }}
+                                style="width: 18px; height: 18px;">
+                            {{ $category->name }}
+                        </label>
+                    @endforeach
+                </div>
+                @error('category_ids')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
+
+                <div style="margin-top: 15px;">
+                    <label for="category_other" style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Tambah Kategori Baru:</label>
+                    <input type="text" name="category_other" id="category_other" class="form-control" placeholder="Tulis nama kategori baru..." value="{{ old('category_other') }}">
+                </div>
             </div>
         </div>
 

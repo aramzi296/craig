@@ -54,6 +54,105 @@
             </script>
 
             <div class="form-group-horizontal">
+                <label for="title">Judul Iklan</label>
+                <div class="form-input-side">
+                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" required>
+                    @error('title')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="description">Deskripsi Lengkap</label>
+                <div class="form-input-side">
+                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required maxlength="{{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description) }}</textarea>
+                    <small class="text-muted" style="display: block; margin-top: 5px;">Maksimal {{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }} huruf.@if(!$listing->is_premium) Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.@endif</small>
+                    @error('description')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="price">Harga (Opsional)</label>
+                <div class="form-input-side">
+                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" placeholder="kosongkan jika tidak ada">
+                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
+                    @error('price')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label>Galeri Foto Saat Ini</label>
+                <div class="form-input-side">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        @forelse($listing->photos as $photo)
+                            <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; group;">
+                                <img src="{{ $photo->getThumbnailUrl() }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                                <button type="button" 
+                                        onclick="if(confirm('Hapus foto ini?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
+                                        style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        @empty
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto galeri.</p>
+                        @endforelse
+                    </div>
+                    <small style="color: var(--text-muted); display: block; margin-top: 10px;">
+                        Saat ini ada {{ $listing->photos->count() }} foto. 
+                        Jatah sisa: {{ ($listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0)) - $listing->photos->count() }} foto.
+                    </small>
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="photos">Tambah Foto Galeri</label>
+                <div class="form-input-side">
+                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Unggah foto tambahan. Maksimal total foto adalah <strong>{{ $listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0) }}</strong>.
+                    </small>
+                    @error('photos')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
+                    @error('photos.*')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
+            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') && !$listing->is_premium ? 'display: none;' : '' }}">
+                <label for="website">Link Website (Opsional)</label>
+                <div class="form-input-side">
+                    <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->website) }}" placeholder="https://example.com">
+                    <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+                    @error('website')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+            @endif
+
+            <div class="form-group-horizontal">
+                <label for="district_id">Lokasi di Batam</label>
+                <div class="form-input-side">
+                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                        @foreach($districts as $dist)
+                            <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
+                        @endforeach
+                    </select>
+                    @error('district_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
                 <label>Kategori</label>
                 <div class="form-input-side">
                     <!-- Added Tagify CSS -->
@@ -70,11 +169,13 @@
                             border: 1px solid var(--border);
                             padding: 5px;
                             width: 100%;
-                            background: white;
+                            background: #f8fafc;
+                            transition: all 0.2s;
                         }
                         .tagify--focus {
                             border-color: var(--primary);
-                            box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+                            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+                            background: white;
                         }
                         .tagify__tag > div {
                             padding: 0.3em 0.7em;
@@ -124,107 +225,7 @@
                 </div>
             </div>
 
-            <div class="form-group-horizontal">
-                <label for="title">Judul Iklan</label>
-                <div class="form-input-side">
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" required>
-                    @error('title')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
 
-            <div class="form-group-horizontal">
-                <label for="price">Harga (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" placeholder="kosongkan jika tidak ada">
-                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
-                    @error('price')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
-            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') && !$listing->is_premium ? 'display: none;' : '' }}">
-                <label for="website">Link Website (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->website) }}" placeholder="https://example.com">
-                    <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
-                    @error('website')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-            @endif
-
-            <div class="form-group-horizontal">
-                <label for="district_id">Lokasi di Batam</label>
-                <div class="form-input-side">
-                    <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
-                        @foreach($districts as $dist)
-                            <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('district_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="form-group-horizontal">
-                <label for="description">Deskripsi Lengkap</label>
-                <div class="form-input-side">
-                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" required maxlength="{{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description) }}</textarea>
-                    <small class="text-muted" style="display: block; margin-top: 5px;">Maksimal {{ $listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100) }} huruf.@if(!$listing->is_premium) Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.@endif</small>
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-
-            <div class="form-group-horizontal">
-                <label>Galeri Foto Saat Ini</label>
-                <div class="form-input-side">
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                        @forelse($listing->photos as $photo)
-                            <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; group;">
-                                <img src="{{ $photo->getThumbnailUrl() }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
-                                <button type="button" 
-                                        onclick="if(confirm('Hapus foto ini?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
-                                        style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                            </div>
-                        @empty
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto galeri.</p>
-                        @endforelse
-                    </div>
-                    <small style="color: var(--text-muted); display: block; margin-top: 10px;">
-                        Saat ini ada {{ $listing->photos->count() }} foto. 
-                        Jatah sisa: {{ ($listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0)) - $listing->photos->count() }} foto.
-                    </small>
-                </div>
-            </div>
-
-
-
-            <div class="form-group-horizontal">
-                <label for="photos">Tambah Foto Galeri</label>
-                <div class="form-input-side">
-                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
-                    <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Unggah foto tambahan. Maksimal total foto adalah <strong>{{ $listing->is_premium ? config('sebatam.max_foto_iklan_premium', 8) : config('sebatam.max_foto_iklan', 0) }}</strong>.
-                    </small>
-                    @error('photos')
-                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
-                    @enderror
-                    @error('photos.*')
-                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
 
             <div class="form-group-horizontal" style="align-items: flex-start;">
                 <label>Visibilitas Kontak & Interaksi</label>
