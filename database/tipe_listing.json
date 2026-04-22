@@ -1,0 +1,116 @@
+{
+	"table": "listing_types",
+	"rows":
+	[
+		{
+			"id": 1,
+			"name": "Jual-Beli",
+			"slug": "jual-beli",
+			"color": "#f87171",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 10,
+			"keterangan": "Jika anda mau menjual atau membeli produk/barang. Baik baru atau bekas. Contoh: mobil, motor, HP, laptop, sepeda, furniture, pakaian, dll."
+		},
+		{
+			"id": 3,
+			"name": "Jasa",
+			"slug": "jasa",
+			"color": "#34d399",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:14:41",
+			"sort_order": 15,
+			"keterangan": "Jika anda mau menawarkan jasa Anda. Contoh: service AC, jasa pembuangan puing, tukang bangunan, jasa desain grafis, jasa pembuatan website, jasa perbaikan elektronik, jasa kebersihan, dll."
+		},
+		{
+			"id": 4,
+			"name": "Lowongan",
+			"slug": "lowongan",
+			"color": "#60a5fa",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:17:20",
+			"sort_order": 50,
+			"keterangan": "Jika Anda mau memasang informasi lowongan kerja. Lowongan untuk perusahaan formal atau informal, di rumah tangga atau tempat usaha. Contoh: lowongan kerja di PT, lowongan kerja untuk helper, asisten rumah tangga, penjaga warung, counter HP, dll."
+		},
+		{
+			"id": 5,
+			"name": "Cari Kerja",
+			"slug": "cari-kerja",
+			"color": "#a78bfa",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 60,
+			"keterangan": "Jika Anda mau mencari pekerjaan dan menawarkan profil Anda kepada warga Batam."
+		},
+		{
+			"id": 6,
+			"name": "Agenda",
+			"slug": "agenda",
+			"color": "#f472b6",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 70,
+			"keterangan": "Jika Anda mau memberitahukan agenda kegiatan (gratis atau berbayar). Contoh: kegiatan seminar, pelatihan, workshop, dll."
+		},
+		{
+			"id": 7,
+			"name": "Pengumuman",
+			"slug": "pengumuman",
+			"color": "#fb7185",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 80,
+			"keterangan": "Jika Anda mau memberikan pengumuman publik lainnya kepada warga Batam lainnya. Contoh: berita kehilangan barang/hewan peliharaan, dll."
+		},
+		{
+			"id": 8,
+			"name": "Promo",
+			"slug": "promo",
+			"color": "#22d3ee",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 85,
+			"keterangan": "Jika Anda mau menawarkan promo: diskon, bonus, cashback, doorprice, luckydraw, kupon, dll."
+		},
+		{
+			"id": 9,
+			"name": "Lainnya",
+			"slug": "lainnya",
+			"color": "#9ca3af",
+			"created_at": "2026-04-15 09:04:43",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 90,
+			"keterangan": "Untuk menampung informasi yang belum masuk dalam kategori di atas."
+		},
+		{
+			"id": 10,
+			"name": "Direktori",
+			"slug": "direktori",
+			"color": "#0ea5e9",
+			"created_at": "2026-04-17 02:14:02",
+			"updated_at": "2026-04-21 10:11:14",
+			"sort_order": 87,
+			"keterangan": "Jika Anda mau informasi usaha Anda dapat ditemukan oleh warga Batam."
+		},
+		{
+			"id": 11,
+			"name": "Proyek",
+			"slug": "proyek",
+			"color": "#0ea5e9",
+			"created_at": "2026-04-18 15:25:58",
+			"updated_at": "2026-04-21 10:14:29",
+			"sort_order": 20,
+			"keterangan": "Jika Anda mau menawarkan proyek atau pekerjaan kepada pihak lain untuk mengerjakan proyek atau pekerjaan tersebut. Contoh: mencari pemborong bangunan, mencari tukang las, mencari tukang ledeng, mencari tukang cat, dll."
+		},
+		{
+			"id": 12,
+			"name": "Sewa",
+			"slug": "sewa",
+			"color": "#00ff00",
+			"created_at": "2026-04-21 01:13:45",
+			"updated_at": "2026-04-21 10:12:44",
+			"sort_order": 12,
+			"keterangan": "Jika Anda ingin menyewakan suatu barang atau properti. Contoh: sewa mobil, sewa rumah, kamar kost, kamar hotel, sewa alat berat, dll."
+		}
+	]
+}
