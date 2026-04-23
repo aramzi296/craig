@@ -687,6 +687,7 @@ class WhatsappBotService
                     "🎉 *Iklan Berhasil Diterbitkan!*\n\n" .
                     "Terima kasih telah memasang iklan di Sebatam.\n" .
                     "Iklan Anda kini sudah online.\n\n" .
+                    "🔗 *Link Iklan:* " . route('listings.show', $listing->slug) . "\n\n" .
                     "ℹ️ *Informasi:* Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
                 );
             } catch (\Throwable $e) {
