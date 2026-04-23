@@ -384,9 +384,9 @@ class WhatsappBotService
             );
         }
 
-        // Start flow
+        // Start flow with confirmation
         $this->setState($phone, [
-            'step'    => 'awaiting_title',
+            'step'    => 'awaiting_start_confirmation',
             'user_id' => $user->id,
             'ad_data' => [],
             'photos'  => []
@@ -395,9 +395,10 @@ class WhatsappBotService
         $this->whatsapp->sendMessage(
             $phone,
             "📣 *Pasang Iklan Baru*\n\n" .
-            "Silakan kirim *Judul Iklan* Anda.\n" .
-            "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
-            "_Ketik *batal* untuk membatalkan._"
+            "Halo! Anda akan memulai proses pemasangan iklan di Sebatam.\n" .
+            "Kami akan memandu Anda langkah demi langkah untuk mengisi informasi iklan Anda.\n\n" .
+            "Dengan melanjutkan pemasangan iklan di Sebatam.com, Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
+            "Apakah Anda ingin melanjutkan? (Ya/Tidak)"
         );
     }
 
@@ -412,6 +413,7 @@ class WhatsappBotService
         }
 
         match ($step) {
+            'awaiting_start_confirmation' => $this->handleAdStartConfirmation($phone, $lower, $state),
             'awaiting_title'           => $this->handleAdTitle($phone, $text, $state),
             'awaiting_detail'          => $this->handleAdDetail($phone, $text, $state),
             'awaiting_price'           => $this->handleAdPrice($phone, $text, $state),
@@ -425,6 +427,31 @@ class WhatsappBotService
             'awaiting_confirmation'    => $this->handleAdConfirmation($phone, $lower, $state),
             default                    => $this->abortUnknownStep($phone),
         };
+    }
+
+    private function handleAdStartConfirmation(string $phone, string $lower, array $state): void
+    {
+        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok', 'lanjut', 'lanjutkan'], true)) {
+            $state['step'] = 'awaiting_title';
+            $this->setState($phone, $state);
+
+            $this->whatsapp->sendMessage(
+                $phone,
+                "📝 *Langkah 1 — Judul Iklan*\n\n" .
+                "Silakan kirim *Judul Iklan* Anda.\n" .
+                "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
+                "_Ketik *batal* untuk membatalkan._"
+            );
+            return;
+        }
+
+        if (in_array($lower, ['tidak', 'n', 'no', 'gak', 'nggak', 'batal'], true)) {
+            $this->clearState($phone);
+            $this->whatsapp->sendMessage($phone, "Baik, pemasangan iklan dibatalkan. Kirim *pasang iklan* kapan saja untuk mencoba lagi.");
+            return;
+        }
+
+        $this->whatsapp->sendMessage($phone, "Mohon balas *YA* untuk melanjutkan atau *TIDAK* untuk batal.");
     }
 
     private function handleAdTitle(string $phone, string $text, array $state): void
