@@ -490,31 +490,37 @@ class WhatsappBotService
 
     private function handleAdPhotoUpload(string $phone, array $payload, array $state): void
     {
-        $url = $payload['data']['url'] ?? ($payload['data']['image']['url'] ?? ($payload['data']['file_url'] ?? null));
+        // GOWA payload can be in 'data' or 'payload'
+        $data = $payload['data'] ?? ($payload['payload'] ?? []);
+        
+        // Find the image path/URL
+        $imagePath = $data['image'] ?? ($data['url'] ?? ($data['file_url'] ?? null));
+        
+        if (is_array($imagePath)) {
+            $imagePath = $imagePath['url'] ?? null;
+        }
 
-        if (!$url) {
+        if (!$imagePath) {
             $this->whatsapp->sendMessage($phone, "⚠️ Media tidak ditemukan. Silakan kirim fotonya atau ketik *batal*.");
             return;
         }
 
+        // Build full URL if relative
+        $fullUrl = $imagePath;
+        if (!str_starts_with($imagePath, 'http')) {
+            $baseUrl = rtrim((string) config('services.whatsapp.api_url'), '/');
+            $fullUrl = $baseUrl . '/' . ltrim((string) $imagePath, '/');
+        }
+
         try {
-            $response = Http::get($url);
+            // Log the attempt for debugging
+            Log::info("WA Bot: Attempting to download photo from: " . $fullUrl);
+
+            $response = Http::timeout(30)->get($fullUrl);
             if (!$response->successful()) {
-                throw new \Exception("Gagal mengunduh media dari WhatsApp.");
+                throw new \Exception("Gagal mengunduh media. Status: " . $response->status());
             }
 
-            // Simpan sementara di local untuk diupload ke ImageKit
-            $tmpFile = tempnam(sys_get_temp_dir(), 'wa_ad_');
-            file_put_contents($tmpFile, $response->body());
-
-            // Mocking UploadedFile for ImageService compatibility
-            // Since ImageService expects UploadedFile, we might need to adjust it or create a manual upload
-            // But we can use ImageKit directly if needed. 
-            // For now, let's assume we can pass a file path or mock it.
-            
-            // Actually, let's save the file path in state and upload later, 
-            // or just upload now if we can.
-            
             $state['photos'][] = base64_encode($response->body());
             
             $photoCount = count($state['photos']);
@@ -532,7 +538,7 @@ class WhatsappBotService
             }
         } catch (\Throwable $e) {
             Log::error("WA Bot: Photo upload error: " . $e->getMessage());
-            $this->whatsapp->sendMessage($phone, "❌ Gagal memproses foto. Silakan coba kirim ulang atau ketik *tidak* untuk lanjut.");
+            $this->whatsapp->sendMessage($phone, "❌ Gagal memproses foto. Pastikan bot dapat mengakses file di: {$fullUrl}\n\nSilakan coba kirim ulang atau ketik *tidak* untuk lanjut.");
         }
     }
 
