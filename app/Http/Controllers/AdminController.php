@@ -218,9 +218,20 @@ class AdminController extends Controller
         return redirect()->route('admin.listings')->with('success', 'Listing berhasil dihapus.');
     }
 
-    public function users()
+    public function users(Request $request)
     {
-        $users = \App\Models\User::latest()->paginate(20);
+        $query = \App\Models\User::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('whatsapp', 'like', "%{$search}%");
+            });
+        }
+
+        $users = $query->latest()->paginate(20)->withQueryString();
         return view('admin.users.index', compact('users'));
     }
 

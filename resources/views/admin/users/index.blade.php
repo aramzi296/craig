@@ -18,6 +18,13 @@
     </div>
 @endif
 
+<div style="margin-bottom: 25px; display: flex; justify-content: flex-end;">
+    <form action="{{ route('admin.users') }}" method="GET" style="display: flex; gap: 10px; width: 100%; max-width: 400px;">
+        <input type="text" name="search" style="padding: 10px 15px; border: 1px solid var(--border); border-radius: 8px; flex-grow: 1; outline: none; font-family: inherit;" placeholder="Cari nama, email, atau WA..." value="{{ request('search') }}">
+        <button type="submit" class="btn btn-primary" style="padding: 10px 20px;">Cari</button>
+    </form>
+</div>
+
 <div class="glass" style="padding: 30px; border-radius: var(--radius);">
     <table class="data-table">
         <thead>
@@ -25,6 +32,7 @@
                 <th>Nama</th>
                 <th>Email</th>
                 <th>WhatsApp</th>
+                <th style="text-align: center;">Kuota</th>
                 <th>Status</th>
                 <th>Peran</th>
                 <th>Bergabung</th>
@@ -45,6 +53,7 @@
                         -
                     @endif
                 </td>
+                <td style="text-align: center; font-weight: 700; color: var(--primary);">{{ $user->ads_quota }}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 8px;">
                         @if($user->is_verified)
