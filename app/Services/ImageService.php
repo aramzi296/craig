@@ -77,6 +77,25 @@ class ImageService
     }
 
     /**
+     * Upload file from path (for bot usage).
+     */
+    public function uploadFromPath(string $filePath, string $fileName, string $folder)
+    {
+        $upload = $this->imageKit->uploadFile([
+            'file' => base64_encode(file_get_contents($filePath)),
+            'fileName' => $fileName,
+            'folder' => $folder,
+            'useUniqueFileName' => true,
+        ]);
+
+        if ($upload->error) {
+            throw new \Exception("ImageKit Upload Error: " . $upload->error->message);
+        }
+
+        return $upload->result;
+    }
+
+    /**
      * Delete file from ImageKit by fileId.
      */
     public function deleteFileById(string $fileId)

@@ -73,7 +73,7 @@ class WebhookController extends Controller
 
         // Delegate to bot service
         $trimmed = trim((string) $body);
-        $this->whatsappBotService->handle($from, $trimmed);
+        $this->whatsappBotService->handle($from, $trimmed, $payload);
 
         return response()->json(['status' => 'success']);
     }

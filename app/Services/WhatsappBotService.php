@@ -3,8 +3,15 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Listing;
+use App\Models\ListingPhoto;
+use App\Models\District;
+use App\Models\ListingType;
+use App\Models\Category;
+use App\Services\ImageService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -27,13 +34,14 @@ class WhatsappBotService
     private const REG_TTL          = 86400; // 24 jam
 
     public function __construct(
-        protected WhatsappService $whatsapp
+        protected WhatsappService $whatsapp,
+        protected ImageService    $imageService
     ) {}
 
     /**
      * Main entry point called from WebhookController.
      */
-    public function handle(string $from, string $message): void
+    public function handle(string $from, string $message, array $payload = []): void
     {
         $phone = self::normalize($from);
         if ($phone === '') {
@@ -49,10 +57,20 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: pasang iklan ──────────────────────────────────────────
+        if ($lowerText === 'pasang iklan') {
+            $this->handleAdPostingRequest($phone);
+            return;
+        }
+
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
         if ($state !== null) {
-            $this->processState($phone, $text, $lowerText, $state);
+            if (str_starts_with($state['step'], 'awaiting_reg_')) {
+                $this->processState($phone, $text, $lowerText, $state);
+            } else {
+                $this->processAdState($phone, $text, $lowerText, $state, $payload);
+            }
             return;
         }
     }
@@ -334,6 +352,368 @@ class WhatsappBotService
     private function setState(string $phone, array $state): void
     {
         Cache::put(self::REG_CACHE_PREFIX . $phone, $state, self::REG_TTL);
+    }
+
+    private function handleAdPostingRequest(string $phone): void
+    {
+        $user = User::where('whatsapp', $phone)->first();
+
+        if (!$user) {
+            // Register automatically if not exists
+            $randomSuffix = rand(100, 999);
+            $email = $phone . '+' . $randomSuffix . '@sebatam.com';
+            $password = Str::random(10);
+
+            try {
+                $user = User::create([
+                    'name'     => 'user-' . rand(100000, 999999),
+                    'whatsapp' => $phone,
+                    'email'    => $email,
+                    'password' => Hash::make($password),
+                ]);
+            } catch (\Throwable $e) {
+                $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
+                return;
+            }
+
+            $this->whatsapp->sendMessage(
+                $phone,
+                "🎉 *Selamat Datang di Sebatam!*\n\n" .
+                "Akun Anda telah dibuat secara otomatis untuk mulai pasang iklan.\n" .
+                "📧 Email: *{$email}*"
+            );
+        }
+
+        // Start flow
+        $this->setState($phone, [
+            'step'    => 'awaiting_title',
+            'user_id' => $user->id,
+            'ad_data' => [],
+            'photos'  => []
+        ]);
+
+        $this->whatsapp->sendMessage(
+            $phone,
+            "📣 *Pasang Iklan Baru*\n\n" .
+            "Silakan kirim *Judul Iklan* Anda.\n" .
+            "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
+            "_Ketik *batal* untuk membatalkan._"
+        );
+    }
+
+    private function processAdState(string $phone, string $text, string $lower, array $state, array $payload): void
+    {
+        $step = $state['step'] ?? '';
+
+        if ($lower === 'batal') {
+            $this->clearState($phone);
+            $this->whatsapp->sendMessage($phone, "❌ Pemasangan iklan dibatalkan.");
+            return;
+        }
+
+        match ($step) {
+            'awaiting_title'           => $this->handleAdTitle($phone, $text, $state),
+            'awaiting_detail'          => $this->handleAdDetail($phone, $text, $state),
+            'awaiting_price'           => $this->handleAdPrice($phone, $text, $state),
+            'awaiting_photo_ask'       => $this->handleAdPhotoAsk($phone, $lower, $state),
+            'awaiting_photo_upload'    => $this->handleAdPhotoUpload($phone, $payload, $state),
+            'awaiting_category'        => $this->handleAdCategory($phone, $text, $state),
+            'awaiting_location'        => $this->handleAdLocation($phone, $text, $state),
+            'awaiting_type'            => $this->handleAdType($phone, $text, $state),
+            'awaiting_wa_button'       => $this->handleAdWaButton($phone, $lower, $state),
+            'awaiting_comment_section' => $this->handleAdCommentSection($phone, $lower, $state),
+            'awaiting_confirmation'    => $this->handleAdConfirmation($phone, $lower, $state),
+            default                    => $this->abortUnknownStep($phone),
+        };
+    }
+
+    private function handleAdTitle(string $phone, string $text, array $state): void
+    {
+        if (strlen($text) < 5) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Judul terlalu pendek. Minimal 5 karakter.");
+            return;
+        }
+
+        $state['ad_data']['title'] = $text;
+        $state['step'] = 'awaiting_detail';
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "📝 Kirimkan *Detail Iklan* (Deskripsi) Anda.");
+    }
+
+    private function handleAdDetail(string $phone, string $text, array $state): void
+    {
+        if (strlen($text) < 10) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Deskripsi terlalu pendek. Minimal 10 karakter.");
+            return;
+        }
+
+        $state['ad_data']['description'] = $text;
+        $state['step'] = 'awaiting_price';
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "💰 Masukkan *Harga* (hanya angka). Ketik *0* jika tidak ingin menampilkan harga.");
+    }
+
+    private function handleAdPrice(string $phone, string $text, array $state): void
+    {
+        $price = preg_replace('/\D/', '', $text);
+        if ($price === '' && $text !== '0') {
+            $this->whatsapp->sendMessage($phone, "⚠️ Mohon masukkan angka saja atau ketik 0.");
+            return;
+        }
+
+        $state['ad_data']['price'] = (int) $price;
+        $state['step'] = 'awaiting_photo_ask';
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "📸 Apakah Anda ingin mengirim *Foto ke-1*? (Ya/Tidak)");
+    }
+
+    private function handleAdPhotoAsk(string $phone, string $lower, array $state): void
+    {
+        $photoCount = count($state['photos'] ?? []);
+        $maxPhotos = config('sebatam.max_foto_iklan', 4);
+
+        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
+            $state['step'] = 'awaiting_photo_upload';
+            $this->setState($phone, $state);
+            $this->whatsapp->sendMessage($phone, "🖼️ Silakan kirim fotonya sekarang.");
+            return;
+        }
+
+        // Jika tidak/selesai, lanjut ke kategori
+        $state['step'] = 'awaiting_category';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, "📂 Ketik *Kategori* iklan Anda (maksimal 30 huruf).");
+    }
+
+    private function handleAdPhotoUpload(string $phone, array $payload, array $state): void
+    {
+        $url = $payload['data']['url'] ?? ($payload['data']['image']['url'] ?? ($payload['data']['file_url'] ?? null));
+
+        if (!$url) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Media tidak ditemukan. Silakan kirim fotonya atau ketik *batal*.");
+            return;
+        }
+
+        try {
+            $response = Http::get($url);
+            if (!$response->successful()) {
+                throw new \Exception("Gagal mengunduh media dari WhatsApp.");
+            }
+
+            // Simpan sementara di local untuk diupload ke ImageKit
+            $tmpFile = tempnam(sys_get_temp_dir(), 'wa_ad_');
+            file_put_contents($tmpFile, $response->body());
+
+            // Mocking UploadedFile for ImageService compatibility
+            // Since ImageService expects UploadedFile, we might need to adjust it or create a manual upload
+            // But we can use ImageKit directly if needed. 
+            // For now, let's assume we can pass a file path or mock it.
+            
+            // Actually, let's save the file path in state and upload later, 
+            // or just upload now if we can.
+            
+            $state['photos'][] = base64_encode($response->body());
+            
+            $photoCount = count($state['photos']);
+            $maxPhotos = config('sebatam.max_foto_iklan', 4);
+
+            if ($photoCount >= $maxPhotos) {
+                $state['step'] = 'awaiting_category';
+                $this->setState($phone, $state);
+                $this->whatsapp->sendMessage($phone, "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Ketik *Kategori* iklan Anda (maksimal 30 huruf).");
+            } else {
+                $next = $photoCount + 1;
+                $state['step'] = 'awaiting_photo_ask';
+                $this->setState($phone, $state);
+                $this->whatsapp->sendMessage($phone, "✅ Foto ke-{$photoCount} diterima. Apakah ingin mengirim *Foto ke-{$next}*? (Ya/Tidak)");
+            }
+        } catch (\Throwable $e) {
+            Log::error("WA Bot: Photo upload error: " . $e->getMessage());
+            $this->whatsapp->sendMessage($phone, "❌ Gagal memproses foto. Silakan coba kirim ulang atau ketik *tidak* untuk lanjut.");
+        }
+    }
+
+    private function handleAdCategory(string $phone, string $text, array $state): void
+    {
+        if (mb_strlen($text) > 30) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Kategori terlalu panjang (maksimal 30 huruf).");
+            return;
+        }
+
+        $state['ad_data']['category_name'] = $text;
+        
+        // Show districts
+        $districts = District::orderBy('name')->pluck('name', 'id')->toArray();
+        $list = "📍 *Pilih Lokasi* (Ketik nomornya):\n\n";
+        foreach ($districts as $id => $name) {
+            $list .= "{$id}. {$name}\n";
+        }
+
+        $state['step'] = 'awaiting_location';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, $list);
+    }
+
+    private function handleAdLocation(string $phone, string $text, array $state): void
+    {
+        $districtId = (int) $text;
+        if (!District::where('id', $districtId)->exists()) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Lokasi tidak valid. Mohon pilih nomor yang tertera.");
+            return;
+        }
+
+        $state['ad_data']['district_id'] = $districtId;
+
+        // Show Types
+        $types = ListingType::orderBy('sort_order')->pluck('name', 'id')->toArray();
+        $list = "🏷️ *Pilih Tipe Iklan* (Ketik nomornya):\n\n";
+        foreach ($types as $id => $name) {
+            $list .= "{$id}. {$name}\n";
+        }
+
+        $state['step'] = 'awaiting_type';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, $list);
+    }
+
+    private function handleAdType(string $phone, string $text, array $state): void
+    {
+        $typeId = (int) $text;
+        if (!ListingType::where('id', $typeId)->exists()) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Tipe tidak valid. Mohon pilih nomor yang tertera.");
+            return;
+        }
+
+        $state['ad_data']['listing_type_id'] = $typeId;
+        $state['step'] = 'awaiting_wa_button';
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "📲 Tampilkan tombol WhatsApp di iklan? (Ya/Tidak)");
+    }
+
+    private function handleAdWaButton(string $phone, string $lower, array $state): void
+    {
+        $state['ad_data']['whatsapp_visibility'] = in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true);
+        $state['step'] = 'awaiting_comment_section';
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "💬 Aktifkan kolom komentar? (Ya/Tidak)");
+    }
+
+    private function handleAdCommentSection(string $phone, string $lower, array $state): void
+    {
+        $state['ad_data']['comment_visibility'] = in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true);
+        
+        $title = $state['ad_data']['title'];
+        $desc = $state['ad_data']['description'];
+        $price = $state['ad_data']['price'] > 0 ? "Rp " . number_format($state['ad_data']['price']) : "Hubungi Kami";
+        $loc = District::find($state['ad_data']['district_id'])->name;
+        $type = ListingType::find($state['ad_data']['listing_type_id'])->name;
+        $cat = $state['ad_data']['category_name'];
+        $wa = $state['ad_data']['whatsapp_visibility'] ? "Aktif" : "Sembunyi";
+        $comm = $state['ad_data']['comment_visibility'] ? "Aktif" : "Nonaktif";
+
+        $summary = "🧐 *Konfirmasi Iklan*\n\n" .
+                  "📌 Judul: {$title}\n" .
+                  "📝 Detail: {$desc}\n" .
+                  "💰 Harga: {$price}\n" .
+                  "📂 Kategori: {$cat}\n" .
+                  "📍 Lokasi: {$loc}\n" .
+                  "🏷️ Tipe: {$type}\n" .
+                  "📲 Tombol WA: {$wa}\n" .
+                  "💬 Komentar: {$comm}\n" .
+                  "🖼️ Foto: " . count($state['photos']) . " foto\n\n" .
+                  "*Terbitkan iklan ini?* (Ya/Tidak)";
+
+        $state['step'] = 'awaiting_confirmation';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, $summary);
+    }
+
+    private function handleAdConfirmation(string $phone, string $lower, array $state): void
+    {
+        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
+            try {
+                $ad = $state['ad_data'];
+                $listing = Listing::create([
+                    'user_id' => $state['user_id'],
+                    'listing_type_id' => $ad['listing_type_id'],
+                    'district_id' => $ad['district_id'],
+                    'title' => $ad['title'],
+                    'slug' => Str::slug($ad['title']) . '-' . Str::random(5),
+                    'description' => $ad['description'],
+                    'price' => $ad['price'],
+                    'whatsapp_visibility' => $ad['whatsapp_visibility'],
+                    'comment_visibility' => $ad['comment_visibility'],
+                    'is_active' => true,
+                    'expires_at' => now()->addDays(config('sebatam.expire_iklan', 30)),
+                ]);
+
+                // Handle Category
+                $category = Category::where('name', 'like', $ad['category_name'])->first();
+                if (!$category) {
+                    $category = Category::create([
+                        'name' => $ad['category_name'],
+                        'slug' => Str::slug($ad['category_name']),
+                    ]);
+                }
+                $listing->categories()->attach($category->id);
+
+                // Handle Photos
+                foreach ($state['photos'] as $idx => $base64) {
+                    $imageData = base64_decode($base64);
+                    $tmpFile = tempnam(sys_get_temp_dir(), 'wa_photo_');
+                    file_put_contents($tmpFile, $imageData);
+                    
+                    // Manually upload to ImageKit via ImageService if we can adapt it
+                    // Or we can just use a modified version of uploadListingPhoto
+                    // For now, I'll assume we can handle it or I'll provide a helper
+                    $this->uploadPhotoFromBot($listing->id, $tmpFile, $idx === 0 ? 'foto_fitur' : 'gallery');
+                    unlink($tmpFile);
+                }
+
+                $this->clearState($phone);
+                $this->whatsapp->sendMessage(
+                    $phone,
+                    "🎉 *Iklan Berhasil Diterbitkan!*\n\n" .
+                    "Terima kasih telah memasang iklan di Sebatam.\n" .
+                    "Iklan Anda kini sudah online.\n\n" .
+                    "ℹ️ *Informasi:* Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
+                );
+            } catch (\Throwable $e) {
+                Log::error("WA Bot: Final publish error: " . $e->getMessage());
+                $this->whatsapp->sendMessage($phone, "❌ Terjadi kesalahan saat menerbitkan iklan. Silakan coba lagi nanti.");
+            }
+        } else {
+            $this->clearState($phone);
+            $this->whatsapp->sendMessage($phone, "🗑️ Iklan dibatalkan dan dihapus. Terima kasih.");
+        }
+    }
+
+    private function uploadPhotoFromBot(int $listingId, string $filePath, string $collection): void
+    {
+        // We need to simulate an UploadedFile or just call ImageKit directly
+        // I'll add a helper method to ImageService to accept a file path
+        // For now, I'll call a method I'll add later
+        try {
+            $folder = "/listings/{$listingId}";
+            $fileName = uniqid() . '.jpg';
+
+            $upload = $this->imageService->uploadFromPath($filePath, $fileName, $folder);
+            
+            ListingPhoto::create([
+                'listing_id' => $listingId,
+                'photo_path' => $upload->filePath,
+                'thumbnail_path' => $upload->filePath, 
+                'collection' => $collection,
+                'ik_file_id' => $upload->fileId,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error("WA Bot: Photo upload helper error: " . $e->getMessage());
+        }
     }
 
     private function clearState(string $phone): void
