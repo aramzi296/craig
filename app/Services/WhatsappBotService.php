@@ -63,6 +63,12 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: menu ──────────────────────────────────────────────────
+        if ($lowerText === 'menu') {
+            $this->handleMenuRequest($phone);
+            return;
+        }
+
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
         if ($state !== null) {
@@ -78,6 +84,22 @@ class WhatsappBotService
     // ─────────────────────────────────────────────────────────────────────────
     //  LOGIN keyword handler
     // ─────────────────────────────────────────────────────────────────────────
+
+    private function handleMenuRequest(string $phone): void
+    {
+        $this->whatsapp->sendMessage(
+            $phone,
+            "🤖 *Menu Sebatam Bot*\n\n" .
+            "Berikut adalah perintah yang dapat Anda gunakan:\n\n" .
+            "1️⃣ *login* atau *otp*\n" .
+            "Untuk mendapatkan kode akses login ke website.\n\n" .
+            "2️⃣ *pasang iklan*\n" .
+            "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
+            "3️⃣ *menu*\n" .
+            "Untuk menampilkan daftar perintah ini kembali.\n\n" .
+            "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
+        );
+    }
 
     private function handleOtpRequest(string $phone): void
     {
