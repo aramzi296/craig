@@ -31,8 +31,8 @@
                     const websiteWrapper = document.getElementById('website-field-wrapper');
                     
                     if (typeSelect && websiteWrapper) {
-                        const linkWebsite = {{ config('sebatam.link_website') ? 'true' : 'false' }};
-                        const linkWebsitePremium = {{ config('sebatam.link_website_premium') ? 'true' : 'false' }};
+                        const linkWebsite = {{ get_setting('link_website') ? 'true' : 'false' }};
+                        const linkWebsitePremium = {{ get_setting('link_website_premium') ? 'true' : 'false' }};
 
                         function toggleWebsiteField() {
                             const selectedOption = typeSelect.options[typeSelect.selectedIndex];
@@ -66,8 +66,8 @@
             <div class="form-group-horizontal">
                 <label for="description">Deskripsi Lengkap</label>
                 <div class="form-input-side">
-                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan kondisi barang, kelengkapan, dsb." required maxlength="{{ config('sebatam.huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
-                    <small class="text-muted">Maksimal {{ config('sebatam.huruf_deskripsi_iklan', 100) }} huruf. Upgrade ke premium untuk tambahan hingga {{ config('sebatam.huruf_deskripsi_iklan_premium', 2000) }} huruf.</small>
+                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan kondisi barang, kelengkapan, dsb." required maxlength="{{ get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
+                    <small class="text-muted">Maksimal {{ get_setting('huruf_deskripsi_iklan', 100) }} huruf. Upgrade ke premium untuk tambahan hingga {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }} huruf.</small>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -90,7 +90,7 @@
                 <div class="form-input-side">
                     <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Maksimal <strong>{{ config('sebatam.max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ config('sebatam.max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
+                        Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ get_setting('max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
                     </small>
                     @error('photos')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -98,8 +98,8 @@
                 </div>
             </div>
 
-            @if(config('sebatam.link_website') || config('sebatam.link_website_premium'))
-            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !config('sebatam.link_website') ? 'display: none;' : '' }}">
+            @if(get_setting('link_website') || get_setting('link_website_premium'))
+            <div class="form-group-horizontal" id="website-field-wrapper" style="{{ !get_setting('link_website') ? 'display: none;' : '' }}">
                 <label for="website">Link Website (Opsional)</label>
                 <div class="form-input-side">
                     <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" placeholder="https://example.com">
@@ -167,7 +167,7 @@
                     <input name="categories" id="categories-tagify" class="form-control" placeholder="Pilih atau ketik kategori..." value="{{ old('categories', '') }}">
                     
                     <small id="category-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Ketik untuk mencari kategori. Maksimal <strong>{{ config('sebatam.max_category', 3) }}</strong> kategori. 
+                        Ketik untuk mencari kategori. Maksimal <strong>{{ get_setting('max_category', 3) }}</strong> kategori. 
                         Jika kategori tidak ada, tekan <strong>Enter</strong> untuk menambahkan sebagai kategori baru.
                     </small>
                     @error('categories')
@@ -182,7 +182,7 @@
                             
                             const tagify = new Tagify(input, {
                                 whitelist: whitelist,
-                                maxTags: {{ config('sebatam.max_category', 3) }},
+                                maxTags: {{ get_setting('max_category', 3) }},
                                 dropdown: {
                                     maxItems: 20,
                                     classname: "tags-look",
@@ -193,7 +193,7 @@
 
                             // Handle max tags reached
                             tagify.on('add', function(e) {
-                                if (tagify.value.length >= {{ config('sebatam.max_category', 3) }}) {
+                                if (tagify.value.length >= {{ get_setting('max_category', 3) }}) {
                                     // Optionally show some feedback
                                 }
                             });

@@ -51,6 +51,22 @@ class WhatsappBotService
         $text      = trim($message);
         $lowerText = strtolower($text);
 
+        // ── Check Maintenance Mode ──────────────────────────────────────────
+        if (get_setting('is_maintenance') === '1') {
+            $user = User::where('whatsapp', $phone)->first();
+            // Allow admins to skip maintenance check in bot if needed? 
+            // Usually not necessary for bot flow, let's just block everyone with a nice message.
+            if (!$user || !$user->is_admin) {
+                $this->whatsapp->sendMessage(
+                    $phone,
+                    "🛠️ *Sistem Sedang Maintenance*\n\n" .
+                    get_setting('maintenance_message') . "\n\n" .
+                    "_Mohon hubungi admin jika ada keperluan mendesak._"
+                );
+                return;
+            }
+        }
+
         // ── Keyword: otp / login ───────────────────────────────────────────
         if ($lowerText === 'otp' || $lowerText === 'login') {
             $this->handleOtpRequest($phone);
@@ -147,7 +163,7 @@ class WhatsappBotService
                     'whatsapp'  => $phone,
                     'email'     => $email,
                     'password'  => Hash::make($password),
-                    'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
+                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
                 ]);
                 Log::info('WA Bot: dynamic user created for OTP request', ['phone' => $phone, 'user_id' => $user->id]);
             } catch (\Throwable $e) {
@@ -363,7 +379,7 @@ class WhatsappBotService
                 'email'     => $email,
                 'password'  => Hash::make($password),
                 'whatsapp'  => $phone,
-                'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
+                'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
             ]);
         } catch (\Throwable $e) {
             Log::error('WA Bot: failed to create user', ['error' => $e->getMessage(), 'phone_sfx' => $this->sfx($phone)]);
@@ -424,7 +440,7 @@ class WhatsappBotService
                     'whatsapp'  => $phone,
                     'email'     => $email,
                     'password'  => Hash::make($password),
-                    'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
+                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
                 ]);
             } catch (\Throwable $e) {
                 $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
@@ -565,7 +581,7 @@ class WhatsappBotService
     private function handleAdPhotoAsk(string $phone, string $lower, array $state): void
     {
         $photoCount = count($state['photos'] ?? []);
-        $maxPhotos = config('sebatam.max_foto_iklan', 4);
+        $maxPhotos = get_setting('max_foto_iklan', 4);
 
         if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
             $state['step'] = 'awaiting_photo_upload';
@@ -616,7 +632,7 @@ class WhatsappBotService
             $state['photos'][] = base64_encode($response->body());
             
             $photoCount = count($state['photos']);
-            $maxPhotos = config('sebatam.max_foto_iklan', 4);
+            $maxPhotos = get_setting('max_foto_iklan', 4);
 
             if ($photoCount >= $maxPhotos) {
                 $state['step'] = 'awaiting_category';
@@ -747,7 +763,7 @@ class WhatsappBotService
                     'whatsapp_visibility' => $ad['whatsapp_visibility'],
                     'comment_visibility' => $ad['comment_visibility'],
                     'is_active' => true,
-                    'expires_at' => now()->addDays(config('sebatam.expire_iklan', 30)),
+                    'expires_at' => now()->addDays(get_setting('expire_iklan', 30)),
                 ]);
 
                 // Handle Category

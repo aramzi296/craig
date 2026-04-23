@@ -110,6 +110,14 @@ Route::middleware('auth')->group(function () {
 
         // User Verification
         Route::post('/users/{id}/toggle-verification', [AdminController::class, 'toggleUserVerification'])->name('users.toggle-verification');
+
+        // Settings Management
+        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+        Route::get('/settings/create', [AdminController::class, 'createSetting'])->name('settings.create');
+        Route::post('/settings', [AdminController::class, 'storeSetting'])->name('settings.store');
+        Route::get('/settings/{id}/edit', [AdminController::class, 'editSetting'])->name('settings.edit');
+        Route::put('/settings/{id}', [AdminController::class, 'updateSetting'])->name('settings.update');
+        Route::delete('/settings/{id}', [AdminController::class, 'destroySetting'])->name('settings.destroy');
     });
 
     // Member Premium Upgrade
@@ -128,6 +136,7 @@ Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');
 
+Route::view('/maintenance', 'maintenance')->name('maintenance');
 Route::view('/privacy-policy', 'privacy-policy')->name('privacy.policy');
 Route::view('/disclaimer', 'disclaimer')->name('disclaimer');
 

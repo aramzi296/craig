@@ -116,10 +116,10 @@
             <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white;">se<span>batam</span>.com</div>
             <p style="color: #94a3b8; margin-bottom: 30px;">Platform Penawaran dan Pengumuman No.1 di Batam, Kepulauan Riau.</p>
             <div style="display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
-                <a href="https://www.facebook.com/SemuaSebatam"><i class="fab fa-facebook"></i></a>
-                <a href="https://www.instagram.com/semuasebatam/"><i class="fab fa-instagram"></i></a>
-                <a href="https://www.tiktok.com/@semuasebatam"><i class="fab fa-tiktok"></i></a>
-                <a href="https://www.youtube.com/@SemuaSebatam"><i class="fab fa-youtube"></i></a>
+                <a href="{{ config('services.social.facebook') }}"><i class="fab fa-facebook"></i></a>
+                <a href="{{ config('services.social.instagram') }}"><i class="fab fa-instagram"></i></a>
+                <a href="{{ config('services.social.tiktok') }}"><i class="fab fa-tiktok"></i></a>
+                <a href="{{ config('services.social.youtube') }}"><i class="fab fa-youtube"></i></a>
             </div>
             <hr style="border: none; border-top: 1px solid #1e293b; margin: 40px 0;">
             <p style="color: #64748b; font-size: 0.9rem;">&copy; 2026 sebatam.com. All rights reserved.</p>

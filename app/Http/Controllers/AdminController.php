@@ -425,6 +425,64 @@ class AdminController extends Controller
     }
 
     // User Verification
+    // Settings Management
+    public function settings()
+    {
+        $settings = \App\Models\Setting::all();
+        return view('admin.settings.index', compact('settings'));
+    }
+
+    public function createSetting()
+    {
+        return view('admin.settings.create');
+    }
+
+    public function storeSetting(Request $request)
+    {
+        $data = $request->validate([
+            'key' => 'required|string|max:255|unique:settings',
+            'value' => 'nullable|string',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        \App\Models\Setting::create($data);
+        \Illuminate\Support\Facades\Cache::forget("setting.{$data['key']}");
+
+        return redirect()->route('admin.settings')->with('success', 'Parameter berhasil ditambahkan.');
+    }
+
+    public function editSetting($id)
+    {
+        $setting = \App\Models\Setting::findOrFail($id);
+        return view('admin.settings.edit', compact('setting'));
+    }
+
+    public function updateSetting(Request $request, $id)
+    {
+        $setting = \App\Models\Setting::findOrFail($id);
+
+        $data = $request->validate([
+            'key' => 'required|string|max:255|unique:settings,key,'.$id,
+            'value' => 'nullable|string',
+            'description' => 'nullable|string|max:255',
+        ]);
+
+        $setting->update($data);
+        \Illuminate\Support\Facades\Cache::forget("setting.{$data['key']}");
+
+        return redirect()->route('admin.settings')->with('success', 'Parameter berhasil diperbarui.');
+    }
+
+    public function destroySetting($id)
+    {
+        $setting = \App\Models\Setting::findOrFail($id);
+        $key = $setting->key;
+        $setting->delete();
+        \Illuminate\Support\Facades\Cache::forget("setting.{$key}");
+
+        return redirect()->route('admin.settings')->with('success', 'Parameter berhasil dihapus.');
+    }
+
     public function toggleUserVerification($id)
     {
         $user = \App\Models\User::findOrFail($id);

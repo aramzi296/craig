@@ -19,8 +19,8 @@ class ListingObserver
             $isPremium = ($type && $type->slug === 'premium') || $listing->is_premium;
             
             $days = $isPremium 
-                ? config('sebatam.expire_iklan_premium', 30) 
-                : config('sebatam.expire_iklan', 30);
+                ? get_setting('expire_iklan_premium', 30) 
+                : get_setting('expire_iklan', 30);
             
             $listing->expires_at = now()->addDays($days);
         }

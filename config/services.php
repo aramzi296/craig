@@ -57,4 +57,11 @@ return [
         'url_endpoint' => env('IMAGEKIT_URL_ENDPOINT'),
     ],
 
+    'social' => [
+        'facebook'  => env('SOCIAL_FACEBOOK', 'https://www.facebook.com/SemuaSebatam'),
+        'instagram' => env('SOCIAL_INSTAGRAM', 'https://www.instagram.com/semuasebatam/'),
+        'tiktok'    => env('SOCIAL_TIKTOK', 'https://www.tiktok.com/@semuasebatam'),
+        'youtube'   => env('SOCIAL_YOUTUBE', 'https://www.youtube.com/@SemuaSebatam'),
+    ],
+
 ];

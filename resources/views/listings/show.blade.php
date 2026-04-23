@@ -261,7 +261,7 @@
                 @else
                     <!-- Comment Form -->
                     @auth
-                        @php $maxChars = config('sebatam.max_karakter_komentar', 250); @endphp
+                        @php $maxChars = get_setting('max_karakter_komentar', 250); @endphp
                         <form action="{{ route('comments.store', $listing->id) }}" method="POST" style="margin-bottom: 30px;">
                             @csrf
                             <div style="position: relative;">

@@ -21,7 +21,7 @@ class CommentController extends Controller
             return back()->with('error', 'Anda harus login untuk menulis komentar.');
         }
 
-        $maxChars = config('sebatam.max_karakter_komentar', 250);
+        $maxChars = get_setting('max_karakter_komentar', 250);
         $request->validate([
             'content' => 'required|string|max:' . $maxChars,
         ], [

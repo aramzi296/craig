@@ -31,7 +31,7 @@ class ListingController extends Controller
             'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string|max:' . config('sebatam.huruf_deskripsi_iklan', 100),
+            'description' => 'required|string|max:' . get_setting('huruf_deskripsi_iklan', 100),
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'photos' => 'nullable|array',
@@ -98,7 +98,7 @@ class ListingController extends Controller
 
         // Upload Photos
         if ($request->hasFile('photos')) {
-            $maxPhotos = config('sebatam.max_foto_iklan', 0);
+            $maxPhotos = get_setting('max_foto_iklan', 0);
             // Since it's a new listing, we'll check if it's premium. 
             // BUT wait, premium is usually set AFTER creation or via listing type?
             // Let's check listing type.
@@ -106,7 +106,7 @@ class ListingController extends Controller
             // If the type is premium, use premium limit.
             // For now, let's assume if it's premium type, it gets the limit.
             if ($type && $type->slug == 'premium') {
-                $maxPhotos = config('sebatam.max_foto_iklan_premium', 8);
+                $maxPhotos = get_setting('max_foto_iklan_premium', 8);
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
@@ -118,7 +118,7 @@ class ListingController extends Controller
         $categoryIds = [];
         if ($request->filled('categories')) {
             $tagifyCategories = json_decode($request->categories, true);
-            $maxAllowed = config('sebatam.max_category', 3);
+            $maxAllowed = get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
                 $categoryName = $cat['value'];
@@ -157,7 +157,7 @@ class ListingController extends Controller
             'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string|max:' . ($listing->is_premium ? config('sebatam.huruf_deskripsi_iklan_premium', 2000) : config('sebatam.huruf_deskripsi_iklan', 100)),
+            'description' => 'required|string|max:' . ($listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100)),
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'photos' => 'nullable|array',
@@ -178,10 +178,10 @@ class ListingController extends Controller
             $currentCount = $listing->photos()->count();
             
             // Determine limit based on type
-            $maxPhotos = config('sebatam.max_foto_iklan', 4);
+            $maxPhotos = get_setting('max_foto_iklan', 4);
             $type = \App\Models\ListingType::find($request->listing_type_id);
             if (($type && $type->slug == 'premium') || $listing->is_premium) {
-                $maxPhotos = config('sebatam.max_foto_iklan_premium', 12);
+                $maxPhotos = get_setting('max_foto_iklan_premium', 12);
             }
             
             $remaining = $maxPhotos - $currentCount;
@@ -206,7 +206,7 @@ class ListingController extends Controller
         $categoryIds = [];
         if ($request->filled('categories')) {
             $tagifyCategories = json_decode($request->categories, true);
-            $maxAllowed = config('sebatam.max_category', 3);
+            $maxAllowed = get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
                 $categoryName = $cat['value'];

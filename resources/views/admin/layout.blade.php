@@ -50,6 +50,11 @@
                     <i class="fa-solid fa-users-gear"></i> Pengguna
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.settings') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-gears"></i> Parameter
+                </a>
+            </li>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
             <li class="sidebar-item">
                 <a href="{{ route('dashboard') }}" class="sidebar-link">
