@@ -69,6 +69,12 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: kuota iklan ───────────────────────────────────────────
+        if ($lowerText === 'kuota iklan') {
+            $this->handleQuotaRequest($phone);
+            return;
+        }
+
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
         if ($state !== null) {
@@ -95,9 +101,33 @@ class WhatsappBotService
             "Untuk mendapatkan kode akses login ke website.\n\n" .
             "2️⃣ *pasang iklan*\n" .
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
-            "3️⃣ *menu*\n" .
+            "3️⃣ *kuota iklan*\n" .
+            "Untuk melihat sisa jatah iklan Anda.\n\n" .
+            "4️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
+        );
+    }
+
+    private function handleQuotaRequest(string $phone): void
+    {
+        $user = User::where('whatsapp', $phone)->first();
+
+        if (!$user) {
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *pasang iklan* untuk memulai.");
+            return;
+        }
+
+        $activeAdsCount = $user->listings()->where('is_active', true)->count();
+
+        $this->whatsapp->sendMessage(
+            $phone,
+            "📊 *Status Kuota Iklan*\n\n" .
+            "Halo, *{$user->name}*!\n" .
+            "Berikut adalah informasi kuota iklan Anda:\n\n" .
+            "✅ Sisa Kuota Iklan: *{$user->ads_quota}*\n" .
+            "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n\n" .
+            "_Ketik *pasang iklan* untuk menggunakan kuota Anda atau hubungi admin untuk menambah kuota._"
         );
     }
 
@@ -413,8 +443,8 @@ class WhatsappBotService
             $this->whatsapp->sendMessage(
                 $phone,
                 "⚠️ *Kuota Iklan Habis*\n\n" .
-                "Maaf, Anda tidak dapat memasang iklan lagi karena kuota Anda sudah habis.\n" .
-                "Silakan hubungi admin untuk menambah jatah iklan Anda."
+                "Maaf, Anda tidak dapat memasang iklan lagi karena kuota Anda sudah habis.\n\n" .
+                "Ketik *kuota iklan* untuk mengecek sisa kuota Anda atau hubungi admin untuk menambah jatah iklan."
             );
             return;
         }

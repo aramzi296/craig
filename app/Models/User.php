@@ -100,6 +100,11 @@ class User extends Authenticatable
         return $digits;
     }
 
+    public function listings()
+    {
+        return $this->hasMany(\App\Models\Listing::class);
+    }
+
     public function favorites()
     {
         return $this->belongsToMany(\App\Models\Listing::class, 'favorites', 'user_id', 'listing_id')->withTimestamps();
