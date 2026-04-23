@@ -404,7 +404,7 @@ class AdminController extends Controller
     {
         $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
         $premiumRequest->status = 'active';
-        $premiumRequest->expires_at = now()->addDays($premiumRequest->package->duration_days);
+        $premiumRequest->expires_at = now()->addDays((int)$premiumRequest->package->duration_days);
         $premiumRequest->save();
 
         // Update listing
@@ -415,11 +415,34 @@ class AdminController extends Controller
         return back()->with('success', 'Permintaan premium berhasil disetujui.');
     }
 
+    public function resetPremiumRequest($id)
+    {
+        $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
+        $premiumRequest->status = 'pending';
+        $premiumRequest->save();
+        
+        // Deactivate premium features on listing
+        $listing = $premiumRequest->listing;
+        if ($listing) {
+            $listing->is_premium = false;
+            $listing->save();
+        }
+
+        return back()->with('success', 'Permintaan premium dikembalikan ke status pending dan fitur premium dinonaktifkan.');
+    }
+
     public function rejectPremiumRequest($id)
     {
         $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
         $premiumRequest->status = 'rejected';
         $premiumRequest->save();
+        
+        // Deactivate premium features on listing
+        $listing = $premiumRequest->listing;
+        if ($listing) {
+            $listing->is_premium = false;
+            $listing->save();
+        }
 
         return back()->with('success', 'Permintaan premium telah ditolak.');
     }
@@ -491,5 +514,4 @@ class AdminController extends Controller
 
         return back()->with('success', 'Status verifikasi akun berhasil diubah.');
     }
-
 }

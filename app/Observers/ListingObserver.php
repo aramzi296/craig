@@ -22,7 +22,7 @@ class ListingObserver
                 ? get_setting('expire_iklan_premium', 30) 
                 : get_setting('expire_iklan', 30);
             
-            $listing->expires_at = now()->addDays($days);
+            $listing->expires_at = now()->addDays((int)$days);
         }
     }
 }

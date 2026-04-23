@@ -18,3 +18,29 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
+pada chatbot pasang iklan, jika kuota iklan sudah habis, 
+maka beritahukan kepada user bahwa kuota iklan telah habis. 
+silahkan upgrade iklan yang sudah anda buat menjadi premium
+atau anda buat iklan premium baru.
+
+fitur premium:
+- mendapat badge atau lencana "premium" pada iklan
+- ditampilkan di halaman depan secara berkala
+- ditampilkan di halaman kategori secara berkala
+- ditampilkan di hasil pencarian secara berkala
+- ditampilkan di halaman iklan terkait secara berkala
+- upload gambar bisa lebih banyak dari iklan gratis. 
+- text keterangan iklan bisa lebih panjang dari iklan gratis
+- bisa edit atau ganti gambar iklan yang sudah dibuat kapan saja
+
+harga paket premium: 
+- paket 1 bulan: Rp. 4000
+- paket 3 bulan: Rp. 9000
+- paket 6 bulan: Rp. 17000
+- paket 1 tahun: Rp. 25000
+
+
+
+
+
+

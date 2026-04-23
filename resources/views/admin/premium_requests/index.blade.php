@@ -65,7 +65,12 @@
                         </form>
                     </div>
                     @else
-                        -
+                        <form action="{{ route('admin.premium_requests.reset', $req->id) }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="return confirm('Kembalikan status ke pending? Fitur premium di iklan akan dinonaktifkan.')">
+                                <i class="fa-solid fa-rotate-left"></i> Reset ke Pending
+                            </button>
+                        </form>
                     @endif
                 </td>
             </tr>

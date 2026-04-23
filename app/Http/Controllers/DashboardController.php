@@ -38,8 +38,13 @@ class DashboardController extends Controller
     {
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($listing_id);
 
-        if ($listing->is_premium) {
-            return redirect()->route('dashboard')->with('error', 'Iklan ini sudah berstatus Premium.');
+        $hasActivePremium = \App\Models\PremiumRequest::where('listing_id', $listing->id)
+            ->where('status', 'active')
+            ->where('expires_at', '>', now())
+            ->exists();
+
+        if ($hasActivePremium) {
+            return redirect()->route('dashboard')->with('error', 'Iklan ini sudah memiliki paket Premium yang aktif.');
         }
 
         if ($listing->hasPendingPremiumRequest()) {
@@ -67,13 +72,14 @@ class DashboardController extends Controller
         }
 
         \App\Models\PremiumRequest::create([
-
             'user_id' => auth()->id(),
             'listing_id' => $listing->id,
             'package_id' => $request->package_id,
             'unique_code' => $request->unique_code,
             'status' => 'pending',
         ]);
+
+        $listing->update(['is_premium' => true]);
 
 
         return redirect()->route('dashboard.premium.thankyou');

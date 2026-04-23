@@ -39,6 +39,7 @@ class ListingController extends Controller
             'whatsapp_visibility' => 'required|integer|in:0,1,2',
             'comment_visibility' => 'required|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
+            'ad_package' => 'required|in:standard,premium',
         ];
 
         // ADD OTP and WhatsApp validation ONLY for guests
@@ -84,17 +85,27 @@ class ListingController extends Controller
         }
 
         $user = auth()->user();
-        if ($user->ads_quota <= 0) {
-            return back()->withErrors(['error' => 'Kuota iklan Anda sudah habis. Silakan hubungi admin.'])->withInput();
+        $isPremiumPackage = $request->ad_package === 'premium';
+        
+        // Check quota: only if NOT choosing premium package
+        if (!$isPremiumPackage) {
+            if ($user->ads_quota <= 0) {
+                return back()->withErrors(['error' => 'Kuota iklan gratis Anda sudah habis. Silakan pilih paket premium atau hubungi admin untuk menambah kuota.'])->withInput();
+            }
         }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = true;
+        if ($isPremiumPackage) {
+            $data['is_premium'] = true;
+        }
 
         $listing = \App\Models\Listing::create($data);
 
-        // Decrement quota
-        $user->decrement('ads_quota');
+        // Decrement quota only for non-premium ads
+        if (!$isPremiumPackage) {
+            $user->decrement('ads_quota');
+        }
 
         // Upload Photos
         if ($request->hasFile('photos')) {
@@ -103,9 +114,8 @@ class ListingController extends Controller
             // BUT wait, premium is usually set AFTER creation or via listing type?
             // Let's check listing type.
             $type = \App\Models\ListingType::find($data['listing_type_id']);
-            // If the type is premium, use premium limit.
-            // For now, let's assume if it's premium type, it gets the limit.
-            if ($type && $type->slug == 'premium') {
+            // If the package is premium, use premium limit.
+            if ($isPremiumPackage) {
                 $maxPhotos = get_setting('max_foto_iklan_premium', 8);
             }
 
@@ -135,6 +145,10 @@ class ListingController extends Controller
         }
 
         $listing->categories()->sync($categoryIds);
+
+        if ($isPremiumPackage) {
+            return redirect()->route('dashboard.premium.upgrade', $listing->id)->with('success', 'Iklan berhasil dibuat. Silakan pilih paket premium untuk mengaktifkan fitur premium.');
+        }
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil dikirim dan ditayangkan.');
     }

@@ -56,6 +56,9 @@
                                 {{ $listing->listingType->name }}
                             </span>
                         @endif
+                        @if($listing->expires_at)
+                            <span style="font-size: 0.65rem; color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Exp: {{ $listing->expires_at->format('d/m/y') }}</span>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -104,6 +107,9 @@
                             <span style="background: {{ $listing->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem;">
                                 {{ $listing->listingType->name }}
                             </span>
+                        @endif
+                        @if($listing->expires_at)
+                            <span style="font-size: 0.65rem; color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Exp: {{ $listing->expires_at->format('d/m/y') }}</span>
                         @endif
                     </div>
                 </div>

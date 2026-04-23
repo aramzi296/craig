@@ -51,6 +51,7 @@
                         <th>Komentar</th>
                         <th>Dilihat</th>
                         <th>Status</th>
+                        <th>Kadaluarsa</th>
                         <th style="text-align: right;">Aksi</th>
                     </tr>
                 </thead>
@@ -59,7 +60,9 @@
                     <tr>
                         <td>
                             <div style="display: flex; align-items: center; gap: 12px;">
-                                <img src="{{ $listing->getThumbnailUrl() }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" alt="">
+                                @if($listing->getThumbnailUrl())
+                                    <img src="{{ $listing->getThumbnailUrl() }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" alt="">
+                                @endif
                                 <div>
                                     <div style="font-weight: 600;">
                                         <a href="{{ route('listings.show', $listing->slug) }}">{{ $listing->title }}</a>
@@ -91,6 +94,16 @@
                             <span class="badge {{ $listing->is_active ? 'badge-success' : 'badge-pending' }}">
                                 {{ $listing->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
+                        </td>
+                        <td>
+                            @if($listing->expires_at)
+                                <div style="font-weight: 600;">{{ $listing->expires_at->format('d/m/Y') }}</div>
+                                <div style="font-size: 0.7rem; color: {{ $listing->expires_at->isPast() ? '#ef4444' : 'var(--text-muted)' }};">
+                                    {{ $listing->expires_at->diffForHumans() }}
+                                </div>
+                            @else
+                                -
+                            @endif
                         </td>
                         <td>
                             <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end;">

@@ -107,6 +107,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/premium-requests', [AdminController::class, 'premiumRequests'])->name('premium_requests');
         Route::post('/premium-requests/{id}/approve', [AdminController::class, 'approvePremiumRequest'])->name('premium_requests.approve');
         Route::post('/premium-requests/{id}/reject', [AdminController::class, 'rejectPremiumRequest'])->name('premium_requests.reject');
+        Route::post('/premium-requests/{id}/reset', [AdminController::class, 'resetPremiumRequest'])->name('premium_requests.reset');
 
         // User Verification
         Route::post('/users/{id}/toggle-verification', [AdminController::class, 'toggleUserVerification'])->name('users.toggle-verification');

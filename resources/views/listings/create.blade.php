@@ -10,13 +10,55 @@
         <form action="{{ route('listings.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
+            @if(auth()->check() && auth()->user()->ads_quota <= 0)
+                <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; color: #991b1b;">
+                    <div style="font-size: 1.5rem;"><i class="fa-solid fa-circle-exclamation"></i></div>
+                    <div>
+                        <p style="font-weight: 700; margin-bottom: 4px;">Kuota Iklan Gratis Habis</p>
+                        <p style="font-size: 0.9rem; margin: 0;">Anda tidak dapat menerbitkan iklan standar. Silakan pilih <strong>Paket Premium</strong> untuk tetap dapat menerbitkan iklan, atau hubungi admin untuk penambahan kuota.</p>
+                    </div>
+                </div>
+            @endif
+            
             <div class="form-group-horizontal">
-                <label for="listing_type_id">Tipe Iklan</label>
+                <label>Paket Iklan</label>
+                <div class="form-input-side">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        @php
+                            $quotaExhausted = auth()->check() && auth()->user()->ads_quota <= 0;
+                        @endphp
+                        <label style="display: block; cursor: {{ $quotaExhausted ? 'not-allowed' : 'pointer' }}; opacity: {{ $quotaExhausted ? '0.6' : '1' }};">
+                            <input type="radio" name="ad_package" value="standard" {{ old('ad_package', 'standard') == 'standard' && !$quotaExhausted ? 'checked' : '' }} {{ $quotaExhausted ? 'disabled' : '' }}>
+                            <div style="padding: 15px; border: 2px solid var(--border); border-radius: 12px; margin-top: 5px;">
+                                <div style="font-weight: 700; color: var(--text);">Standar (Gratis)</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">Gunakan kuota gratis Anda.</div>
+                            </div>
+                        </label>
+                        <label style="display: block; cursor: pointer;">
+                            <input type="radio" name="ad_package" value="premium" {{ old('ad_package') == 'premium' || $quotaExhausted ? 'checked' : '' }}>
+                            <div style="padding: 15px; border: 2px solid var(--primary); border-radius: 12px; margin-top: 5px; background: #f0f9ff;">
+                                <div style="font-weight: 700; color: var(--primary-dark);">Premium</div>
+                                <div style="font-size: 0.8rem; color: var(--primary);">Fitur lengkap & prioritas tampil.</div>
+                            </div>
+                        </label>
+                    </div>
+                    @error('ad_package')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="listing_type_id">Kategori Iklan</label>
                 <div class="form-input-side">
                     <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
-                        <option value="">Pilih Tipe</option>
+                        <option value="">Pilih Kategori</option>
                         @foreach($listingTypes as $type)
-                            <option value="{{ $type->id }}" data-slug="{{ $type->slug }}" {{ old('listing_type_id') == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                            <option value="{{ $type->id }}" 
+                                    data-slug="{{ $type->slug }}" 
+                                    {{ old('listing_type_id') == $type->id ? 'selected' : '' }}>
+                                {{ $type->name }}
+                            </option>
                         @endforeach
                     </select>
                     @error('listing_type_id')
@@ -27,17 +69,21 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const typeSelect = document.getElementById('listing_type_id');
+                    const packageRadios = document.querySelectorAll('input[name="ad_package"]');
                     const websiteWrapper = document.getElementById('website-field-wrapper');
+                    const descriptionTextarea = document.getElementById('description');
                     
-                    if (typeSelect && websiteWrapper) {
-                        const linkWebsite = {{ get_setting('link_website') ? 'true' : 'false' }};
-                        const linkWebsitePremium = {{ get_setting('link_website_premium') ? 'true' : 'false' }};
+                    const charLimitStandard = {{ get_setting('huruf_deskripsi_iklan', 100) }};
+                    const charLimitPremium = {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }};
+                    const linkWebsite = {{ get_setting('link_website') ? 'true' : 'false' }};
+                    const linkWebsitePremium = {{ get_setting('link_website_premium') ? 'true' : 'false' }};
 
-                        function toggleWebsiteField() {
-                            const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-                            const isPremium = selectedOption ? (selectedOption.getAttribute('data-slug') === 'premium') : false;
+                    function updateFormState() {
+                        const selectedPackage = document.querySelector('input[name="ad_package"]:checked')?.value;
+                        const isPremium = selectedPackage === 'premium';
 
+                        // Toggle website field
+                        if (websiteWrapper) {
                             if (linkWebsite) {
                                 websiteWrapper.style.display = '';
                             } else if (linkWebsitePremium && isPremium) {
@@ -47,9 +93,22 @@
                             }
                         }
 
-                        typeSelect.addEventListener('change', toggleWebsiteField);
-                        toggleWebsiteField(); // Initial check
+                        // Update description limit
+                        if (descriptionTextarea) {
+                            const currentLimit = isPremium ? charLimitPremium : charLimitStandard;
+                            descriptionTextarea.maxLength = currentLimit;
+                            const small = descriptionTextarea.nextElementSibling;
+                            if (small && small.tagName === 'SMALL') {
+                                small.innerHTML = `Maksimal ${currentLimit} huruf. ${!isPremium ? 'Upgrade ke premium untuk tambahan hingga ' + charLimitPremium + ' huruf.' : ''}`;
+                            }
+                        }
                     }
+
+                    packageRadios.forEach(radio => {
+                        radio.addEventListener('change', updateFormState);
+                    });
+                    
+                    updateFormState(); // Initial check
                 });
             </script>
 

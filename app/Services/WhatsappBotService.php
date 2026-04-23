@@ -763,7 +763,7 @@ class WhatsappBotService
                     'whatsapp_visibility' => $ad['whatsapp_visibility'],
                     'comment_visibility' => $ad['comment_visibility'],
                     'is_active' => true,
-                    'expires_at' => now()->addDays(get_setting('expire_iklan', 30)),
+                    'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                 ]);
 
                 // Handle Category
