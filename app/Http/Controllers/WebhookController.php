@@ -52,7 +52,10 @@ class WebhookController extends Controller
         $to   = preg_replace('/\D/', '', str_replace(['@c.us', '@s.whatsapp.net'], '', ($data['to'] ?? ''))) ?? '';
         $body = $data['message'] ?? ($data['body'] ?? ($data['content'] ?? ''));
 
-        if ($from === '' || $body === '') {
+        // Allow empty body if it's a media message (image, video, etc.)
+        $isMedia = isset($data['url']) || isset($data['image']) || isset($data['file_url']) || (isset($data['type']) && $data['type'] !== 'chat');
+
+        if ($from === '' || ($body === '' && !$isMedia)) {
             return response()->json(['status' => 'incomplete']);
         }
 
