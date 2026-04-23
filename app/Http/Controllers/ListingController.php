@@ -83,10 +83,18 @@ class ListingController extends Controller
             $data['user_id'] = auth()->id();
         }
 
+        $user = auth()->user();
+        if ($user->ads_quota <= 0) {
+            return back()->withErrors(['error' => 'Kuota iklan Anda sudah habis. Silakan hubungi admin.'])->withInput();
+        }
+
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = true;
 
         $listing = \App\Models\Listing::create($data);
+
+        // Decrement quota
+        $user->decrement('ads_quota');
 
         // Upload Photos
         if ($request->hasFile('photos')) {

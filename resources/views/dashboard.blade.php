@@ -24,12 +24,12 @@
             <div class="stat-value">{{ $totalListings }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Iklan Aktif</div>
-            <div class="stat-value">{{ $activeListings }}</div>
+            <div class="stat-label">Sisa Kuota Iklan</div>
+            <div class="stat-value" style="color: var(--primary);">{{ auth()->user()->ads_quota }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Iklan Premium</div>
-            <div class="stat-value">{{ $premiumListings }}</div>
+            <div class="stat-label">Iklan Aktif</div>
+            <div class="stat-value">{{ $activeListings }}</div>
         </div>
         <div class="stat-card">
             <div class="stat-label">Total Dilihat</div>

@@ -33,6 +33,7 @@ class User extends Authenticatable
         'is_verified',
         'profile_photo',
         'ik_file_id',
+        'ads_quota',
     ];
 
     /**

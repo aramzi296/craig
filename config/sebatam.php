@@ -12,4 +12,5 @@ return [
     'expire_iklan_premium' => 30,              // default expire iklan premium dalam hari
     'link_website' => true,                     // link website untuk listing gratis
     'link_website_premium' => true,             // link website untuk listing premium
+    'jumlah_iklan_user_default' => 1,           // jumlah iklan untuk user default
 ];

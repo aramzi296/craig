@@ -113,10 +113,11 @@ class WhatsappBotService
 
             try {
                 $user = User::create([
-                    'name'     => 'user-' . rand(100000, 999999),
-                    'whatsapp' => $phone,
-                    'email'    => $email,
-                    'password' => Hash::make($password),
+                    'name'      => 'user-' . rand(100000, 999999),
+                    'whatsapp'  => $phone,
+                    'email'     => $email,
+                    'password'  => Hash::make($password),
+                    'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
                 ]);
                 Log::info('WA Bot: dynamic user created for OTP request', ['phone' => $phone, 'user_id' => $user->id]);
             } catch (\Throwable $e) {
@@ -328,10 +329,11 @@ class WhatsappBotService
 
         try {
             $user = User::create([
-                'name'     => $name,
-                'email'    => $email,
-                'password' => Hash::make($password),
-                'whatsapp' => $phone,
+                'name'      => $name,
+                'email'     => $email,
+                'password'  => Hash::make($password),
+                'whatsapp'  => $phone,
+                'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
             ]);
         } catch (\Throwable $e) {
             Log::error('WA Bot: failed to create user', ['error' => $e->getMessage(), 'phone_sfx' => $this->sfx($phone)]);
@@ -388,10 +390,11 @@ class WhatsappBotService
 
             try {
                 $user = User::create([
-                    'name'     => 'user-' . rand(100000, 999999),
-                    'whatsapp' => $phone,
-                    'email'    => $email,
-                    'password' => Hash::make($password),
+                    'name'      => 'user-' . rand(100000, 999999),
+                    'whatsapp'  => $phone,
+                    'email'     => $email,
+                    'password'  => Hash::make($password),
+                    'ads_quota' => config('sebatam.jumlah_iklan_user_default', 1),
                 ]);
             } catch (\Throwable $e) {
                 $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
@@ -404,6 +407,16 @@ class WhatsappBotService
                 "Akun Anda telah dibuat secara otomatis untuk mulai pasang iklan.\n" .
                 "📧 Email: *{$email}*"
             );
+        }
+
+        if ($user->ads_quota <= 0) {
+            $this->whatsapp->sendMessage(
+                $phone,
+                "⚠️ *Kuota Iklan Habis*\n\n" .
+                "Maaf, Anda tidak dapat memasang iklan lagi karena kuota Anda sudah habis.\n" .
+                "Silakan hubungi admin untuk menambah jatah iklan Anda."
+            );
+            return;
         }
 
         // Start flow with confirmation
@@ -728,6 +741,12 @@ class WhatsappBotService
                     // For now, I'll assume we can handle it or I'll provide a helper
                     $this->uploadPhotoFromBot($listing->id, $tmpFile, $idx === 0 ? 'foto_fitur' : 'gallery');
                     unlink($tmpFile);
+                }
+
+                // Decrement quota
+                $user = User::find($state['user_id']);
+                if ($user && $user->ads_quota > 0) {
+                    $user->decrement('ads_quota');
                 }
 
                 $this->clearState($phone);
