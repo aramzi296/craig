@@ -20,6 +20,14 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9KN6PDM"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <div class="whatsapp-bot-alert" style="background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; padding: 10px 0; text-align: center; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; z-index: 1000;">
+        <div class="container">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; font-size: 0.9rem;">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i>
+                <span>Kirim pesan <strong>"pasang iklan"</strong> ke nomor WhatsApp <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 4px; margin-left: 5px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a> untuk pasang iklan dengan cepat.</span>
+            </div>
+        </div>
+    </div>
     <header class="glass">
         <div class="container nav-content">
             <div style="display: flex; align-items: center; gap: 15px;">
