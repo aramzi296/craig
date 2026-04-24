@@ -74,7 +74,12 @@
     @endif
 
     <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px;">
-        <h2 style="font-size: 1.2rem; margin-bottom: 20px;">{{ $tableTitle }}</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.2rem; margin: 0;">{{ $tableTitle }}</h2>
+            @if(!$tab)
+                <a href="{{ route('dashboard', ['tab' => 'my-listings']) }}" style="font-size: 0.9rem; color: var(--primary); font-weight: 600;">Lihat Semua <i class="fa-solid fa-arrow-right"></i></a>
+            @endif
+        </div>
         @if($listings->count() > 0)
         <div style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
             <table class="data-table" style="min-width: 600px;">
@@ -181,6 +186,10 @@
                     @endforeach
                 </tbody>
             </table>
+        </div>
+
+        <div style="margin-top: 25px;">
+            {{ $listings->links('vendor.pagination.simple-custom') }}
         </div>
 
         @else

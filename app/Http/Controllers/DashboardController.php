@@ -20,14 +20,14 @@ class DashboardController extends Controller
         
         // Listing display based on tab
         if ($tab == 'favorites') {
-            $listings = $user->favorites()->with('categories')->withCount('comments')->latest()->get();
+            $listings = $user->favorites()->with('categories')->withCount('comments')->latest()->paginate(10)->withQueryString();
             $tableTitle = 'Iklan Favorit Saya';
         } elseif ($tab == 'my-listings') {
-            $listings = \App\Models\Listing::where('user_id', $user->id)->with('categories')->withCount('comments')->latest()->get();
+            $listings = \App\Models\Listing::where('user_id', $user->id)->with('categories')->withCount('comments')->latest()->paginate(10)->withQueryString();
             $tableTitle = 'Kelola Iklan Saya';
         } else {
             // Overview (Home)
-            $listings = \App\Models\Listing::where('user_id', $user->id)->with('categories')->withCount('comments')->latest()->take(5)->get();
+            $listings = \App\Models\Listing::where('user_id', $user->id)->with('categories')->withCount('comments')->latest()->paginate(5)->withQueryString();
             $tableTitle = 'Iklan Terbaru Saya';
         }
 

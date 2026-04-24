@@ -25,7 +25,7 @@
             </li>
             @endif
             <li class="sidebar-item">
-                <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') && request('tab') != 'favorites' ? 'active' : '' }}">
+                <a href="{{ route('dashboard', ['tab' => 'my-listings']) }}" class="sidebar-link {{ request('tab') == 'my-listings' ? 'active' : '' }}">
                     <i class="fa-solid fa-list"></i> Iklan Saya
                 </a>
             </li>
