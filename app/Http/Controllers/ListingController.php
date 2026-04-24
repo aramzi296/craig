@@ -27,11 +27,14 @@ class ListingController extends Controller
 
     public function store(\Illuminate\Http\Request $request)
     {
+        $isPremium = $request->ad_package === 'premium';
+        $descLimit = $isPremium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100);
+
         $rules = [
             'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string|max:' . get_setting('huruf_deskripsi_iklan', 100),
+            'description' => "required|string|max:{$descLimit}",
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'photos' => 'nullable|array',
@@ -128,7 +131,7 @@ class ListingController extends Controller
         $categoryIds = [];
         if ($request->filled('categories')) {
             $tagifyCategories = json_decode($request->categories, true);
-            $maxAllowed = get_setting('max_category', 3);
+            $maxAllowed = $isPremiumPackage ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
                 $categoryName = $cat['value'];
@@ -220,7 +223,7 @@ class ListingController extends Controller
         $categoryIds = [];
         if ($request->filled('categories')) {
             $tagifyCategories = json_decode($request->categories, true);
-            $maxAllowed = get_setting('max_category', 3);
+            $maxAllowed = $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
                 $categoryName = $cat['value'];

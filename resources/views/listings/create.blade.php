@@ -75,6 +75,11 @@
                     
                     const charLimitStandard = {{ get_setting('huruf_deskripsi_iklan', 100) }};
                     const charLimitPremium = {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }};
+                    const maxCategoryStandard = {{ get_setting('max_category', 3) }};
+                    const maxCategoryPremium = {{ get_setting('max_category_premium', 10) }};
+                    const maxPhotosStandard = {{ get_setting('max_foto_iklan', 4) }};
+                    const maxPhotosPremium = {{ get_setting('max_foto_iklan_premium', 12) }};
+                    
                     const linkWebsite = {{ get_setting('link_website') ? 'true' : 'false' }};
                     const linkWebsitePremium = {{ get_setting('link_website_premium') ? 'true' : 'false' }};
 
@@ -102,13 +107,32 @@
                                 small.innerHTML = `Maksimal ${currentLimit} huruf. ${!isPremium ? 'Upgrade ke premium untuk tambahan hingga ' + charLimitPremium + ' huruf.' : ''}`;
                             }
                         }
+
+                        // Update Tagify max tags
+                        if (window.tagifyInstance) {
+                            const currentMaxTags = isPremium ? maxCategoryPremium : maxCategoryStandard;
+                            window.tagifyInstance.settings.maxTags = currentMaxTags;
+                            
+                            const categoryInfo = document.getElementById('category-info');
+                            if (categoryInfo) {
+                                categoryInfo.innerHTML = `Ketik untuk mencari kategori. Maksimal <strong>${currentMaxTags}</strong> kategori. Jika kategori tidak ada, tekan <strong>Enter</strong> untuk menambahkan sebagai kategori baru.`;
+                            }
+                        }
+
+                        // Update Photo limit info
+                        const photoInfo = document.querySelector('#photos + small');
+                        if (photoInfo) {
+                            const currentMaxPhotos = isPremium ? maxPhotosPremium : maxPhotosStandard;
+                            photoInfo.innerHTML = `Maksimal <strong>${currentMaxPhotos}</strong> foto untuk paket yang dipilih.`;
+                        }
                     }
 
                     packageRadios.forEach(radio => {
                         radio.addEventListener('change', updateFormState);
                     });
                     
-                    updateFormState(); // Initial check
+                    // Delay initial check to ensure Tagify is loaded
+                    setTimeout(updateFormState, 100);
                 });
             </script>
 
@@ -239,7 +263,7 @@
                             const input = document.querySelector('#categories-tagify');
                             const whitelist = @json($categories->pluck('name'));
                             
-                            const tagify = new Tagify(input, {
+                            window.tagifyInstance = new Tagify(input, {
                                 whitelist: whitelist,
                                 maxTags: {{ get_setting('max_category', 3) }},
                                 dropdown: {
