@@ -94,14 +94,42 @@ class WhatsappService
         try {
             Log::info("WhatsApp GOWA: attempting to send image to $cleanPhone: $imageUrl");
             $sendUrl = $this->apiUrl . '/send/image';
-            $response = Http::withBasicAuth($this->username, $this->password)
-                ->timeout(20)
-                ->withQueryParameters(['device_id' => $this->deviceId])
-                ->post($sendUrl, [
-                    'phone'   => $cleanPhone,
-                    'image'   => $imageUrl,
-                    'caption' => $caption,
+            
+            $request = Http::withBasicAuth($this->username, $this->password)
+                ->timeout(30)
+                ->withQueryParameters(['device_id' => $this->deviceId]);
+
+            // If the URL is localhost or 127.0.0.1, GOWA might not be able to reach it.
+            // In such cases, we should try to upload the local file directly.
+            $isLocal = str_contains($imageUrl, 'localhost') || str_contains($imageUrl, '127.0.0.1');
+            $localPath = null;
+
+            if ($isLocal) {
+                $parsed = parse_url($imageUrl);
+                $path = $parsed['path'] ?? '';
+                // Try to find the file in the public directory
+                $possiblePath = public_path(ltrim($path, '/'));
+                if (file_exists($possiblePath)) {
+                    $localPath = $possiblePath;
+                }
+            }
+
+            if ($localPath) {
+                // Send as multipart file upload
+                $response = $request->asMultipart()
+                    ->attach('image', file_get_contents($localPath), basename($localPath))
+                    ->post($sendUrl, [
+                        'phone'   => $cleanPhone,
+                        'caption' => $caption,
+                    ]);
+            } else {
+                // Send as URL
+                $response = $request->post($sendUrl, [
+                    'phone'     => $cleanPhone,
+                    'image_url' => $imageUrl, // GOWA uses 'image_url' for remote URLs
+                    'caption'   => $caption,
                 ]);
+            }
 
             if ($response->successful()) {
                 Log::info("WhatsApp GOWA: success sending image to $cleanPhone");
@@ -112,6 +140,7 @@ class WhatsappService
                 'status' => $response->status(),
                 'body'   => $response->body(),
                 'to'     => $cleanPhone,
+                'url'    => $imageUrl
             ]);
         } catch (\Throwable $e) {
             Log::error('WhatsApp GOWA sendImage exception', [
