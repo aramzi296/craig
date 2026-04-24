@@ -577,14 +577,12 @@ class WhatsappBotService
         $state['unique_code'] = $uniqueCode;
         $this->setState($phone, $state);
 
-        $this->whatsapp->sendMessage($phone, "🙏 Terima kasih sudah memilih paket *{$package->name}*.");
-
-        // Kirim QRIS
-        $qrisUrl = rtrim(config('app.url'), '/') . '/qris.jpeg';
+        // Kirim QRIS dengan info total bayar
+        $qrisUrl = rtrim((string)config('app.url'), '/') . '/qris.jpeg';
         $this->whatsapp->sendImage(
             $phone, 
             $qrisUrl, 
-            "📸 *QRIS Pembayaran Sebatam*\n\n" .
+            "🙏 *Terima kasih sudah memilih paket {$package->name}*\n\n" .
             "💰 *Total Bayar: Rp " . number_format($total, 0, ',', '.') . "*\n" .
             "⚠️ _Penting: Mohon transfer tepat sesuai nominal di atas (termasuk 3 digit terakhir) agar verifikasi otomatis lebih cepat._\n\n" .
             "Silakan simpan/scan QRIS di atas untuk melakukan pembayaran."
@@ -592,15 +590,15 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone,
-            "Apakah Anda sudah melakukan pembayaran?\n\n" .
-            "1. Ya, sudah bayar\n" .
-            "2. Batal"
+            "Apakah Anda sudah bayar? (Ya/Tidak)"
         );
     }
 
     private function handlePaymentConfirmation(string $phone, string $text, array $state): void
     {
-        if ($text === '1' || strtolower($text) === 'ya') {
+        $lower = strtolower(trim($text));
+        
+        if (in_array($lower, ['1', 'ya', 'y', 'yes', 'sudah'], true)) {
             $this->whatsapp->sendMessage($phone, "✅ Terima kasih! Admin akan melakukan verifikasi pembayaran Anda.\n\nSekarang, mari kita lanjutkan ke proses pembuatan iklan Anda.");
             
             // Proceed to ad creation flow
@@ -616,13 +614,13 @@ class WhatsappBotService
             return;
         }
 
-        if ($text === '2' || strtolower($text) === 'batal') {
+        if (in_array($lower, ['2', 'tidak', 't', 'no', 'batal', 'belum'], true)) {
             $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "❌ Pembayaran dibatalkan. Proses pasang iklan dihentikan.");
+            $this->whatsapp->sendMessage($phone, "❌ Pembayaran belum dilakukan atau dibatalkan. Proses pasang iklan dihentikan. Silakan ketik *pasang iklan* kembali jika sudah siap.");
             return;
         }
 
-        $this->whatsapp->sendMessage($phone, "Mohon pilih *1* untuk Ya atau *2* untuk Batal.");
+        $this->whatsapp->sendMessage($phone, "Mohon balas *YA* jika Anda sudah melakukan pembayaran, atau *TIDAK* untuk membatalkan.");
     }
 
     private function handleAdStartConfirmation(string $phone, string $lower, array $state): void
