@@ -8,6 +8,8 @@ use App\Models\ListingPhoto;
 use App\Models\District;
 use App\Models\ListingType;
 use App\Models\Category;
+use App\Models\PremiumPackage;
+use App\Models\PremiumRequest;
 use App\Services\ImageService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -456,11 +458,17 @@ class WhatsappBotService
         }
 
         if ($user->ads_quota <= 0) {
+            $this->setState($phone, [
+                'step'    => 'awaiting_premium_upsell',
+                'user_id' => $user->id,
+                'ad_data' => [],
+                'photos'  => []
+            ]);
             $this->whatsapp->sendMessage(
                 $phone,
                 "⚠️ *Kuota Iklan Habis*\n\n" .
-                "Maaf, Anda tidak dapat memasang iklan lagi karena kuota Anda sudah habis.\n\n" .
-                "Ketik *kuota iklan* untuk mengecek sisa kuota Anda atau hubungi admin untuk menambah jatah iklan."
+                "Maaf, kuota iklan untuk nomor WA ini sudah habis.\n\n" .
+                "Apakah Anda mau menambah slot iklan? (Ya/Tidak)"
             );
             return;
         }
@@ -494,6 +502,9 @@ class WhatsappBotService
         }
 
         match ($step) {
+            'awaiting_premium_upsell'     => $this->handlePremiumUpsell($phone, $lower, $state),
+            'awaiting_package_selection'  => $this->handlePackageSelection($phone, $text, $state),
+            'awaiting_payment_confirmation' => $this->handlePaymentConfirmation($phone, $text, $state),
             'awaiting_start_confirmation' => $this->handleAdStartConfirmation($phone, $lower, $state),
             'awaiting_title'           => $this->handleAdTitle($phone, $text, $state),
             'awaiting_detail'          => $this->handleAdDetail($phone, $text, $state),
@@ -508,6 +519,110 @@ class WhatsappBotService
             'awaiting_confirmation'    => $this->handleAdConfirmation($phone, $lower, $state),
             default                    => $this->abortUnknownStep($phone),
         };
+    }
+
+    private function handlePremiumUpsell(string $phone, string $lower, array $state): void
+    {
+        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
+            $packages = PremiumPackage::where('is_active', true)->orderBy('price')->get();
+            
+            if ($packages->isEmpty()) {
+                $this->whatsapp->sendMessage($phone, "❌ Maaf, saat ini belum ada paket premium yang tersedia. Silakan hubungi admin.");
+                $this->clearState($phone);
+                return;
+            }
+
+            $list = "💎 *Pilih Paket Iklan Premium*\n\n";
+            $idx = 1;
+            $packageMap = [];
+            foreach ($packages as $pkg) {
+                $list .= "{$idx}. *{$pkg->name}*\n   Harga: Rp " . number_format($pkg->price, 0, ',', '.') . "\n   Durasi: {$pkg->duration_days} hari\n\n";
+                $packageMap[$idx] = $pkg->id;
+                $idx++;
+            }
+            $list .= "_Ketik nomor paket yang Anda pilih._";
+
+            $state['step'] = 'awaiting_package_selection';
+            $state['package_map'] = $packageMap;
+            $this->setState($phone, $state);
+            $this->whatsapp->sendMessage($phone, $list);
+            return;
+        }
+
+        $this->whatsapp->sendMessage($phone, "Baik, terima kasih. Kirim *pasang iklan* kapan saja jika Anda ingin menambah slot nanti.");
+        $this->clearState($phone);
+    }
+
+    private function handlePackageSelection(string $phone, string $text, array $state): void
+    {
+        $choice = (int) $text;
+        $packageId = $state['package_map'][$choice] ?? null;
+
+        if (!$packageId) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Pilihan tidak valid. Mohon ketik nomor paket yang tersedia.");
+            return;
+        }
+
+        $package = PremiumPackage::find($packageId);
+        if (!$package) {
+            $this->whatsapp->sendMessage($phone, "❌ Paket tidak ditemukan. Silakan coba lagi.");
+            return;
+        }
+
+        $uniqueCode = rand(100, 999);
+        $total = $package->price + $uniqueCode;
+
+        $state['step'] = 'awaiting_payment_confirmation';
+        $state['premium_package_id'] = $package->id;
+        $state['unique_code'] = $uniqueCode;
+        $this->setState($phone, $state);
+
+        $this->whatsapp->sendMessage($phone, "🙏 Terima kasih sudah memilih paket *{$package->name}*.");
+
+        // Kirim QRIS
+        $qrisUrl = rtrim(config('app.url'), '/') . '/qris.jpeg';
+        $this->whatsapp->sendImage(
+            $phone, 
+            $qrisUrl, 
+            "📸 *QRIS Pembayaran Sebatam*\n\n" .
+            "💰 *Total Bayar: Rp " . number_format($total, 0, ',', '.') . "*\n" .
+            "⚠️ _Penting: Mohon transfer tepat sesuai nominal di atas (termasuk 3 digit terakhir) agar verifikasi otomatis lebih cepat._\n\n" .
+            "Silakan simpan/scan QRIS di atas untuk melakukan pembayaran."
+        );
+
+        $this->whatsapp->sendMessage(
+            $phone,
+            "Apakah Anda sudah melakukan pembayaran?\n\n" .
+            "1. Ya, sudah bayar\n" .
+            "2. Batal"
+        );
+    }
+
+    private function handlePaymentConfirmation(string $phone, string $text, array $state): void
+    {
+        if ($text === '1' || strtolower($text) === 'ya') {
+            $this->whatsapp->sendMessage($phone, "✅ Terima kasih! Admin akan melakukan verifikasi pembayaran Anda.\n\nSekarang, mari kita lanjutkan ke proses pembuatan iklan Anda.");
+            
+            // Proceed to ad creation flow
+            $state['step'] = 'awaiting_title';
+            $this->setState($phone, $state);
+            $this->whatsapp->sendMessage(
+                $phone,
+                "📝 *Langkah 1 — Judul Iklan*\n\n" .
+                "Silakan kirim *Judul Iklan* Anda.\n" .
+                "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
+                "_Ketik *batal* untuk membatalkan._"
+            );
+            return;
+        }
+
+        if ($text === '2' || strtolower($text) === 'batal') {
+            $this->clearState($phone);
+            $this->whatsapp->sendMessage($phone, "❌ Pembayaran dibatalkan. Proses pasang iklan dihentikan.");
+            return;
+        }
+
+        $this->whatsapp->sendMessage($phone, "Mohon pilih *1* untuk Ya atau *2* untuk Batal.");
     }
 
     private function handleAdStartConfirmation(string $phone, string $lower, array $state): void
@@ -789,7 +904,22 @@ class WhatsappBotService
                     unlink($tmpFile);
                 }
 
-                // Decrement quota
+                // Handle Premium Request if applicable
+                if (isset($state['premium_package_id'])) {
+                    PremiumRequest::create([
+                        'user_id' => $state['user_id'],
+                        'listing_id' => $listing->id,
+                        'package_id' => $state['premium_package_id'],
+                        'unique_code' => $state['unique_code'] ?? 0,
+                        'status' => 'pending',
+                    ]);
+                    $listing->update(['is_premium' => true]);
+                }
+
+                // Decrement quota if not using premium package (or maybe premium package adds a slot?)
+                // The prompt says "lanjutkan ke proses pembuatan iklan dengan fitur paket premium"
+                // which usually implies they paid for THIS ad to be premium.
+                // If they have 0 quota, we allow them to proceed because they are paying for a premium slot.
                 $user = User::find($state['user_id']);
                 if ($user && $user->ads_quota > 0) {
                     $user->decrement('ads_quota');

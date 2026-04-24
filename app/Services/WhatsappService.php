@@ -78,6 +78,52 @@ class WhatsappService
     }
 
     /**
+     * Send an image via GOWA.
+     */
+    public function sendImage(string $to, string $imageUrl, string $caption = ''): ?array
+    {
+        $cleanPhone = self::normalizeNumber($to);
+
+        if ($this->apiUrl === '') {
+            Log::warning('WhatsappService: WHATSAPP_API_URL not configured, image not sent.', [
+                'to' => $cleanPhone,
+            ]);
+            return null;
+        }
+
+        try {
+            Log::info("WhatsApp GOWA: attempting to send image to $cleanPhone: $imageUrl");
+            $sendUrl = $this->apiUrl . '/send/image';
+            $response = Http::withBasicAuth($this->username, $this->password)
+                ->timeout(20)
+                ->withQueryParameters(['device_id' => $this->deviceId])
+                ->post($sendUrl, [
+                    'phone'   => $cleanPhone,
+                    'image'   => $imageUrl,
+                    'caption' => $caption,
+                ]);
+
+            if ($response->successful()) {
+                Log::info("WhatsApp GOWA: success sending image to $cleanPhone");
+                return $response->json();
+            }
+
+            Log::warning('WhatsApp GOWA sendImage failed', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+                'to'     => $cleanPhone,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('WhatsApp GOWA sendImage exception', [
+                'error' => $e->getMessage(),
+                'to'    => $cleanPhone,
+            ]);
+        }
+
+        return null;
+    }
+
+    /**
      * Normalize a WhatsApp number to international digits only.
      */
     public static function normalizeNumber(string $input): string

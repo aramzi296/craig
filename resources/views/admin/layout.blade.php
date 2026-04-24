@@ -55,6 +55,11 @@
                     <i class="fa-solid fa-gears"></i> Parameter
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.whatsapp') }}" class="sidebar-link {{ request()->routeIs('admin.whatsapp*') ? 'active' : '' }}">
+                    <i class="fa-brands fa-whatsapp"></i> Kirim WA
+                </a>
+            </li>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
             <li class="sidebar-item">
                 <a href="{{ route('dashboard') }}" class="sidebar-link">
@@ -65,6 +70,18 @@
     </aside>
 
     <main class="dashboard-content">
+        @if(session('success'))
+            <div style="background: rgba(34, 197, 94, 0.2); border: 1px solid #22c55e; color: #4ade80; padding: 15px; border-radius: 8px; margin-bottom: 30px;">
+                <i class="fa-solid fa-circle-check" style="margin-right: 10px;"></i> {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #f87171; padding: 15px; border-radius: 8px; margin-bottom: 30px;">
+                <i class="fa-solid fa-circle-exclamation" style="margin-right: 10px;"></i> {{ session('error') }}
+            </div>
+        @endif
+
         @yield('admin_content')
     </main>
 </div>

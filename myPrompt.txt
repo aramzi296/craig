@@ -19,27 +19,48 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 
 pada chatbot pasang iklan, jika kuota iklan sudah habis, 
-maka beritahukan kepada user bahwa kuota iklan telah habis. 
-silahkan upgrade iklan yang sudah anda buat menjadi premium
-atau anda buat iklan premium baru.
+maka beritahukan kepada user bahwa kuota iklan untuk nomor WA ini sudah habis. 
+apakah anda mau menambah slot iklan (ya/tidak)?
 
-fitur premium:
+jika user jawab ya, maka tampilkan info pilihan paket iklan berikut: 
+daftar pilihan paket diambil dari tabel premium_packages.
+
+jika user pilih paket iklan, maka balas dengan ucapan terimakasih sudah memilih paket iklan. 
+kirimkan gambar qris pembayaran dan petunjuk pembayaran.
+setelah itu tanyakan apakah anda sudah melakukan pembayaran? pilihannya:
+    1. ya
+    2. batal.
+
+jika user pilih ya, maka balas dengan ucapan terimakasih. admin akan melakukan verifikasi pembayaran. 
+
+lanjutkan ke proses pembuatan iklan dengan fitur paket premium.
+
+iklan akan diterbitkan dengan fitur premium selama satu hari atau hingga masa berlaku paket iklan berakhir jika admin sudah approve.
+
+
+silahkan beli slot iklan premium untuk menambah iklan baru.
+Fitur "iklan premium":
 - mendapat badge atau lencana "premium" pada iklan
-- ditampilkan di halaman depan secara berkala
-- ditampilkan di halaman kategori secara berkala
-- ditampilkan di hasil pencarian secara berkala
-- ditampilkan di halaman iklan terkait secara berkala
-- upload gambar bisa lebih banyak dari iklan gratis. 
-- text keterangan iklan bisa lebih panjang dari iklan gratis
-- bisa edit atau ganti gambar iklan yang sudah dibuat kapan saja
-
-harga paket premium: 
-- paket 1 bulan: Rp. 4000
-- paket 3 bulan: Rp. 9000
-- paket 6 bulan: Rp. 17000
-- paket 1 tahun: Rp. 25000
+- upload hingga 20 gambar
+- text keterangan iklan hingga 5000 karakter
+- iklan ditampilkan pada sebelum iklan gratis.
+- ditampilkan di halaman depan.
+- ditampilkan di halaman kategori
+- ditampilkan di hasil pencarian.
+- ditampilkan di halaman iklan terkait pada urutan atas.
+- bisa edit atau ganti gambar iklan kapan saja.
+- bisa ganti category kapan saja.
+- bisa ganti judul iklan kapan saja.
+- bisa ganti harga kapan saja.
 
 
+
+silahkan pilih nomor paket yang anda inginkan atau ketik "batal" untuk kembali.
+
+jika user pilih batal, maka balas dengan ucapan terimakasih sudah menggunakan layanan kami.
+
+
+Silahkan 
 
 
 

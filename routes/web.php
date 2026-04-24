@@ -119,6 +119,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/{id}/edit', [AdminController::class, 'editSetting'])->name('settings.edit');
         Route::put('/settings/{id}', [AdminController::class, 'updateSetting'])->name('settings.update');
         Route::delete('/settings/{id}', [AdminController::class, 'destroySetting'])->name('settings.destroy');
+
+        // WhatsApp Messaging
+        Route::get('/whatsapp', [AdminController::class, 'whatsappForm'])->name('whatsapp');
+        Route::post('/send-wa', [AdminController::class, 'sendWaMessage'])->name('send_wa');
     });
 
     // Member Premium Upgrade

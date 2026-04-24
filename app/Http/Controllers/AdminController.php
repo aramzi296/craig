@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Services\WhatsappService;
+
 
 class AdminController extends Controller
 {
@@ -513,5 +515,26 @@ class AdminController extends Controller
         $user->save();
 
         return back()->with('success', 'Status verifikasi akun berhasil diubah.');
+    }
+
+    public function whatsappForm()
+    {
+        return view('admin.whatsapp.index');
+    }
+
+    public function sendWaMessage(Request $request, WhatsappService $whatsappService)
+    {
+        $request->validate([
+            'phone' => 'required|string',
+            'message' => 'required|string',
+        ]);
+
+        $response = $whatsappService->sendMessage($request->phone, $request->message);
+
+        if ($response) {
+            return back()->with('success', 'Pesan WhatsApp berhasil dikirim.');
+        }
+
+        return back()->with('error', 'Gagal mengirim pesan WhatsApp. Pastikan layanan API WA aktif.');
     }
 }
