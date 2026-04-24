@@ -5,11 +5,6 @@
         <h1>Profil Saya</h1>
     </div>
 
-    @if(session('success'))
-        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="glass" style="padding: 30px; border-radius: var(--radius); max-width: 600px;">
         <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">

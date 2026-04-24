@@ -1,11 +1,6 @@
 @extends('layouts.dashboard')
 
 @section('dashboard_content')
-    @if(session('success'))
-        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <div class="dashboard-header">
         <h1>
