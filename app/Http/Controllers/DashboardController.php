@@ -83,8 +83,12 @@ class DashboardController extends Controller
 
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($request->listing_id);
 
-        if ($listing->is_premium || $listing->hasPendingPremiumRequest()) {
-            return redirect()->route('dashboard')->with('error', 'Permintaan premium tidak dapat diproses.');
+        $hasExistingRequest = \App\Models\PremiumRequest::where('listing_id', $listing->id)
+            ->whereIn('status', ['pending', 'active'])
+            ->exists();
+
+        if ($hasExistingRequest) {
+            return redirect()->route('dashboard')->with('error', 'Permintaan premium untuk iklan ini sudah ada atau sedang diproses.');
         }
 
         \App\Models\PremiumRequest::create([

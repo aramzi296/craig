@@ -10,6 +10,17 @@
         <form action="{{ route('listings.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
+            @if(isset($premiumRequest) && $premiumRequest)
+                <input type="hidden" name="premium_request_id" value="{{ $premiumRequest->id }}">
+                <div style="background: #ecfdf5; border: 1px solid #d1fae5; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; color: #065f46;">
+                    <div style="font-size: 1.5rem;"><i class="fa-solid fa-crown"></i></div>
+                    <div>
+                        <p style="font-weight: 700; margin-bottom: 4px;">Menggunakan Paket Premium</p>
+                        <p style="font-size: 0.9rem; margin: 0;">Anda sedang menggunakan paket <strong>{{ $premiumRequest->package->name }}</strong> yang sudah Anda miliki. Iklan ini akan otomatis mendapatkan fitur premium.</p>
+                    </div>
+                </div>
+            @endif
+            
             @if(auth()->check() && auth()->user()->ads_quota <= 0)
                 <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; color: #991b1b;">
                     <div style="font-size: 1.5rem;"><i class="fa-solid fa-circle-exclamation"></i></div>
@@ -26,16 +37,17 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         @php
                             $quotaExhausted = auth()->check() && auth()->user()->ads_quota <= 0;
+                            $hasPrepaid = isset($premiumRequest) && $premiumRequest;
                         @endphp
-                        <label style="display: block; cursor: {{ $quotaExhausted ? 'not-allowed' : 'pointer' }}; opacity: {{ $quotaExhausted ? '0.6' : '1' }};">
-                            <input type="radio" name="ad_package" value="standard" {{ old('ad_package', 'standard') == 'standard' && !$quotaExhausted ? 'checked' : '' }} {{ $quotaExhausted ? 'disabled' : '' }}>
+                        <label style="display: block; cursor: {{ ($quotaExhausted || $hasPrepaid) ? 'not-allowed' : 'pointer' }}; opacity: {{ ($quotaExhausted || $hasPrepaid) ? '0.6' : '1' }};">
+                            <input type="radio" name="ad_package" value="standard" {{ (old('ad_package', 'standard') == 'standard' && !$quotaExhausted && !$hasPrepaid) ? 'checked' : '' }} {{ ($quotaExhausted || $hasPrepaid) ? 'disabled' : '' }}>
                             <div style="padding: 15px; border: 2px solid var(--border); border-radius: 12px; margin-top: 5px;">
                                 <div style="font-weight: 700; color: var(--text);">Standar (Gratis)</div>
                                 <div style="font-size: 0.8rem; color: var(--text-muted);">Gunakan kuota gratis Anda.</div>
                             </div>
                         </label>
                         <label style="display: block; cursor: pointer;">
-                            <input type="radio" name="ad_package" value="premium" {{ old('ad_package') == 'premium' || $quotaExhausted ? 'checked' : '' }}>
+                            <input type="radio" name="ad_package" value="premium" {{ (old('ad_package') == 'premium' || $quotaExhausted || $hasPrepaid) ? 'checked' : '' }}>
                             <div style="padding: 15px; border: 2px solid var(--primary); border-radius: 12px; margin-top: 5px; background: #f0f9ff;">
                                 <div style="font-weight: 700; color: var(--primary-dark);">Premium</div>
                                 <div style="font-size: 0.8rem; color: var(--primary);">Fitur lengkap & prioritas tampil.</div>

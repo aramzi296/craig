@@ -22,7 +22,15 @@ class ListingController extends Controller
         $layout = auth()->check() ? 'layouts.dashboard' : 'layouts.app';
         $section = auth()->check() ? 'dashboard_content' : 'content';
 
-        return view('listings.create', compact('categories', 'listingTypes', 'districts', 'layout', 'section'));
+        $premiumRequest = null;
+        if (request()->has('premium_request_id')) {
+            $premiumRequest = \App\Models\PremiumRequest::where('user_id', auth()->id())
+                ->where('id', request('premium_request_id'))
+                ->whereNull('listing_id')
+                ->first();
+        }
+
+        return view('listings.create', compact('categories', 'listingTypes', 'districts', 'layout', 'section', 'premiumRequest'));
     }
 
     public function store(\Illuminate\Http\Request $request)
@@ -148,6 +156,23 @@ class ListingController extends Controller
         }
 
         $listing->categories()->sync($categoryIds);
+
+        // Link to existing premium request if provided
+        if ($request->filled('premium_request_id')) {
+            $premiumRequest = \App\Models\PremiumRequest::where('user_id', auth()->id())
+                ->where('id', $request->premium_request_id)
+                ->whereNull('listing_id')
+                ->first();
+            
+            if ($premiumRequest) {
+                $premiumRequest->update(['listing_id' => $listing->id]);
+                // If it was already approved (active), make listing premium
+                if ($premiumRequest->status === 'active') {
+                    $listing->update(['is_premium' => true]);
+                }
+                return redirect()->route('dashboard')->with('success', 'Iklan berhasil dibuat dan dihubungkan dengan paket premium Anda.');
+            }
+        }
 
         if ($isPremiumPackage) {
             return redirect()->route('dashboard.premium.upgrade', $listing->id)->with('success', 'Iklan berhasil dibuat. Silakan pilih paket premium untuk mengaktifkan fitur premium.');
