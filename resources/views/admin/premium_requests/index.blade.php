@@ -22,8 +22,12 @@
             <tr>
                 <td>{{ $req->user->name }}</td>
                 <td>
-                    <div style="font-weight: 600;">{{ $req->listing->title }}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">Rp {{ number_format($req->listing->price, 0, ',', '.') }}</div>
+                    @if($req->listing)
+                        <div style="font-weight: 600;">{{ $req->listing->title }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Rp {{ number_format($req->listing->price, 0, ',', '.') }}</div>
+                    @else
+                        <span style="color: var(--text-muted); font-style: italic;">Belum Terhubung (Paket Baru)</span>
+                    @endif
                 </td>
                 <td>
                     <div style="font-weight: 600;">{{ $req->package->name }}</div>
@@ -41,7 +45,9 @@
                         <span class="badge badge-pending">Menunggu Verifikasi</span>
                     @elseif($req->status == 'active')
                         <span class="badge badge-success">Aktif</span>
-                        <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">Exp: {{ $req->expires_at->format('d M Y') }}</div>
+                        @if($req->expires_at)
+                            <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 4px;">Exp: {{ $req->expires_at->format('d M Y') }}</div>
+                        @endif
                     @elseif($req->status == 'rejected')
                         <span class="badge" style="background: #fee2e2; color: #991b1b;">Ditolak</span>
                     @else
