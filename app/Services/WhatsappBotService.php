@@ -93,6 +93,12 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: cek paket ─────────────────────────────────────────────
+        if ($lowerText === 'cek paket' || $lowerText === 'paket') {
+            $this->handleCheckPackageRequest($phone);
+            return;
+        }
+
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
         if ($state !== null) {
@@ -121,7 +127,9 @@ class WhatsappBotService
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
             "3️⃣ *kuota iklan*\n" .
             "Untuk melihat sisa jatah iklan Anda.\n\n" .
-            "4️⃣ *menu*\n" .
+            "4️⃣ *cek paket*\n" .
+            "Untuk melihat paket premium yang Anda miliki.\n\n" .
+            "5️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
         );
@@ -137,16 +145,64 @@ class WhatsappBotService
         }
 
         $activeAdsCount = $user->listings()->where('is_active', true)->count();
+        $unusedPremium = PremiumRequest::where('user_id', $user->id)
+            ->whereNull('listing_id')
+            ->whereIn('status', ['pending', 'active'])
+            ->count();
 
-        $this->whatsapp->sendMessage(
-            $phone,
-            "📊 *Status Kuota Iklan*\n\n" .
-            "Halo, *{$user->name}*!\n" .
-            "Berikut adalah informasi kuota iklan Anda:\n\n" .
-            "✅ Sisa Kuota Iklan: *{$user->ads_quota}*\n" .
-            "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n\n" .
-            "_Ketik *pasang iklan* untuk menggunakan kuota Anda atau hubungi admin untuk menambah kuota._"
-        );
+        $msg = "📊 *Status Kuota Iklan*\n\n" .
+               "Halo, *{$user->name}*!\n" .
+               "Berikut adalah informasi kuota iklan Anda:\n\n" .
+               "✅ Sisa Kuota Iklan: *{$user->ads_quota}*\n" .
+               "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n";
+
+        if ($unusedPremium > 0) {
+            $msg .= "💎 Paket Premium Tersedia: *{$unusedPremium}*\n";
+            $msg .= "\n_Anda memiliki paket premium yang siap digunakan! Ketik *pasang iklan* untuk menggunakannya._";
+        } else {
+            $msg .= "\n_Ketik *pasang iklan* untuk menggunakan kuota Anda atau hubungi admin untuk menambah kuota._";
+        }
+
+        $this->whatsapp->sendMessage($phone, $msg);
+    }
+
+    private function handleCheckPackageRequest(string $phone): void
+    {
+        $user = User::where('whatsapp', $phone)->first();
+
+        if (!$user) {
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar.");
+            return;
+        }
+
+        $premiumRequests = PremiumRequest::where('user_id', $user->id)
+            ->whereNull('listing_id')
+            ->with('package')
+            ->get();
+
+        if ($premiumRequests->isEmpty()) {
+            $this->whatsapp->sendMessage(
+                $phone,
+                "💎 *Paket Premium Saya*\n\n" .
+                "Anda belum memiliki paket premium yang tersedia.\n\n" .
+                "Ketik *pasang iklan* jika Anda ingin membeli paket premium untuk iklan baru Anda."
+            );
+            return;
+        }
+
+        $msg = "💎 *Paket Premium Tersedia*\n\n";
+        $msg .= "Berikut adalah paket premium Anda yang belum digunakan:\n\n";
+
+        foreach ($premiumRequests as $req) {
+            $statusStr = $req->status === 'active' ? "✅ Aktif (Siap Pakai)" : "⏳ Menunggu Verifikasi";
+            $msg .= "📦 *{$req->package->name}*\n" .
+                   "   Status: {$statusStr}\n" .
+                   "   ID: PREM-{$req->id}\n\n";
+        }
+
+        $msg .= "_Ketik *pasang iklan* untuk menggunakan paket ini pada iklan baru Anda._";
+
+        $this->whatsapp->sendMessage($phone, $msg);
     }
 
     private function handleOtpRequest(string $phone): void

@@ -38,6 +38,41 @@
     </div>
     @endif
 
+    @if(isset($unusedPremiumRequests) && $unusedPremiumRequests->count() > 0)
+    <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-top: 30px; border-left: 4px solid #f59e0b;">
+        <h2 style="font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
+            Paket Premium Tersedia
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+            @foreach($unusedPremiumRequests as $req)
+                <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-weight: 700; color: #f59e0b;">{{ $req->package->name }}</div>
+                    <div style="font-size: 0.8rem; margin-top: 5px;">
+                        Status: 
+                        @if($req->status === 'active')
+                            <span style="color: #22c55e; font-weight: 600;">Siap Digunakan</span>
+                        @else
+                            <span style="color: #f59e0b; font-weight: 600;">Menunggu Verifikasi Admin</span>
+                        @endif
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">ID: PREM-{{ $req->id }}</div>
+                    
+                    @if($req->status === 'active')
+                        <a href="{{ route('listings.create', ['premium_request_id' => $req->id]) }}" class="btn btn-primary btn-sm" style="margin-top: 10px; width: 100%; text-align: center; font-size: 0.8rem; padding: 8px;">Gunakan Sekarang</a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px;">
+            * Paket di atas dapat Anda gunakan saat membuat iklan baru. 
+            @if($unusedPremiumRequests->where('status', 'pending')->count() > 0)
+                Mohon tunggu verifikasi admin untuk paket yang masih tertunda.
+            @endif
+        </p>
+    </div>
+    @endif
+
     <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px;">
         <h2 style="font-size: 1.2rem; margin-bottom: 20px;">{{ $tableTitle }}</h2>
         @if($listings->count() > 0)

@@ -31,7 +31,23 @@ class DashboardController extends Controller
             $tableTitle = 'Iklan Terbaru Saya';
         }
 
-        return view('dashboard', compact('listings', 'totalListings', 'activeListings', 'premiumListings', 'totalViews', 'tab', 'tableTitle'));
+        // Unused Premium Packages
+        $unusedPremiumRequests = \App\Models\PremiumRequest::where('user_id', $user->id)
+            ->whereNull('listing_id')
+            ->whereIn('status', ['pending', 'active'])
+            ->with('package')
+            ->get();
+
+        return view('dashboard', compact(
+            'listings', 
+            'totalListings', 
+            'activeListings', 
+            'premiumListings', 
+            'totalViews', 
+            'tab', 
+            'tableTitle',
+            'unusedPremiumRequests'
+        ));
     }
 
     public function premiumUpgrade($listing_id)
