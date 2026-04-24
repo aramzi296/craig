@@ -409,10 +409,12 @@ class AdminController extends Controller
         $premiumRequest->expires_at = now()->addDays((int)$premiumRequest->package->duration_days);
         $premiumRequest->save();
 
-        // Update listing
+        // Update listing if already linked
         $listing = $premiumRequest->listing;
-        $listing->is_premium = true;
-        $listing->save();
+        if ($listing) {
+            $listing->is_premium = true;
+            $listing->save();
+        }
 
         return back()->with('success', 'Permintaan premium berhasil disetujui.');
     }
