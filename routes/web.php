@@ -17,7 +17,7 @@ Route::get('/search', [HomeController::class, 'search'])->name('search');
 Route::get('/kategori', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────
-Route::post('/webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
+Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {

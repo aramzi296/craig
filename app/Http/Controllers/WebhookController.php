@@ -21,10 +21,17 @@ class WebhookController extends Controller
      */
     public function handle(Request $request)
     {
+        Log::error('WA Webhook: RAW REQUEST RECEIVED', [
+            'method' => $request->method(),
+            'url'    => $request->fullUrl(),
+            'ip'     => $request->ip(),
+            'all'    => $request->all()
+        ]);
+
         $payload = $request->all();
         $event   = $payload['event'] ?? 'unknown';
 
-        Log::info('WA Webhook: event received', [
+        Log::error('WA Webhook: event received', [
             'event'    => $event,
             'from_sfx' => $this->fromSuffix($payload),
         ]);

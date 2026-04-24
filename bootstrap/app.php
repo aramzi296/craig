@@ -17,7 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Exclude WhatsApp webhook from CSRF verification
         $middleware->validateCsrfTokens(except: [
-            '/webhook/whatsapp',
+            'webhook/whatsapp',
+            'webhook/whatsapp/*',
         ]);
 
         $middleware->alias([
