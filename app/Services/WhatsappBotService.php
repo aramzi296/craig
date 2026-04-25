@@ -513,12 +513,6 @@ class WhatsappBotService
             );
         }
 
-        // --- NEW: Check for unused premium packages ---
-        $unusedPremium = PremiumRequest::where('user_id', $user->id)
-            ->whereNull('listing_id')
-            ->whereIn('status', ['pending', 'active'])
-            ->first();
-
         if ($unusedPremium) {
             $this->setState($phone, [
                 'step'    => 'awaiting_use_existing_premium',
@@ -530,7 +524,10 @@ class WhatsappBotService
             $this->whatsapp->sendMessage(
                 $phone,
                 "👋 Halo! Kami menemukan Anda memiliki paket premium (*{$unusedPremium->package->name}*) yang belum digunakan.\n\n" .
-                "Apakah Anda ingin menggunakan paket tersebut untuk iklan baru ini? (Ya/Tidak)"
+                "Ketik:\n" .
+                "- *YA* untuk menggunakan paket ini\n" .
+                "- *TIDAK* untuk iklan reguler\n" .
+                "- *BELI* untuk beli paket premium baru"
             );
             return;
         }
@@ -615,13 +612,23 @@ class WhatsappBotService
             return;
         }
 
+        if (in_array($lower, ['beli', 'paket', 'premium'], true)) {
+            $this->showPremiumPackages($phone, $state);
+            return;
+        }
+
         if (in_array($lower, ['tidak', 't', 'no'], true)) {
             // User doesn't want to use the existing premium for THIS ad.
             // Check quota for normal ad.
             $user = User::find($state['user_id']);
             if ($user && $user->ads_quota <= 0) {
-                $this->whatsapp->sendMessage($phone, "⚠️ Kuota iklan gratis Anda habis. Jika ingin lanjut, Anda harus menggunakan paket premium yang ada atau membeli baru.\n\nKetik *pasang iklan* untuk mengulang.");
-                $this->clearState($phone);
+                $state['step'] = 'awaiting_premium_upsell';
+                $this->setState($phone, $state);
+                $this->whatsapp->sendMessage(
+                    $phone,
+                    "⚠️ *Kuota Iklan Habis*\n\n" .
+                    "Maaf, kuota iklan reguler Anda sudah habis. Apakah Anda ingin membeli paket premium baru? (Ya/Tidak)"
+                );
                 return;
             }
 
@@ -633,39 +640,53 @@ class WhatsappBotService
             return;
         }
 
-        $this->whatsapp->sendMessage($phone, "Mohon balas *YA* untuk menggunakan paket premium Anda, atau *TIDAK* untuk pasang iklan reguler.");
+        $this->whatsapp->sendMessage(
+            $phone,
+            "Mohon balas:\n" .
+            "- *YA* untuk menggunakan paket premium\n" .
+            "- *TIDAK* untuk pasang iklan reguler\n" .
+            "- *BELI* untuk beli paket baru"
+        );
     }
 
     private function handlePremiumUpsell(string $phone, string $lower, array $state): void
     {
         if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
-            $packages = PremiumPackage::where('is_active', true)->orderBy('price')->get();
-            
-            if ($packages->isEmpty()) {
-                $this->whatsapp->sendMessage($phone, "❌ Maaf, saat ini belum ada paket premium yang tersedia. Silakan hubungi admin.");
-                $this->clearState($phone);
-                return;
-            }
-
-            $list = "💎 *Pilih Paket Iklan Premium*\n\n";
-            $idx = 1;
-            $packageMap = [];
-            foreach ($packages as $pkg) {
-                $list .= "{$idx}. *{$pkg->name}*\n   Harga: Rp " . number_format($pkg->price, 0, ',', '.') . "\n   Durasi: {$pkg->duration_days} hari\n\n";
-                $packageMap[$idx] = $pkg->id;
-                $idx++;
-            }
-            $list .= "_Ketik nomor paket yang Anda pilih._";
-
-            $state['step'] = 'awaiting_package_selection';
-            $state['package_map'] = $packageMap;
-            $this->setState($phone, $state);
-            $this->whatsapp->sendMessage($phone, $list);
+            $this->showPremiumPackages($phone, $state);
             return;
         }
 
         $this->whatsapp->sendMessage($phone, "Baik, terima kasih. Kirim *pasang iklan* kapan saja jika Anda ingin menambah slot nanti.");
         $this->clearState($phone);
+    }
+
+    /**
+     * Helper to show premium packages to user
+     */
+    private function showPremiumPackages(string $phone, array $state): void
+    {
+        $packages = PremiumPackage::where('is_active', true)->orderBy('price')->get();
+        
+        if ($packages->isEmpty()) {
+            $this->whatsapp->sendMessage($phone, "❌ Maaf, saat ini belum ada paket premium yang tersedia. Silakan hubungi admin.");
+            $this->clearState($phone);
+            return;
+        }
+
+        $list = "💎 *Pilih Paket Iklan Premium*\n\n";
+        $idx = 1;
+        $packageMap = [];
+        foreach ($packages as $pkg) {
+            $list .= "{$idx}. *{$pkg->name}*\n   Harga: Rp " . number_format($pkg->price, 0, ',', '.') . "\n   Durasi: {$pkg->duration_days} hari\n\n";
+            $packageMap[$idx] = $pkg->id;
+            $idx++;
+        }
+        $list .= "_Ketik nomor paket yang Anda pilih._";
+
+        $state['step'] = 'awaiting_package_selection';
+        $state['package_map'] = $packageMap;
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, $list);
     }
 
     private function handlePackageSelection(string $phone, string $text, array $state): void
