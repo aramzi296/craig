@@ -513,6 +513,12 @@ class WhatsappBotService
             );
         }
 
+        // --- NEW: Check for unused premium packages ---
+        $unusedPremium = PremiumRequest::where('user_id', $user->id)
+            ->whereNull('listing_id')
+            ->whereIn('status', ['pending', 'active'])
+            ->first();
+
         if ($unusedPremium) {
             $this->setState($phone, [
                 'step'    => 'awaiting_use_existing_premium',
