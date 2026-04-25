@@ -514,27 +514,35 @@ class WhatsappBotService
         }
 
         // --- NEW: Check for unused premium packages ---
-        $unusedPremium = PremiumRequest::where('user_id', $user->id)
+        $unusedRequests = PremiumRequest::where('user_id', $user->id)
             ->whereNull('listing_id')
             ->whereIn('status', ['pending', 'active'])
-            ->first();
+            ->with('package')
+            ->get();
 
-        if ($unusedPremium) {
+        if ($unusedRequests->isNotEmpty()) {
+            $grouped = $unusedRequests->groupBy('package_id');
+            $msg = "👋 Halo! Kami menemukan Anda memiliki paket premium yang belum digunakan.\n\n";
+            $packageMap = [];
+            $idx = 1;
+            foreach ($grouped as $packageId => $requests) {
+                $packageName = $requests->first()->package->name;
+                $count = $requests->count();
+                $msg .= "{$idx}. {$packageName} ({$count} slot)\n";
+                $packageMap[$idx] = $packageId;
+                $idx++;
+            }
+            $msg .= "\n*Pilih paket mana* yang akan Anda gunakan untuk iklan Anda ini?\n\n";
+            $msg .= "_Atau ketik *TIDAK* untuk iklan reguler, atau *BELI* untuk beli paket baru._";
+
             $this->setState($phone, [
                 'step'    => 'awaiting_use_existing_premium',
                 'user_id' => $user->id,
-                'premium_request_id' => $unusedPremium->id,
+                'package_map' => $packageMap,
                 'ad_data' => [],
                 'photos'  => []
             ]);
-            $this->whatsapp->sendMessage(
-                $phone,
-                "👋 Halo! Kami menemukan Anda memiliki paket premium (*{$unusedPremium->package->name}*) yang belum digunakan.\n\n" .
-                "Ketik:\n" .
-                "- *YA* untuk menggunakan paket ini\n" .
-                "- *TIDAK* untuk iklan reguler\n" .
-                "- *BELI* untuk beli paket premium baru"
-            );
+            $this->whatsapp->sendMessage($phone, $msg);
             return;
         }
 
@@ -605,16 +613,44 @@ class WhatsappBotService
 
     private function handleUseExistingPremium(string $phone, string $lower, array $state): void
     {
+        // Handle numeric selection
+        if (is_numeric($lower)) {
+            $choice = (int) $lower;
+            $packageId = $state['package_map'][$choice] ?? null;
+            
+            if ($packageId) {
+                // Find one request of this package
+                $request = PremiumRequest::where('user_id', $state['user_id'])
+                    ->where('package_id', $packageId)
+                    ->whereNull('listing_id')
+                    ->whereIn('status', ['pending', 'active'])
+                    ->with('package')
+                    ->first();
+                
+                if ($request) {
+                    $state['step'] = 'awaiting_title';
+                    $state['premium_request_id'] = $request->id;
+                    unset($state['package_map']);
+                    $this->setState($phone, $state);
+                    
+                    $this->whatsapp->sendMessage(
+                        $phone,
+                        "✅ Baik, iklan ini akan menggunakan paket *{$request->package->name}* Anda.\n\n" .
+                        "📝 *Langkah 1 — Judul Iklan*\n\n" .
+                        "Silakan kirim *Judul Iklan* Anda."
+                    );
+                    return;
+                }
+            }
+        }
+
         if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
-            $state['step'] = 'awaiting_title';
-            // premium_request_id stays in state
-            $this->setState($phone, $state);
-            $this->whatsapp->sendMessage(
-                $phone,
-                "✅ Baik, iklan ini akan menggunakan paket premium Anda.\n\n" .
-                "📝 *Langkah 1 — Judul Iklan*\n\n" .
-                "Silakan kirim *Judul Iklan* Anda."
-            );
+            // If they just say "YA", and there's only one type of package, we can auto-select it
+            if (isset($state['package_map']) && count($state['package_map']) === 1) {
+                return $this->handleUseExistingPremium($phone, '1', $state);
+            }
+
+            $this->whatsapp->sendMessage($phone, "Mohon ketik *nomor paket* yang ingin Anda gunakan.");
             return;
         }
 
@@ -649,7 +685,7 @@ class WhatsappBotService
         $this->whatsapp->sendMessage(
             $phone,
             "Mohon balas:\n" .
-            "- *YA* untuk menggunakan paket premium\n" .
+            "- *Nomor Paket* untuk menggunakan paket premium\n" .
             "- *TIDAK* untuk pasang iklan reguler\n" .
             "- *BELI* untuk beli paket baru"
         );
