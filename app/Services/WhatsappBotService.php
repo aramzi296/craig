@@ -526,7 +526,8 @@ class WhatsappBotService
             $packageMap = [];
             $idx = 1;
             foreach ($grouped as $packageId => $requests) {
-                $packageName = $requests->first()->package->name;
+                $pkg = $requests->first()->package;
+                $packageName = $pkg ? $pkg->name : 'Paket Tidak Dikenal';
                 $count = $requests->count();
                 $msg .= "{$idx}. {$packageName} ({$count} slot)\n";
                 $packageMap[$idx] = $packageId;
