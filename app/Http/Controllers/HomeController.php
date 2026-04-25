@@ -76,16 +76,24 @@ class HomeController extends Controller
         $listingId = \App\Models\Listing::where('slug', $slug)->value('id');
         
         if ($listingId) {
-            // Record view in separate table for analytics
-            \App\Models\ListingView::create([
-                'listing_id' => $listingId,
-                'ip_address' => request()->ip()
-            ]);
+            // Check if this IP has viewed this listing in the last 1 hour
+            $recentView = \App\Models\ListingView::where('listing_id', $listingId)
+                ->where('ip_address', request()->ip())
+                ->where('created_at', '>', now()->subHour())
+                ->exists();
 
-            // Increment cache in listings table WITHOUT updating updated_at timestamp
-            \Illuminate\Support\Facades\DB::table('listings')
-                ->where('id', $listingId)
-                ->increment('views_count');
+            if (!$recentView) {
+                // Record view in separate table for analytics
+                \App\Models\ListingView::create([
+                    'listing_id' => $listingId,
+                    'ip_address' => request()->ip()
+                ]);
+
+                // Increment cache in listings table WITHOUT updating updated_at timestamp
+                \Illuminate\Support\Facades\DB::table('listings')
+                    ->where('id', $listingId)
+                    ->increment('views_count');
+            }
         }
 
         $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
