@@ -93,5 +93,10 @@ class Listing extends Model
     {
         return $this->hasMany(Comment::class)->latest();
     }
+
+    public function views()
+    {
+        return $this->hasMany(ListingView::class);
+    }
 }
 

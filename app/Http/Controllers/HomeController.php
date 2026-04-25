@@ -78,8 +78,16 @@ class HomeController extends Controller
             ->notExpired()
             ->firstOrFail();
         
-        // Increment view count
-        $listing->increment('views_count');
+        // Record view in separate table for analytics
+        \App\Models\ListingView::create([
+            'listing_id' => $listing->id,
+            'ip_address' => request()->ip()
+        ]);
+
+        // Increment cache in listings table WITHOUT updating updated_at timestamp
+        \Illuminate\Support\Facades\DB::table('listings')
+            ->where('id', $listing->id)
+            ->increment('views_count');
 
         $relatedListings = \App\Models\Listing::with(['categories', 'listingType'])
             ->whereHas('categories', function($q) use ($listing) {

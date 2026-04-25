@@ -181,16 +181,6 @@
                     </div>
                     @endif
 
-                    <!-- Kadaluarsa -->
-                    @if($listing->expires_at)
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Berakhir Pada</span>
-                        <span style="font-size: 1.1rem; font-weight: 600; color: {{ $listing->expires_at->isPast() ? '#ef4444' : 'var(--text)' }};">
-                            <i class="fa-solid fa-calendar-xmark" style="color: var(--secondary);"></i> {{ $listing->expires_at->format('d M Y') }}
-                            <small style="display: block; font-size: 0.75rem; font-weight: 400; color: var(--text-muted);">({{ $listing->expires_at->diffForHumans() }})</small>
-                        </span>
-                    </div>
-                    @endif
                 </div>
             </div>
 
