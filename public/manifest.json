@@ -1,0 +1,23 @@
+{
+  "name": "Sebatam - Cari Apa Saja Sebatam",
+  "short_name": "Sebatam",
+  "description": "Platform iklan baris dan komunitas terpercaya di Batam.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "/logo-sebatam.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-sebatam.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

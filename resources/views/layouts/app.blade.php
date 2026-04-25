@@ -6,6 +6,23 @@
     <title>@yield('title', 'Sebatam.com')</title>
     <link rel="shortcut icon" href="{{ asset('favicon.webp') }}" type="image/webp" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#0ea5e9">
+    <link rel="apple-touch-icon" href="{{ asset('logo-sebatam.png') }}">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(reg => {
+                    console.log('Service worker registered.', reg);
+                }).catch(err => {
+                    console.log('Service worker registration failed.', err);
+                });
+            });
+        }
+    </script>
+
     @vite(['resources/css/tailwind.css', 'resources/css/app.css', 'resources/js/app.js'])
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
