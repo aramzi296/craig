@@ -72,22 +72,28 @@ class HomeController extends Controller
 
     public function show($slug)
     {
+        // Find listing first to get ID
+        $listingId = \App\Models\Listing::where('slug', $slug)->value('id');
+        
+        if ($listingId) {
+            // Record view in separate table for analytics
+            \App\Models\ListingView::create([
+                'listing_id' => $listingId,
+                'ip_address' => request()->ip()
+            ]);
+
+            // Increment cache in listings table WITHOUT updating updated_at timestamp
+            \Illuminate\Support\Facades\DB::table('listings')
+                ->where('id', $listingId)
+                ->increment('views_count');
+        }
+
         $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
+            ->withCount('views')
             ->where('slug', $slug)
             ->where('is_active', true)
             ->notExpired()
             ->firstOrFail();
-        
-        // Record view in separate table for analytics
-        \App\Models\ListingView::create([
-            'listing_id' => $listing->id,
-            'ip_address' => request()->ip()
-        ]);
-
-        // Increment cache in listings table WITHOUT updating updated_at timestamp
-        \Illuminate\Support\Facades\DB::table('listings')
-            ->where('id', $listing->id)
-            ->increment('views_count');
 
         $relatedListings = \App\Models\Listing::with(['categories', 'listingType'])
             ->whereHas('categories', function($q) use ($listing) {
