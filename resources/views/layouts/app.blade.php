@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@yield('title', 'Sebatam.com')</title>
-    <link rel="shortcut icon" href="{{ asset('favicon.webp') }}" type="image/webp" />
+    <link rel="shortcut icon" href="{{ asset('logo-sebatam.png') }}" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     
     <!-- PWA -->
