@@ -5,8 +5,8 @@
 @section('content')
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <h1>Semua Kategori</h1>
-        <p>Cari berdasarkan kategori yang Anda butuhkan. Semua listing dikelompokkan dengan rapi untuk memudahkan pencarian Anda.</p>
+        <h1 class="hidden md:block">Semua Kategori</h1>
+        <p class="hidden md:block">Cari berdasarkan kategori yang Anda butuhkan. Semua listing dikelompokkan dengan rapi untuk memudahkan pencarian Anda.</p>
 
         <!-- Search Bar inside Hero -->
         <div style="max-width: 600px; margin: 0 auto;">
