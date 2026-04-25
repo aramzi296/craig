@@ -23,21 +23,16 @@
 
 <div class="container page-section">
 
-    <div id="categoriesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 40px;">
+    <div id="categoriesContainer" style="display: flex; flex-direction: column; gap: 50px;">
         @foreach($groupedCategories as $letter => $categories)
-            <div id="letter-{{ $letter }}" class="category-group glass" style="padding: 30px; border-radius: var(--radius); border-top: 4px solid var(--primary);">
-                <div class="group-header" style="font-size: 2rem; font-weight: 900; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+            <div id="letter-{{ $letter }}" class="category-group" style="padding-bottom: 10px;">
+                <div class="group-header" style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
                     {{ $letter }}
-                    <div style="flex: 1; height: 1px; background: var(--border);"></div>
                 </div>
-                <div class="category-list" style="display: grid; gap: 12px;">
+                <div class="category-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 20px; padding-top: 15px;">
                     @foreach($categories as $category)
-                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text); padding: 8px 0; transition: all 0.2s ease;" onmouseover="this.style.paddingLeft='10px'; this.style.color='var(--primary)'" onmouseout="this.style.paddingLeft='0'; this.style.color='var(--text)'">
-                            <div style="width: 35px; height: 35px; background: rgba(var(--primary-rgb), 0.1); border-radius: 50px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                                <i class="fa-solid fa-tag" style="font-size: 0.9rem;"></i>
-                            </div>
-                            <span style="font-weight: 500;" class="name-span">{{ $category->name }}</span>
-                            <span style="margin-left: auto; font-size: 0.8rem; color: var(--text-muted); background: var(--border); padding: 2px 8px; border-radius: 50px;">{{ $category->listings()->where('is_active', true)->count() }}</span>
+                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: underline; color: #166534; font-weight: 600; font-size: 1rem; transition: color 0.2s;" onmouseover="this.style.color='#15803d'" onmouseout="this.style.color='#166534'">
+                            <span class="name-span">{{ $category->name }}</span>
                         </a>
                     @endforeach
                 </div>
