@@ -3,8 +3,8 @@
 @section('content')
 <section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
     <div class="container">
-        <h1>Cari Apa Saja Sebatam</h1>
-        <p>Dengan satu atau beberapa kata kunci, temukan berbagai iklan dan penawaran terbaik di Batam dengan mudah dan cepat.</p>
+        <h1 class="hidden md:block">Cari Apa Saja Sebatam</h1>
+        <p class="hidden md:block">Dengan satu atau beberapa kata kunci, temukan berbagai iklan dan penawaran terbaik di Batam dengan mudah dan cepat.</p>
         <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
             <form action="{{ route('search') }}" method="GET" class="search-box" style="margin: 0; width: 100%; max-width: 600px;">
                 <i class="fa-solid fa-magnifying-glass"></i>
