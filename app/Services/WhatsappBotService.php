@@ -648,7 +648,8 @@ class WhatsappBotService
         if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
             // If they just say "YA", and there's only one type of package, we can auto-select it
             if (isset($state['package_map']) && count($state['package_map']) === 1) {
-                return $this->handleUseExistingPremium($phone, '1', $state);
+                $this->handleUseExistingPremium($phone, '1', $state);
+                return;
             }
 
             $this->whatsapp->sendMessage($phone, "Mohon ketik *nomor paket* yang ingin Anda gunakan.");
