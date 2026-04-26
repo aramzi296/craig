@@ -135,9 +135,9 @@ class ListingController extends Controller
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
                 // Store file temporarily
-                Storage::disk('public')->makeDirectory('temp_uploads');
+                Storage::disk('local')->makeDirectory('temp_uploads');
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-                $tempPath = $file->storeAs('temp_uploads', $fileName, 'public');
+                $tempPath = $file->storeAs('temp_uploads', $fileName, 'local');
 
                 // Dispatch Job
                 ProcessListingImageUpload::dispatch($tempPath, $listing->id, 'foto_fitur', $fileName);

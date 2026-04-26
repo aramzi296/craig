@@ -34,10 +34,10 @@ class ProcessProfileImageUpload implements ShouldQueue
      */
     public function handle(ImageService $imageService): void
     {
-        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
         
         if (!$disk->exists($this->tempPath)) {
-            Log::warning("ProcessProfileImageUpload: Temp file not found at {$this->tempPath} on public disk");
+            Log::warning("ProcessProfileImageUpload: Temp file not found at {$this->tempPath} on local disk");
             return;
         }
 

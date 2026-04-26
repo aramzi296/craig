@@ -1085,9 +1085,9 @@ class WhatsappBotService
                 foreach ($state['photos'] as $idx => $base64) {
                     $imageData = base64_decode($base64);
                     $fileName = uniqid() . '.jpg';
-                    Storage::disk('public')->makeDirectory('temp_uploads');
+                    Storage::disk('local')->makeDirectory('temp_uploads');
                     $tempPath = 'temp_uploads/' . $fileName;
-                    Storage::disk('public')->put($tempPath, $imageData);
+                    Storage::disk('local')->put($tempPath, $imageData);
                     
                     ProcessListingImageUpload::dispatch(
                         $tempPath, 
