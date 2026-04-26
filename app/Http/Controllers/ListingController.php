@@ -134,8 +134,8 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily (Absolute path approach with Local Disk resolution)
-                $tempDir = Storage::disk('local')->path('temp_uploads');
+                // Store file temporarily (Hardcoded Absolute Path approach)
+                $tempDir = '/www/wwwroot/sebatam.com/craig/storage/app/private/temp_uploads';
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0777, true);
                 }
@@ -144,7 +144,7 @@ class ListingController extends Controller
                 $file->move($tempDir, $fileName);
                 $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
 
-                Log::info("DEBUG: File moved to: " . $fullPath);
+                Log::info("DEBUG: File forced move to: " . $fullPath);
 
                 // Dispatch Job
                 ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);

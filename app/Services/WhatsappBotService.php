@@ -1086,7 +1086,7 @@ class WhatsappBotService
                     $imageData = base64_decode($base64);
                     $fileName = uniqid() . '.jpg';
                     
-                    $tempDir = Storage::disk('local')->path('temp_uploads');
+                    $tempDir = '/www/wwwroot/sebatam.com/craig/storage/app/private/temp_uploads';
                     if (!file_exists($tempDir)) {
                         mkdir($tempDir, 0777, true);
                     }
