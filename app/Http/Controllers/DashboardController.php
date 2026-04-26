@@ -70,7 +70,7 @@ class DashboardController extends Controller
             }
         }
 
-        $packages = \App\Models\PremiumPackage::where('is_active', true)->orderBy('price')->get();
+        $packages = \App\Models\PremiumPackage::whereRaw('is_active = true')->orderBy('price')->get();
         $uniqueCode = rand(100, 999);
         
         return view('listings.premium_upgrade', compact('listing', 'packages', 'uniqueCode'));
@@ -105,7 +105,7 @@ class DashboardController extends Controller
         ]);
 
         if ($request->listing_id) {
-            \App\Models\Listing::where('id', $request->listing_id)->update(['is_premium' => true]);
+            \App\Models\Listing::where('id', $request->listing_id)->update(['is_premium' => \DB::raw('true')]);
         }
 
         return redirect()->route('dashboard.premium.thankyou');
@@ -135,10 +135,8 @@ class DashboardController extends Controller
             'expires_at' => now()->addDays($premiumRequest->package->duration_days)
         ]);
 
-        $listing->update(['is_premium' => true]);
+        $listing->update(['is_premium' => \DB::raw('true')]);
 
         return redirect()->route('dashboard')->with('success', 'Paket Premium berhasil diterapkan pada iklan Anda.');
     }
 }
-
-
