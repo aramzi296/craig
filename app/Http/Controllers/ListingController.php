@@ -109,9 +109,9 @@ class ListingController extends Controller
         }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
-        $data['is_active'] = true;
+        $data['is_active'] = \DB::raw('true');
         if ($isPremiumPackage) {
-            $data['is_premium'] = true;
+            $data['is_premium'] = \DB::raw('true');
         }
 
         $listing = \App\Models\Listing::create($data);
