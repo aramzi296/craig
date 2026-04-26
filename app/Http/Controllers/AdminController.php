@@ -406,7 +406,14 @@ class AdminController extends Controller
     {
         $premiumRequest = \App\Models\PremiumRequest::findOrFail($id);
         $premiumRequest->status = 'active';
-        $premiumRequest->expires_at = now()->addDays((int)$premiumRequest->package->duration_days);
+        
+        // Only set expires_at if listing is already linked
+        if ($premiumRequest->listing_id) {
+            $premiumRequest->expires_at = now()->addDays((int)$premiumRequest->package->duration_days);
+        } else {
+            $premiumRequest->expires_at = null; // Stays null until used
+        }
+        
         $premiumRequest->save();
 
         // Update listing if already linked

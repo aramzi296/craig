@@ -165,11 +165,15 @@ class ListingController extends Controller
                 ->first();
             
             if ($premiumRequest) {
-                $premiumRequest->update(['listing_id' => $listing->id]);
-                // If it was already approved (active), make listing premium
+                $updateData = ['listing_id' => $listing->id];
+                
+                // If it was already approved (active), set expiry and make listing premium
                 if ($premiumRequest->status === 'active') {
+                    $updateData['expires_at'] = now()->addDays($premiumRequest->package->duration_days);
                     $listing->update(['is_premium' => true]);
                 }
+                
+                $premiumRequest->update($updateData);
                 return redirect()->route('dashboard')->with('success', 'Iklan berhasil dibuat dan dihubungkan dengan paket premium Anda.');
             }
         }

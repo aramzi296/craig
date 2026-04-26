@@ -126,8 +126,9 @@ Route::middleware('auth')->group(function () {
     });
 
     // Member Premium Upgrade
-    Route::get('/dashboard/premium/upgrade/{listing_id}', [DashboardController::class, 'premiumUpgrade'])->name('dashboard.premium.upgrade');
+    Route::get('/dashboard/premium/upgrade/{listing_id?}', [DashboardController::class, 'premiumUpgrade'])->name('dashboard.premium.upgrade');
     Route::post('/dashboard/premium/process', [DashboardController::class, 'processPremiumRequest'])->name('dashboard.premium.process');
+    Route::post('/dashboard/premium/apply', [DashboardController::class, 'applyPremiumRequest'])->name('dashboard.premium.apply');
     Route::get('/dashboard/premium/thank-you', function() {
         return view('listings.premium_thankyou');
     })->name('dashboard.premium.thankyou');

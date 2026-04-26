@@ -8,8 +8,39 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        
         $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
+
+        // Filter by Keyword
+        if ($request->filled('q')) {
+            $keyword = $request->q;
+            $query->where(function($q) use ($keyword) {
+                $q->where('title', 'like', "%{$keyword}%")
+                  ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        // Filter by District
+        if ($request->filled('location')) {
+            $query->where('district_id', $request->location);
+        }
+
+        // Filter by Type (Slug or ID)
+        if ($request->filled('type')) {
+            $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+            if ($type) {
+                $query->where('listing_type_id', $type->id);
+            }
+        }
+
+        // Filter by Category
+        if ($request->filled('category')) {
+            $category = \App\Models\Category::where('slug', $request->category)->first();
+            if ($category) {
+                $query->whereHas('categories', function($q) use ($category) {
+                    $q->where('categories.id', $category->id);
+                });
+            }
+        }
 
         $premiumListings = (clone $query)->where('is_premium', true)->latest()->take(6)->get();
 

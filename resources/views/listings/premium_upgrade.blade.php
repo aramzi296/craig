@@ -2,8 +2,10 @@
 
 @section('dashboard_content')
 <div style="margin-bottom: 40px;">
-    <h1 style="font-size: 2rem; font-weight: 700;">Upgrade ke Premium</h1>
-    <p style="color: var(--text-muted);">Tingkatkan jangkauan iklan "{{ $listing->title }}" Anda menjadi Premium.</p>
+    <h1 style="font-size: 2rem; font-weight: 700;">{{ $listing ? 'Upgrade ke Premium' : 'Beli Paket Premium' }}</h1>
+    <p style="color: var(--text-muted);">
+        {{ $listing ? 'Tingkatkan jangkauan iklan "' . $listing->title . '" Anda menjadi Premium.' : 'Beli paket premium sekarang dan gunakan kapan saja untuk iklan Anda.' }}
+    </p>
 </div>
 
 <div style="max-width: 800px; margin: 0 auto;">
@@ -13,7 +15,7 @@
             
             <form id="premiumForm" action="{{ route('dashboard.premium.process') }}" method="POST">
                 @csrf
-                <input type="hidden" name="listing_id" value="{{ $listing->id }}">
+                <input type="hidden" name="listing_id" value="{{ $listing->id ?? '' }}">
                 <input type="hidden" name="unique_code" value="{{ $uniqueCode }}">
                 
                 <div style="display: grid; gap: 15px;">
@@ -62,7 +64,14 @@
     <div id="step2" style="display: none;">
         <div class="glass" style="padding: 40px; border-radius: var(--radius); text-align: center;">
             <h2 style="font-size: 1.5rem; margin-bottom: 10px;">2. Pembayaran QRIS</h2>
-            <p style="color: var(--text-muted); margin-bottom: 30px;">Silakan scan QRIS di bawah ini untuk menyelesaikan pembayaran iklan <b>"{{ $listing->title }}"</b></p>
+            <p style="color: var(--text-muted); margin-bottom: 30px;">
+                Silakan scan QRIS di bawah ini untuk menyelesaikan pembayaran 
+                @if($listing)
+                    iklan <b>"{{ $listing->title }}"</b>
+                @else
+                    <b>Paket Premium</b>
+                @endif
+            </p>
             
             <div style="margin: 0 auto; max-width: 350px; background: white; padding: 20px; border-radius: 20px; box-shadow: var(--shadow); margin-bottom: 30px; border: 1px solid var(--border);">
                 <img src="{{ asset('qris.jpeg') }}" style="width: 100%; height: auto; border-radius: 10px;" alt="QRIS Sebatam">

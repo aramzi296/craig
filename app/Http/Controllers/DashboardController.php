@@ -50,21 +50,24 @@ class DashboardController extends Controller
         ));
     }
 
-    public function premiumUpgrade($listing_id)
+    public function premiumUpgrade($listing_id = null)
     {
-        $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($listing_id);
+        $listing = null;
+        if ($listing_id) {
+            $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($listing_id);
 
-        $hasActivePremium = \App\Models\PremiumRequest::where('listing_id', $listing->id)
-            ->where('status', 'active')
-            ->where('expires_at', '>', now())
-            ->exists();
+            $hasActivePremium = \App\Models\PremiumRequest::where('listing_id', $listing->id)
+                ->where('status', 'active')
+                ->where('expires_at', '>', now())
+                ->exists();
 
-        if ($hasActivePremium) {
-            return redirect()->route('dashboard')->with('error', 'Iklan ini sudah memiliki paket Premium yang aktif.');
-        }
+            if ($hasActivePremium) {
+                return redirect()->route('dashboard')->with('error', 'Iklan ini sudah memiliki paket Premium yang aktif.');
+            }
 
-        if ($listing->hasPendingPremiumRequest()) {
-            return redirect()->route('dashboard')->with('error', 'Iklan ini sedang dalam proses verifikasi Premium oleh admin.');
+            if ($listing->hasPendingPremiumRequest()) {
+                return redirect()->route('dashboard')->with('error', 'Iklan ini sedang dalam proses verifikasi Premium oleh admin.');
+            }
         }
 
         $packages = \App\Models\PremiumPackage::where('is_active', true)->orderBy('price')->get();
@@ -76,33 +79,65 @@ class DashboardController extends Controller
     public function processPremiumRequest(Request $request)
     {
         $request->validate([
-            'listing_id' => 'required|exists:listings,id',
+            'listing_id' => 'nullable|exists:listings,id',
             'package_id' => 'required|exists:premium_packages,id',
             'unique_code' => 'required|integer|min:0',
         ]);
 
-        $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($request->listing_id);
+        if ($request->listing_id) {
+            $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($request->listing_id);
 
-        $hasExistingRequest = \App\Models\PremiumRequest::where('listing_id', $listing->id)
-            ->whereIn('status', ['pending', 'active'])
-            ->exists();
+            $hasExistingRequest = \App\Models\PremiumRequest::where('listing_id', $listing->id)
+                ->whereIn('status', ['pending', 'active'])
+                ->exists();
 
-        if ($hasExistingRequest) {
-            return redirect()->route('dashboard')->with('error', 'Permintaan premium untuk iklan ini sudah ada atau sedang diproses.');
+            if ($hasExistingRequest) {
+                return redirect()->route('dashboard')->with('error', 'Permintaan premium untuk iklan ini sudah ada atau sedang diproses.');
+            }
         }
 
         \App\Models\PremiumRequest::create([
             'user_id' => auth()->id(),
-            'listing_id' => $listing->id,
+            'listing_id' => $request->listing_id,
             'package_id' => $request->package_id,
             'unique_code' => $request->unique_code,
             'status' => 'pending',
         ]);
 
-        $listing->update(['is_premium' => true]);
-
+        if ($request->listing_id) {
+            \App\Models\Listing::where('id', $request->listing_id)->update(['is_premium' => true]);
+        }
 
         return redirect()->route('dashboard.premium.thankyou');
+    }
+
+    public function applyPremiumRequest(Request $request)
+    {
+        $request->validate([
+            'listing_id' => 'required|exists:listings,id',
+            'premium_request_id' => 'required|exists:premium_requests,id',
+        ]);
+
+        $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($request->listing_id);
+        $premiumRequest = \App\Models\PremiumRequest::where('user_id', auth()->id())
+            ->where('id', $request->premium_request_id)
+            ->where('status', 'active')
+            ->whereNull('listing_id')
+            ->firstOrFail();
+
+        // Check if listing already has active/pending premium
+        if ($listing->is_premium || $listing->hasPendingPremiumRequest()) {
+            return redirect()->route('dashboard')->with('error', 'Iklan ini sudah premium atau sedang dalam proses.');
+        }
+
+        $premiumRequest->update([
+            'listing_id' => $listing->id,
+            'expires_at' => now()->addDays($premiumRequest->package->duration_days)
+        ]);
+
+        $listing->update(['is_premium' => true]);
+
+        return redirect()->route('dashboard')->with('success', 'Paket Premium berhasil diterapkan pada iklan Anda.');
     }
 }
 
