@@ -36,14 +36,18 @@ class ProcessListingImageUpload implements ShouldQueue
      */
     public function handle(ImageService $imageService): void
     {
-        if (!File::exists($this->tempPath)) {
-            Log::warning("ProcessListingImageUpload: Temp file not found at {$this->tempPath}");
+        $disk = \Illuminate\Support\Facades\Storage::disk('public');
+        
+        if (!$disk->exists($this->tempPath)) {
+            Log::warning("ProcessListingImageUpload: Temp file not found at {$this->tempPath} on public disk");
             return;
         }
 
+        $fullPath = $disk->path($this->tempPath);
+
         try {
             $imageService->uploadListingPhotoFromPath(
-                $this->tempPath, 
+                $fullPath, 
                 $this->fileName, 
                 $this->listingId, 
                 $this->collection
@@ -53,8 +57,8 @@ class ProcessListingImageUpload implements ShouldQueue
             throw $e;
         } finally {
             // Clean up temp file
-            if (File::exists($this->tempPath)) {
-                File::delete($this->tempPath);
+            if ($disk->exists($this->tempPath)) {
+                $disk->delete($this->tempPath);
             }
         }
     }

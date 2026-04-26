@@ -1087,10 +1087,9 @@ class WhatsappBotService
                     $fileName = uniqid() . '.jpg';
                     $tempPath = 'temp_uploads/' . $fileName;
                     Storage::disk('public')->put($tempPath, $imageData);
-                    $fullPath = Storage::disk('public')->path($tempPath);
                     
                     ProcessListingImageUpload::dispatch(
-                        $fullPath, 
+                        $tempPath, 
                         $listing->id, 
                         $idx === 0 ? 'foto_fitur' : 'gallery',
                         $fileName
