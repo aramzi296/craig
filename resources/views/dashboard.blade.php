@@ -46,7 +46,7 @@
         </h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
             @foreach($unusedPremiumRequests as $req)
-                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column;">
+                <div style="background: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column;">
                     <div style="font-weight: 700; color: #f59e0b; font-size: 1.1rem;">{{ $req->package->name }}</div>
                     <div style="font-size: 0.85rem; margin-top: 5px;">
                         Status: 
@@ -59,18 +59,18 @@
                     <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">ID: PREM-{{ $req->id }}</div>
                     
                     @if($req->status === 'active')
-                        <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); pt-15px;">
-                            <form action="{{ route('dashboard.premium.apply') }}" method="POST" style="margin-top: 10px;">
+                        <div style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
+                            <form action="{{ route('dashboard.premium.apply') }}" method="POST" style="margin-top: 0px;">
                                 @csrf
                                 <input type="hidden" name="premium_request_id" value="{{ $req->id }}">
-                                <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Terapkan ke Iklan Saya:</label>
-                                <select name="listing_id" required style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; font-size: 0.85rem; margin-bottom: 10px;">
-                                    <option value="" style="color: #000;">-- Pilih Iklan --</option>
+                                <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 8px; font-weight: 600;">Terapkan ke Iklan Saya:</label>
+                                <select name="listing_id" required style="width: 100%; padding: 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #cbd5e1; color: #1e293b; font-size: 0.85rem; margin-bottom: 12px; outline: none; cursor: pointer;">
+                                    <option value="" style="color: #64748b;">-- Pilih Iklan --</option>
                                     @foreach(auth()->user()->listings()->where('is_premium', false)->get() as $l)
-                                        <option value="{{ $l->id }}" style="color: #000;">{{ $l->title }}</option>
+                                        <option value="{{ $l->id }}" style="color: #1e293b;">{{ $l->title }}</option>
                                     @endforeach
                                 </select>
-                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.85rem; padding: 10px;">Gunakan Sekarang</button>
+                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.85rem; padding: 12px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 163, 255, 0.2);">Gunakan Sekarang</button>
                             </form>
                             <div style="text-align: center; margin-top: 10px; font-size: 0.8rem;">
                                 <span style="color: var(--text-muted);">Atau</span> 
