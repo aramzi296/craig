@@ -144,8 +144,6 @@ class ListingController extends Controller
                 $file->move($tempDir, $fileName);
                 $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
 
-                Log::info("DEBUG: File forced move to: " . $fullPath);
-
                 // Dispatch Job
                 ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
             }
