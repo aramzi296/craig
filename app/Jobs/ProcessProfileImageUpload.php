@@ -34,14 +34,24 @@ class ProcessProfileImageUpload implements ShouldQueue
      */
     public function handle(ImageService $imageService): void
     {
-        if (!file_exists($this->tempPath)) {
-            Log::warning("ProcessProfileImageUpload: Temp file not found at {$this->tempPath}");
+        $finalPath = $this->tempPath;
+
+        // Safety Net: If not found, try adding /private/ to the path
+        if (!file_exists($finalPath)) {
+            $altPath = str_replace('/storage/app/temp_uploads/', '/storage/app/private/temp_uploads/', $finalPath);
+            if (file_exists($altPath)) {
+                $finalPath = $altPath;
+            }
+        }
+
+        if (!file_exists($finalPath)) {
+            Log::warning("ProcessProfileImageUpload: Temp file not found at {$finalPath}");
             return;
         }
 
         try {
             $imageService->uploadProfilePhotoFromPath(
-                $this->tempPath, 
+                $finalPath, 
                 $this->fileName, 
                 $this->userId
             );
@@ -50,8 +60,8 @@ class ProcessProfileImageUpload implements ShouldQueue
             throw $e;
         } finally {
             // Clean up temp file
-            if (file_exists($this->tempPath)) {
-                unlink($this->tempPath);
+            if (file_exists($finalPath)) {
+                unlink($finalPath);
             }
         }
     }
