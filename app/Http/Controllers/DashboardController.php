@@ -57,7 +57,7 @@ class DashboardController extends Controller
             $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($listing_id);
 
             $hasActivePremium = \App\Models\PremiumRequest::where('listing_id', $listing->id)
-                ->where('status', 'active')
+                ->whereRaw('status = \'active\'')
                 ->where('expires_at', '>', now())
                 ->exists();
 

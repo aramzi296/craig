@@ -8,7 +8,7 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
+        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
 
         // Filter by Keyword
         if ($request->filled('q')) {
@@ -42,7 +42,7 @@ class HomeController extends Controller
             }
         }
 
-        $premiumListings = (clone $query)->where('is_premium', true)->latest()->take(6)->get();
+        $premiumListings = (clone $query)->whereRaw('is_premium = true')->latest()->take(6)->get();
 
         $recentListings = $query->with('district')->latest()->paginate(12);
 
@@ -51,7 +51,7 @@ class HomeController extends Controller
 
     public function search(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Listing::query()->where('is_active', true)->notExpired();
+        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
 
         // Filter by Keyword
         if ($request->filled('q')) {
@@ -77,7 +77,7 @@ class HomeController extends Controller
 
         // Fetch categories that have at least one active, non-expired listing
         $categories = \App\Models\Category::whereHas('listings', function($q) {
-            $q->where('is_active', true)->notExpired();
+            $q->whereRaw('is_active = true')->notExpired();
         })->orderBy('name')->get();
 
         // Filter by Category (Apply this LAST to the listings query only)
@@ -130,7 +130,7 @@ class HomeController extends Controller
         $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
             ->withCount('views')
             ->where('slug', $slug)
-            ->where('is_active', true)
+            ->whereRaw('is_active = true')
             ->notExpired()
             ->firstOrFail();
 
@@ -139,15 +139,15 @@ class HomeController extends Controller
                 $q->whereIn('categories.id', $listing->categories->pluck('id'));
             })
             ->where('id', '!=', $listing->id)
-            ->where('is_active', true)
+            ->whereRaw('is_active = true')
             ->notExpired()
             ->latest()
             ->take(6)
             ->get();
 
         $sidebarPremiumListings = \App\Models\Listing::with(['categories', 'listingType'])
-            ->where('is_premium', true)
-            ->where('is_active', true)
+            ->whereRaw('is_premium = true')
+            ->whereRaw('is_active = true')
             ->notExpired()
             ->where('id', '!=', $listing->id)
             ->inRandomOrder()
