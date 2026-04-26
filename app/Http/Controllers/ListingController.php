@@ -134,8 +134,8 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily (Absolute path approach)
-                $tempDir = storage_path('app/temp_uploads');
+                // Store file temporarily (Absolute path approach with Local Disk resolution)
+                $tempDir = Storage::disk('local')->path('temp_uploads');
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0777, true);
                 }
