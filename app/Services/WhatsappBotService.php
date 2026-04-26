@@ -146,7 +146,7 @@ class WhatsappBotService
             return;
         }
 
-        $activeAdsCount = $user->listings()->where('is_active', true)->count();
+        $activeAdsCount = $user->listings()->whereRaw('is_active = true')->count();
         $unusedPremium = PremiumRequest::where('user_id', $user->id)
             ->whereNull('listing_id')
             ->whereIn('status', ['pending', 'active'])
@@ -711,7 +711,7 @@ class WhatsappBotService
      */
     private function showPremiumPackages(string $phone, array $state): void
     {
-        $packages = PremiumPackage::where('is_active', true)->orderBy('price')->get();
+        $packages = PremiumPackage::whereRaw('is_active = true')->orderBy('price')->get();
         
         if ($packages->isEmpty()) {
             $this->whatsapp->sendMessage($phone, "❌ Maaf, saat ini belum ada paket premium yang tersedia. Silakan hubungi admin.");
@@ -1112,7 +1112,7 @@ class WhatsappBotService
                         // If it was already 'active' (approved by admin while user was idling),
                         // the listing becomes premium immediately.
                         if ($premiumRequest->status === 'active') {
-                            $listing->update(['is_premium' => true]);
+                            $listing->update(['is_premium' => \DB::raw('true')]);
                         }
                     }
                 } elseif (isset($state['premium_package_id'])) {
@@ -1124,7 +1124,7 @@ class WhatsappBotService
                         'unique_code' => $state['unique_code'] ?? 0,
                         'status' => 'pending',
                     ]);
-                    $listing->update(['is_premium' => true]);
+                    $listing->update(['is_premium' => \DB::raw('true')]);
                 }
 
                 // Decrement quota if not using premium package (or maybe premium package adds a slot?)
