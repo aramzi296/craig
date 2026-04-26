@@ -1067,7 +1067,7 @@ class WhatsappBotService
                     'price' => $ad['price'],
                     'whatsapp_visibility' => $ad['whatsapp_visibility'],
                     'comment_visibility' => $ad['comment_visibility'],
-                    'is_active' => true,
+                    'is_active' => \DB::raw('true'),
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                 ]);
 
@@ -1149,7 +1149,10 @@ class WhatsappBotService
                     "ℹ️ *Informasi:* Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
                 );
             } catch (\Throwable $e) {
-                Log::error("WA Bot: Final publish error: " . $e->getMessage());
+                Log::error("WA Bot: Final publish error: " . $e->getMessage(), [
+                    'exception' => $e,
+                    'state' => $state
+                ]);
                 $this->whatsapp->sendMessage($phone, "❌ Terjadi kesalahan saat menerbitkan iklan. Silakan coba lagi nanti.");
             }
         } else {
