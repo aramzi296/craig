@@ -250,6 +250,25 @@
                 </div>
             </div>
 
+            <!-- Owner Actions -->
+            @auth
+                @if($listing->user_id == auth()->id())
+                <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 40px; text-align: center; border: 1px dashed var(--accent); background: rgba(0, 163, 255, 0.03);">
+                    <h3 style="font-size: 1.1rem; color: var(--text); margin-bottom: 15px; font-weight: 700;">Menu Pemilik Iklan</h3>
+                    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); padding: 12px 25px; border-radius: 10px;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
+                        </a>
+                        @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
+                            <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" class="btn btn-primary" style="background: #f59e0b; border-color: #f59e0b; padding: 12px 25px; border-radius: 10px;">
+                                <i class="fa-solid fa-crown"></i> Upgrade ke Premium
+                            </a>
+                        @endif
+                    </div>
+                </div>
+                @endif
+            @endauth
+
             <!-- Comments Section -->
             <div id="comments-section" class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 25px; margin-bottom: 40px;">
                 <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; color: var(--text);">Komentar ({{ $listing->comments->count() }})</h3>
@@ -412,18 +431,6 @@
             
             <div style="margin-top: 30px; display: flex; flex-direction: column; gap: 10px;">
                 <a href="{{ route('home') }}" class="btn btn-outline" style="width: 100%;">Lihat Semua Iklan</a>
-                @auth
-                    @if($listing->user_id == auth()->id())
-                        <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-outline" style="width: 100%; border-color: var(--accent); color: var(--accent);">
-                            <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
-                        </a>
-                        @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
-                            <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" class="btn btn-primary" style="width: 100%; background: #f59e0b; border-color: #f59e0b;">
-                                <i class="fa-solid fa-crown"></i> Upgrade ke Premium
-                            </a>
-                        @endif
-                    @endif
-                @endauth
             </div>
         </aside>
         @endif
