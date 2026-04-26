@@ -11,10 +11,12 @@ class AdminController extends Controller
     public function dashboard()
     {
         $stats = [
+            'total' => \App\Models\Listing::count(),
+            'active' => \App\Models\Listing::whereRaw('is_active = true')->count(),
+            'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
+            'premium' => \App\Models\Listing::whereRaw('is_premium = true')->count(),
             'users' => \App\Models\User::count(),
-            'categories' => \App\Models\Category::count(),
-            'listings' => \App\Models\Listing::count(),
-            'featured' => \App\Models\Listing::where('is_featured', true)->count(),
+            'pending_premium' => \App\Models\PremiumRequest::where('status', 'pending')->count(),
         ];
 
         $latestListings = \App\Models\Listing::with(['categories', 'user'])->latest()->take(10)->get();
@@ -104,7 +106,8 @@ class AdminController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('is_active', (bool)$request->status);
+            $val = $request->status ? 'true' : 'false';
+            $query->whereRaw("is_active = $val");
         }
 
         $listings = $query->latest()->paginate(20)->withQueryString();
@@ -139,7 +142,7 @@ class AdminController extends Controller
 
         $data['user_id'] = auth()->id();
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
-        $data['is_active'] = true;
+        $data['is_active'] = \DB::raw('true');
 
         $listing = \App\Models\Listing::create($data);
 
@@ -264,8 +267,8 @@ class AdminController extends Controller
         }
 
         $user = \App\Models\User::findOrFail($id);
-        $user->is_admin = !$user->is_admin;
-        $user->save();
+        $newStatus = $user->is_admin ? 'false' : 'true';
+        $user->update(['is_admin' => \DB::raw($newStatus)]);
 
         return back()->with('success', 'Status peran pengguna berhasil diubah.');
     }
@@ -285,8 +288,8 @@ class AdminController extends Controller
     public function toggleListingStatus($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);
-        $listing->is_active = !$listing->is_active;
-        $listing->save();
+        $newStatus = $listing->is_active ? 'false' : 'true';
+        $listing->update(['is_active' => \DB::raw($newStatus)]);
 
         return back()->with('success', 'Status listing berhasil diubah.');
     }
@@ -419,8 +422,7 @@ class AdminController extends Controller
         // Update listing if already linked
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->is_premium = true;
-            $listing->save();
+            $listing->update(['is_premium' => \DB::raw('true')]);
         }
 
         return back()->with('success', 'Permintaan premium berhasil disetujui.');
@@ -435,8 +437,7 @@ class AdminController extends Controller
         // Deactivate premium features on listing
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->is_premium = false;
-            $listing->save();
+            $listing->update(['is_premium' => \DB::raw('false')]);
         }
 
         return back()->with('success', 'Permintaan premium dikembalikan ke status pending dan fitur premium dinonaktifkan.');
@@ -451,8 +452,7 @@ class AdminController extends Controller
         // Deactivate premium features on listing
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->is_premium = false;
-            $listing->save();
+            $listing->update(['is_premium' => \DB::raw('false')]);
         }
 
         return back()->with('success', 'Permintaan premium telah ditolak.');
@@ -520,8 +520,8 @@ class AdminController extends Controller
     public function toggleUserVerification($id)
     {
         $user = \App\Models\User::findOrFail($id);
-        $user->is_verified = !$user->is_verified;
-        $user->save();
+        $newStatus = $user->is_verified ? 'false' : 'true';
+        $user->update(['is_verified' => \DB::raw($newStatus)]);
 
         return back()->with('success', 'Status verifikasi akun berhasil diubah.');
     }
