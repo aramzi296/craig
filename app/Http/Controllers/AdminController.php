@@ -16,6 +16,7 @@ class AdminController extends Controller
             'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
             'premium' => \App\Models\Listing::whereRaw('is_premium = true')->count(),
             'users' => \App\Models\User::count(),
+            'categories' => \App\Models\Category::count(),
             'pending_premium' => \App\Models\PremiumRequest::where('status', 'pending')->count(),
         ];
 
