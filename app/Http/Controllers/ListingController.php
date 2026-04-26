@@ -134,17 +134,20 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily
-                Storage::disk('local')->makeDirectory('temp_uploads');
+                // Store file temporarily (Absolute path approach)
+                $tempDir = storage_path('app/temp_uploads');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0777, true);
+                }
+                
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-                $tempPath = $file->storeAs('temp_uploads', $fileName, 'local');
+                $file->move($tempDir, $fileName);
+                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
 
-                $debugFullPath = Storage::disk('local')->path($tempPath);
-                Log::info("DEBUG: File stored at: " . $debugFullPath);
-                Log::info("DEBUG: Dispatching relative path: " . $tempPath);
+                Log::info("DEBUG: File moved to: " . $fullPath);
 
                 // Dispatch Job
-                ProcessListingImageUpload::dispatch($tempPath, $listing->id, 'foto_fitur', $fileName);
+                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
             }
         }
 
