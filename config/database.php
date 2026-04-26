@@ -100,6 +100,7 @@ return [
             'prepared' => false,
             'options' => [
                 \PDO::ATTR_EMULATE_PREPARES => true,
+                \PDO::ATTR_STRINGIFY_FETCHES => false,
             ],
         ],
 
