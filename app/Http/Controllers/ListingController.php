@@ -139,6 +139,8 @@ class ListingController extends Controller
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                 $tempPath = $file->storeAs('temp_uploads', $fileName, 'local');
 
+                Log::info("DEBUG: Dispatching job with path: " . $tempPath);
+
                 // Dispatch Job
                 ProcessListingImageUpload::dispatch($tempPath, $listing->id, 'foto_fitur', $fileName);
             }
