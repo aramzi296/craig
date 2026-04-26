@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use App\Jobs\ProcessListingImageUpload;
 use Illuminate\Support\Str;
 
 /**
@@ -1082,14 +1084,17 @@ class WhatsappBotService
                 // Handle Photos
                 foreach ($state['photos'] as $idx => $base64) {
                     $imageData = base64_decode($base64);
-                    $tmpFile = tempnam(sys_get_temp_dir(), 'wa_photo_');
-                    file_put_contents($tmpFile, $imageData);
+                    $fileName = uniqid() . '.jpg';
+                    $tempPath = 'temp_uploads/' . $fileName;
+                    Storage::put($tempPath, $imageData);
+                    $fullPath = storage_path('app/' . $tempPath);
                     
-                    // Manually upload to ImageKit via ImageService if we can adapt it
-                    // Or we can just use a modified version of uploadListingPhoto
-                    // For now, I'll assume we can handle it or I'll provide a helper
-                    $this->uploadPhotoFromBot($listing->id, $tmpFile, $idx === 0 ? 'foto_fitur' : 'gallery');
-                    unlink($tmpFile);
+                    ProcessListingImageUpload::dispatch(
+                        $fullPath, 
+                        $listing->id, 
+                        $idx === 0 ? 'foto_fitur' : 'gallery',
+                        $fileName
+                    );
                 }
 
                 // Handle Premium Request if applicable
@@ -1145,29 +1150,6 @@ class WhatsappBotService
         } else {
             $this->clearState($phone);
             $this->whatsapp->sendMessage($phone, "🗑️ Iklan dibatalkan dan dihapus. Terima kasih.");
-        }
-    }
-
-    private function uploadPhotoFromBot(int $listingId, string $filePath, string $collection): void
-    {
-        // We need to simulate an UploadedFile or just call ImageKit directly
-        // I'll add a helper method to ImageService to accept a file path
-        // For now, I'll call a method I'll add later
-        try {
-            $folder = "/listings/{$listingId}";
-            $fileName = uniqid() . '.jpg';
-
-            $upload = $this->imageService->uploadFromPath($filePath, $fileName, $folder);
-            
-            ListingPhoto::create([
-                'listing_id' => $listingId,
-                'photo_path' => $upload->filePath,
-                'thumbnail_path' => $upload->filePath, 
-                'collection' => $collection,
-                'ik_file_id' => $upload->fileId,
-            ]);
-        } catch (\Throwable $e) {
-            Log::error("WA Bot: Photo upload helper error: " . $e->getMessage());
         }
     }
 

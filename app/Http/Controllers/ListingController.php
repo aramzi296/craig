@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Jobs\ProcessListingImageUpload;
+use Illuminate\Support\Facades\Storage;
+
 
 class ListingController extends Controller
 {
@@ -131,7 +134,13 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
+                // Store file temporarily
+                $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                $tempPath = $file->storeAs('temp_uploads', $fileName);
+                $fullPath = storage_path('app/' . $tempPath);
+
+                // Dispatch Job
+                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
             }
         }
 
@@ -237,7 +246,13 @@ class ListingController extends Controller
                 if (!is_array($files)) { $files = [$files]; }
                 
                 foreach (array_slice($files, 0, $remaining) as $file) {
-                    $this->imageService->uploadListingPhoto($file, $listing->id, 'foto_fitur');
+                    // Store file temporarily
+                    $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                    $tempPath = $file->storeAs('temp_uploads', $fileName);
+                    $fullPath = storage_path('app/' . $tempPath);
+
+                    // Dispatch Job
+                    ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
                 }
                 
                 if (count($files) > $remaining) {

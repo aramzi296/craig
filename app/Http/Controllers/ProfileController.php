@@ -35,9 +35,14 @@ class ProfileController extends Controller
                 $this->imageService->deleteFileById($user->ik_file_id);
             }
 
-            $uploadResult = $this->imageService->uploadProfilePhoto($request->file('photo'), $user->id);
-            $data['profile_photo'] = $uploadResult['path'];
-            $data['ik_file_id'] = $uploadResult['fileId'];
+            // Store file temporarily
+            $file = $request->file('photo');
+            $fileName = "user_{$user->id}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
+            $tempPath = $file->storeAs('temp_uploads', $fileName);
+            $fullPath = storage_path('app/' . $tempPath);
+
+            // Dispatch Job
+            \App\Jobs\ProcessProfileImageUpload::dispatch($fullPath, $user->id, $fileName);
         }
 
         $user->update($data);
