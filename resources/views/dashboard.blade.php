@@ -66,7 +66,7 @@
                                 <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 8px; font-weight: 600;">Terapkan ke Iklan Saya:</label>
                                 <select name="listing_id" required style="width: 100%; padding: 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #cbd5e1; color: #1e293b; font-size: 0.85rem; margin-bottom: 12px; outline: none; cursor: pointer;">
                                     <option value="" style="color: #64748b;">-- Pilih Iklan --</option>
-                                    @foreach(auth()->user()->listings()->where('is_premium', false)->get() as $l)
+                                    @foreach(auth()->user()->listings->where('is_premium', false) as $l)
                                         <option value="{{ $l->id }}" style="color: #1e293b;">{{ $l->title }}</option>
                                     @endforeach
                                 </select>
