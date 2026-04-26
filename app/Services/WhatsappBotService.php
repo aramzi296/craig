@@ -1086,8 +1086,8 @@ class WhatsappBotService
                     $imageData = base64_decode($base64);
                     $fileName = uniqid() . '.jpg';
                     $tempPath = 'temp_uploads/' . $fileName;
-                    Storage::put($tempPath, $imageData);
-                    $fullPath = Storage::disk('local')->path($tempPath);
+                    Storage::disk('public')->put($tempPath, $imageData);
+                    $fullPath = Storage::disk('public')->path($tempPath);
                     
                     ProcessListingImageUpload::dispatch(
                         $fullPath, 

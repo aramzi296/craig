@@ -38,8 +38,8 @@ class ProfileController extends Controller
             // Store file temporarily
             $file = $request->file('photo');
             $fileName = "user_{$user->id}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
-            $tempPath = $file->storeAs('temp_uploads', $fileName);
-            $fullPath = \Illuminate\Support\Facades\Storage::disk('local')->path($tempPath);
+            $tempPath = $file->storeAs('temp_uploads', $fileName, 'public');
+            $fullPath = \Illuminate\Support\Facades\Storage::disk('public')->path($tempPath);
 
             // Dispatch Job
             \App\Jobs\ProcessProfileImageUpload::dispatch($fullPath, $user->id, $fileName);
