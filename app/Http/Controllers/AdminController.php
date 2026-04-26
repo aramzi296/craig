@@ -11,13 +11,10 @@ class AdminController extends Controller
     public function dashboard()
     {
         $stats = [
-            'total' => \App\Models\Listing::count(),
-            'active' => \App\Models\Listing::whereRaw('is_active = true')->count(),
-            'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
-            'premium' => \App\Models\Listing::whereRaw('is_premium = true')->count(),
             'users' => \App\Models\User::count(),
             'categories' => \App\Models\Category::count(),
-            'pending_premium' => \App\Models\PremiumRequest::where('status', 'pending')->count(),
+            'listings' => \App\Models\Listing::count(),
+            'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
         ];
 
         $latestListings = \App\Models\Listing::with(['categories', 'user'])->latest()->take(10)->get();
