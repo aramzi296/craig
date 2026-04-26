@@ -38,6 +38,15 @@ class ProcessListingImageUpload implements ShouldQueue
     {
         Log::info("DEBUG: Job received path: " . $this->tempPath);
         
+        // Diagnostic: List files in the temp directory
+        $dir = dirname($this->tempPath);
+        if (file_exists($dir)) {
+            $files = scandir($dir);
+            Log::info("DEBUG: Files in {$dir}: " . implode(', ', $files));
+        } else {
+            Log::warning("DEBUG: Directory {$dir} does not even exist for the worker!");
+        }
+        
         if (!file_exists($this->tempPath)) {
             Log::warning("ProcessListingImageUpload: Temp file not found at {$this->tempPath}");
             return;
