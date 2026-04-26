@@ -36,10 +36,11 @@ class ProcessListingImageUpload implements ShouldQueue
      */
     public function handle(ImageService $imageService): void
     {
+        Log::info("DEBUG: Job received path: " . $this->tempPath);
         $disk = \Illuminate\Support\Facades\Storage::disk('local');
         
         if (!$disk->exists($this->tempPath)) {
-            Log::warning("ProcessListingImageUpload: Temp file not found at {$this->tempPath} on local disk");
+            Log::warning("ProcessListingImageUpload: Temp file not found at {$this->tempPath} on local disk. Real path searched: " . $disk->path($this->tempPath));
             return;
         }
 
