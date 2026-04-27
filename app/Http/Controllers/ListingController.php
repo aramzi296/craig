@@ -309,8 +309,8 @@ class ListingController extends Controller
     public function toggleStatus($id)
     {
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
-        $listing->is_active = !$listing->is_active;
-        $listing->save();
+        $newStatus = $listing->is_active ? 'false' : 'true';
+        $listing->update(['is_active' => \DB::raw($newStatus)]);
 
         return back()->with('success', 'Status iklan berhasil diubah.');
     }

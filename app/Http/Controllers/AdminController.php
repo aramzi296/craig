@@ -65,7 +65,7 @@ class AdminController extends Controller
             'is_approved' => 'nullable|boolean',
         ]);
 
-        $data['is_approved'] = $request->has('is_approved');
+        $data['is_approved'] = $request->has('is_approved') ? \DB::raw('true') : \DB::raw('false');
 
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
@@ -498,6 +498,7 @@ class AdminController extends Controller
             'duration_days' => 'required|integer|min:1',
             'is_active' => 'required|boolean',
         ]);
+        $data['is_active'] = $request->is_active ? \DB::raw('true') : \DB::raw('false');
         $package->update($data);
         return redirect()->route('admin.premium_packages')->with('success', 'Paket premium berhasil diperbarui.');
     }
