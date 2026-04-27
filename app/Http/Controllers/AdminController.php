@@ -534,7 +534,10 @@ class AdminController extends Controller
         // Update listing if already linked
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->update(['is_premium' => \DB::raw('true')]);
+            $listing->update([
+                'is_premium'   => \DB::raw('true'),
+                'listing_rank' => 100,
+            ]);
         }
 
         return back()->with('success', 'Permintaan premium berhasil disetujui.');
@@ -549,7 +552,17 @@ class AdminController extends Controller
         // Deactivate premium features on listing
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->update(['is_premium' => \DB::raw('false')]);
+            // Recalculate rank as a free ad for this user
+            $maxFreeRank = \App\Models\Listing::where('user_id', $listing->user_id)
+                ->whereRaw('is_premium = false')
+                ->where('id', '!=', $listing->id)
+                ->max('listing_rank');
+            $newRank = $maxFreeRank ? $maxFreeRank + 1000 : 1000;
+
+            $listing->update([
+                'is_premium'   => \DB::raw('false'),
+                'listing_rank' => $newRank,
+            ]);
         }
 
         return back()->with('success', 'Permintaan premium dikembalikan ke status pending dan fitur premium dinonaktifkan.');
@@ -564,7 +577,17 @@ class AdminController extends Controller
         // Deactivate premium features on listing
         $listing = $premiumRequest->listing;
         if ($listing) {
-            $listing->update(['is_premium' => \DB::raw('false')]);
+            // Recalculate rank as a free ad for this user
+            $maxFreeRank = \App\Models\Listing::where('user_id', $listing->user_id)
+                ->whereRaw('is_premium = false')
+                ->where('id', '!=', $listing->id)
+                ->max('listing_rank');
+            $newRank = $maxFreeRank ? $maxFreeRank + 1000 : 1000;
+
+            $listing->update([
+                'is_premium'   => \DB::raw('false'),
+                'listing_rank' => $newRank,
+            ]);
         }
 
         return back()->with('success', 'Permintaan premium telah ditolak.');

@@ -9,7 +9,8 @@ class Listing extends Model
     protected $fillable = [
         'user_id', 'listing_type_id', 'district_id', 'title', 'slug', 'description', 
         'price', 'is_featured', 'is_premium', 'is_active', 'features', 
-        'whatsapp_visibility', 'comment_visibility', 'expires_at', 'website'
+        'whatsapp_visibility', 'comment_visibility', 'expires_at', 'website',
+        'listing_rank',
     ];
 
     protected $casts = [

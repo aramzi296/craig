@@ -43,9 +43,17 @@
                 @enderror
             </div>
 
-            <div class="form-group" style="margin-bottom: 25px;">
+            <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Password Anda" required>
+                <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Password Anda" required>
+                @error('password')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px; display: flex; align-items: center; gap: 8px;">
+                <input type="checkbox" name="remember" id="remember" style="width: auto; cursor: pointer;">
+                <label for="remember" style="margin: 0; cursor: pointer; font-weight: 400;">Ingat saya</label>
             </div>
 
             <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem;">Masuk Sekarang</button>

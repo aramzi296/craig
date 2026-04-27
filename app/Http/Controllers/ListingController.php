@@ -192,7 +192,10 @@ class ListingController extends Controller
                 // If it was already approved (active), set expiry and make listing premium
                 if ($premiumRequest->status === 'active') {
                     $updateData['expires_at'] = now()->addDays($premiumRequest->package->duration_days);
-                    $listing->update(['is_premium' => \DB::raw('true')]);
+                    $listing->update([
+                        'is_premium'   => \DB::raw('true'),
+                        'listing_rank' => 100,
+                    ]);
                 }
                 
                 $premiumRequest->update($updateData);

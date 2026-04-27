@@ -67,8 +67,8 @@
                 <div class="nav-divider"></div>
 
                 @guest
-                    <a href="{{ route('wa-login') }}" style="font-weight: 600; color: var(--text);">Masuk</a>
-                    <a href="{{ route('wa-login') }}" class="btn btn-primary">Daftar</a>
+                    <a href="{{ route('login') }}" style="font-weight: 600; color: var(--text);">Masuk</a>
+                    <a href="{{ route('register') }}" class="btn btn-primary">Daftar</a>
                 @else
                     <div class="dropdown">
                         <div class="dropdown-trigger">
