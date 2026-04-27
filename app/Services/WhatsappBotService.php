@@ -474,7 +474,8 @@ class WhatsappBotService
                 $phone,
                 "⚠️ *Jatah Slot Iklan Habis*\n\n" .
                 "Maaf, jatah slot iklan gratis Anda sudah habis.\n\n" .
-                "Silakan chat admin untuk menambah slot iklan Anda." 
+                "Kami menyediakan satu slot iklan untuk satu nomor WhatsApp. " .
+                "Jika Anda memerlukan lebih banyak slot iklan, silakan chat admin untuk menambah slot iklan Anda."
             );
             return;
         }
