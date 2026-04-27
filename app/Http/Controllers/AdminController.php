@@ -91,11 +91,11 @@ class AdminController extends Controller
     public function toggleCategoryApproval($id)
     {
         $category = \App\Models\Category::findOrFail($id);
-        $newStatus = $category->is_approved ? 'false' : 'true';
-        $category->update(['is_approved' => \DB::raw($newStatus)]);
+        $category->update(['is_approved' => !$category->is_approved]);
 
         return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
     }
+
 
 
     public function listings(Request $request)
