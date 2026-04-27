@@ -139,13 +139,17 @@ class WhatsappBotService
             return;
         }
 
+        $defaultSlot = (int) get_setting('jumlah_iklan_user_default', 1);
         $activeAdsCount = $user->listings()->whereRaw('is_active = true')->count();
+        $totalAds = $user->listings()->count();
 
         $msg = "📊 *Status Slot Iklan*\n\n" .
                "Halo, *{$user->name}*!\n" .
                "Berikut adalah informasi slot iklan Anda:\n\n" .
                "✅ Sisa Slot Iklan: *{$user->ads_quota}*\n" .
-               "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n";
+               "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n" .
+               "📄 Total Iklan Dipasang: *{$totalAds}*\n" .
+               "ℹ️ Slot Default per Akun: *{$defaultSlot}*\n";
 
         if ($user->ads_quota <= 0) {
             $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
@@ -469,13 +473,15 @@ class WhatsappBotService
 
         // Cek kuota slot iklan gratis
         if ($user->ads_quota <= 0) {
+            $defaultSlot = (int) get_setting('jumlah_iklan_user_default', 1);
             $adminWa = get_setting('admin_whatsapp', config('services.whatsapp.bot_number', ''));
             $this->whatsapp->sendMessage(
                 $phone,
                 "⚠️ *Jatah Slot Iklan Habis*\n\n" .
                 "Maaf, jatah slot iklan gratis Anda sudah habis.\n\n" .
-                "Kami menyediakan satu slot iklan untuk satu nomor WhatsApp. " .
-                "Jika Anda memerlukan lebih banyak slot iklan, silakan chat admin untuk menambah slot iklan Anda."
+                "Setiap akun mendapatkan *{$defaultSlot} slot iklan* secara default. " .
+                "Jika Anda memerlukan lebih banyak slot, silakan hubungi admin untuk menambah slot iklan Anda." .
+                ($adminWa ? "\n\n📞 Admin: wa.me/{$adminWa}" : "")
             );
             return;
         }
@@ -852,13 +858,16 @@ class WhatsappBotService
                 }
 
                 $this->clearState($phone);
+                $user->refresh();
+                $sisaSlot = $user->ads_quota;
                 $this->whatsapp->sendMessage(
                     $phone,
                     "🎉 *Iklan Berhasil Diterbitkan!*\n\n" .
                     "Terima kasih telah memasang iklan di Sebatam.\n" .
                     "Iklan Anda kini sudah online.\n\n" .
                     "🔗 *Link Iklan:* " . route('listings.show', $listing->slug) . "\n\n" .
-                    "ℹ️ *Informasi:* Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
+                    "📊 *Sisa Slot Iklan Anda: {$sisaSlot}*\n\n" .
+                    "ℹ️ Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
                 );
             } catch (\Throwable $e) {
                 Log::error("WA Bot: Final publish error: " . $e->getMessage(), [
