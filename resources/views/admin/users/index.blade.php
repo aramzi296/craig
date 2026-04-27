@@ -1,10 +1,16 @@
 @extends('admin.layout')
 
 @section('admin_content')
-<div style="margin-bottom: 40px;">
-    <h1 style="font-size: 2rem; font-weight: 700;">Kelola Pengguna</h1>
-    <p style="color: var(--text-muted);">Daftar semua pengguna yang terdaftar di BatamCraig.</p>
+<div style="margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+    <div>
+        <h1 style="font-size: 2rem; font-weight: 700;">Kelola Pengguna</h1>
+        <p style="color: var(--text-muted);">Daftar semua pengguna yang terdaftar di BatamCraig.</p>
+    </div>
+    <a href="{{ route('admin.users.slot') }}" class="btn btn-primary">
+        <i class="fa-solid fa-square-plus"></i> Kelola Slot Iklan
+    </a>
 </div>
+
 
 @if(session('success'))
     <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px;">

@@ -283,6 +283,86 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'Akun pengguna berhasil dihapus.');
     }
 
+    public function slotManagement(Request $request)
+    {
+        $query = \App\Models\User::query()->withCount([
+            'listings', 
+            'listings as active_listings_count' => function($q) {
+                $q->whereRaw('is_active = true');
+            }
+        ]);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('whatsapp', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $totalUsers = \App\Models\User::count();
+        $totalQuota = \App\Models\User::sum('ads_quota');
+        $zeroQuotaUsers = \App\Models\User::where('ads_quota', '<=', 0)->count();
+
+        $users = $query->orderBy('name')->paginate(20)->withQueryString();
+
+        return view('admin.users.slot', compact('users', 'totalUsers', 'totalQuota', 'zeroQuotaUsers'));
+    }
+
+    public function updateSingleSlot(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'action' => 'required|in:add,set,reduce',
+            'amount' => 'required|integer|min:0',
+        ]);
+
+        $user = \App\Models\User::findOrFail($request->user_id);
+        $amount = (int) $request->amount;
+
+        if ($request->action === 'add') {
+            $user->increment('ads_quota', $amount);
+            $msg = "Berhasil menambah {$amount} slot untuk {$user->name}.";
+        } elseif ($request->action === 'set') {
+            $user->update(['ads_quota' => $amount]);
+            $msg = "Berhasil mengatur slot {$user->name} menjadi {$amount}.";
+        } elseif ($request->action === 'reduce') {
+            $newQuota = max(0, $user->ads_quota - $amount);
+            $user->update(['ads_quota' => $newQuota]);
+            $msg = "Berhasil mengurangi {$amount} slot untuk {$user->name}.";
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function updateBulkSlot(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:add,set,reduce',
+            'amount' => 'required|integer|min:0',
+        ]);
+
+        $amount = (int) $request->amount;
+
+        if ($request->action === 'add') {
+            \App\Models\User::increment('ads_quota', $amount);
+            $msg = "Berhasil menambah {$amount} slot untuk SEMUA pengguna.";
+        } elseif ($request->action === 'set') {
+            \App\Models\User::query()->update(['ads_quota' => $amount]);
+            $msg = "Berhasil mengatur slot SEMUA pengguna menjadi {$amount}.";
+        } elseif ($request->action === 'reduce') {
+            // Using a more complex query to avoid negative values
+            \App\Models\User::query()->update([
+                'ads_quota' => \DB::raw("CASE WHEN ads_quota - $amount < 0 THEN 0 ELSE ads_quota - $amount END")
+            ]);
+            $msg = "Berhasil mengurangi {$amount} slot untuk SEMUA pengguna.";
+        }
+
+        return back()->with('success', $msg);
+    }
+
+
     public function toggleListingStatus($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);

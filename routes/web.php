@@ -87,6 +87,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdminStatus'])->name('users.toggle-admin');
         Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
+        // Slot Iklan Management
+        Route::get('/users/slot', [AdminController::class, 'slotManagement'])->name('users.slot');
+        Route::post('/users/slot/single', [AdminController::class, 'updateSingleSlot'])->name('users.slot.single');
+        Route::post('/users/slot/bulk', [AdminController::class, 'updateBulkSlot'])->name('users.slot.bulk');
+
+
         // Listing Type Management
         Route::get('/listing-types', [AdminController::class, 'listingTypes'])->name('listing_types');
         Route::get('/listing-types/create', [AdminController::class, 'createListingType'])->name('listing_types.create');

@@ -51,6 +51,12 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.users.slot') }}" class="sidebar-link {{ request()->routeIs('admin.users.slot') ? 'active' : '' }}">
+                    <i class="fa-solid fa-square-plus"></i> Slot Iklan
+                </a>
+            </li>
+
+            <li class="sidebar-item">
                 <a href="{{ route('admin.settings') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
                     <i class="fa-solid fa-gears"></i> Parameter
                 </a>
