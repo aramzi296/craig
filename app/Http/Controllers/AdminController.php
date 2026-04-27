@@ -91,7 +91,8 @@ class AdminController extends Controller
     public function toggleCategoryApproval($id)
     {
         $category = \App\Models\Category::findOrFail($id);
-        $category->update(['is_approved' => !$category->is_approved]);
+        $newStatus = $category->is_approved ? 'false' : 'true';
+        $category->update(['is_approved' => \DB::raw($newStatus)]);
 
         return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
     }
@@ -160,14 +161,23 @@ class AdminController extends Controller
 
         $categoryIds = $request->category_ids ?? [];
         if ($categoryOther) {
-            $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $categoryOther],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($categoryOther),
+            $catName = trim($categoryOther);
+            $slug = \Illuminate\Support\Str::slug($catName);
+
+            // Cari berdasarkan nama (case-insensitive) atau slug
+            $newCategory = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
+                ->orWhere('slug', $slug)
+                ->first();
+
+            if (!$newCategory) {
+                $newCategory = \App\Models\Category::create([
+                    'name' => $catName,
+                    'slug' => $slug,
                     'icon' => 'fa-solid fa-tag',
-                    'sort_order' => \App\Models\Category::max('sort_order') + 1
-                ]
-            );
+                    'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                    'is_approved' => \DB::raw('true') // Admin-created is approved by default
+                ]);
+            }
             $categoryIds[] = $newCategory->id;
         }
 
@@ -211,14 +221,23 @@ class AdminController extends Controller
 
         $categoryIds = $request->category_ids ?? [];
         if ($categoryOther) {
-            $newCategory = \App\Models\Category::firstOrCreate(
-                ['name' => $categoryOther],
-                [
-                    'slug' => \Illuminate\Support\Str::slug($categoryOther),
+            $catName = trim($categoryOther);
+            $slug = \Illuminate\Support\Str::slug($catName);
+
+            // Cari berdasarkan nama (case-insensitive) atau slug
+            $newCategory = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
+                ->orWhere('slug', $slug)
+                ->first();
+
+            if (!$newCategory) {
+                $newCategory = \App\Models\Category::create([
+                    'name' => $catName,
+                    'slug' => $slug,
                     'icon' => 'fa-solid fa-tag',
-                    'sort_order' => \App\Models\Category::max('sort_order') + 1
-                ]
-            );
+                    'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                    'is_approved' => \DB::raw('true') // Admin-created is approved by default
+                ]);
+            }
             $categoryIds[] = $newCategory->id;
         }
 

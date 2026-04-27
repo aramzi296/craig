@@ -831,16 +831,22 @@ class WhatsappBotService
                 ]);
 
                 // Handle Category
-                $category = Category::where('name', 'like', $ad['category_name'])->first();
+                $catName = trim($ad['category_name']);
+                $slug = Str::slug($catName);
+                
+                // Cari berdasarkan nama (case-insensitive) atau slug
+                $category = Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
+                    ->orWhere('slug', $slug)
+                    ->first();
+
                 if (!$category) {
                     $category = Category::create([
-                        'name' => $ad['category_name'],
-                        'slug' => Str::slug($ad['category_name']),
-                        'is_approved' => false,
+                        'name' => $catName,
+                        'slug' => $slug,
+                        'is_approved' => \DB::raw('false'), // Kategori baru harus disetujui admin
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => Category::max('sort_order') + 1,
+                        'sort_order' => (int)Category::max('sort_order') + 1,
                     ]);
-
                 }
                 $listing->categories()->attach($category->id);
 
@@ -849,7 +855,7 @@ class WhatsappBotService
                     $imageData = base64_decode($base64);
                     $fileName = uniqid() . '.jpg';
                     
-                    $tempDir = '/www/wwwroot/sebatam.com/craig/storage/app/private/temp_uploads';
+                    $tempDir = storage_path('app/private/temp_uploads');
                     if (!file_exists($tempDir)) {
                         mkdir($tempDir, 0777, true);
                     }

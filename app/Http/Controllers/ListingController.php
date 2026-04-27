@@ -133,8 +133,8 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily (Hardcoded Absolute Path approach)
-                $tempDir = '/www/wwwroot/sebatam.com/craig/storage/app/private/temp_uploads';
+                // Store file temporarily
+                $tempDir = storage_path('app/private/temp_uploads');
                 if (!file_exists($tempDir)) {
                     mkdir($tempDir, 0777, true);
                 }
@@ -155,16 +155,23 @@ class ListingController extends Controller
             $maxAllowed = $isPremiumPackage ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
-                $categoryName = $cat['value'];
-                $category = \App\Models\Category::firstOrCreate(
-                    ['name' => $categoryName],
-                    [
-                        'slug' => \Illuminate\Support\Str::slug($categoryName),
+                $categoryName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($categoryName);
+
+                // Cari berdasarkan nama (case-insensitive) atau slug
+                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                    ->orWhere('slug', $slug)
+                    ->first();
+
+                if (!$category) {
+                    $category = \App\Models\Category::create([
+                        'name' => $categoryName,
+                        'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => \App\Models\Category::max('sort_order') + 1,
-                        'is_approved' => false
-                    ]
-                );
+                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'is_approved' => \DB::raw('false')
+                    ]);
+                }
 
                 $categoryIds[] = $category->id;
             }
@@ -273,15 +280,23 @@ class ListingController extends Controller
             $maxAllowed = $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
             foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
-                $categoryName = $cat['value'];
-                $category = \App\Models\Category::firstOrCreate(
-                    ['name' => $categoryName],
-                    [
-                        'slug' => \Illuminate\Support\Str::slug($categoryName),
+                $categoryName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($categoryName);
+
+                // Cari berdasarkan nama (case-insensitive) atau slug
+                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                    ->orWhere('slug', $slug)
+                    ->first();
+
+                if (!$category) {
+                    $category = \App\Models\Category::create([
+                        'name' => $categoryName,
+                        'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => \App\Models\Category::max('sort_order') + 1
-                    ]
-                );
+                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'is_approved' => \DB::raw('false')
+                    ]);
+                }
                 $categoryIds[] = $category->id;
             }
         }
