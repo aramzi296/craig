@@ -259,11 +259,7 @@
                         <a href="{{ route('listings.edit', $listing->id) }}" class="btn btn-outline" style="border-color: var(--accent); color: var(--accent); padding: 12px 25px; border-radius: 10px;">
                             <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
                         </a>
-                        @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
-                            <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" class="btn btn-primary" style="background: #f59e0b; border-color: #f59e0b; padding: 12px 25px; border-radius: 10px;">
-                                <i class="fa-solid fa-crown"></i> Upgrade ke Premium
-                            </a>
-                        @endif
+                        {{-- Upgrade ke Premium dinonaktifkan sementara --}}
                     </div>
                 </div>
                 @endif

@@ -95,11 +95,6 @@ class WhatsappBotService
             return;
         }
 
-        // ── Keyword: cek paket ─────────────────────────────────────────────
-        if ($lowerText === 'cek paket' || $lowerText === 'paket') {
-            $this->handleCheckPackageRequest($phone);
-            return;
-        }
 
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
@@ -128,10 +123,8 @@ class WhatsappBotService
             "2️⃣ *pasang iklan*\n" .
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
             "3️⃣ *kuota iklan*\n" .
-            "Untuk melihat sisa jatah iklan Anda.\n\n" .
-            "4️⃣ *cek paket*\n" .
-            "Untuk melihat paket premium yang Anda miliki.\n\n" .
-            "5️⃣ *menu*\n" .
+            "Untuk melihat sisa jatah slot iklan Anda.\n\n" .
+            "4️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
         );
@@ -147,65 +140,22 @@ class WhatsappBotService
         }
 
         $activeAdsCount = $user->listings()->whereRaw('is_active = true')->count();
-        $unusedPremium = PremiumRequest::where('user_id', $user->id)
-            ->whereNull('listing_id')
-            ->whereIn('status', ['pending', 'active'])
-            ->count();
 
-        $msg = "📊 *Status Kuota Iklan*\n\n" .
+        $msg = "📊 *Status Slot Iklan*\n\n" .
                "Halo, *{$user->name}*!\n" .
-               "Berikut adalah informasi kuota iklan Anda:\n\n" .
-               "✅ Sisa Kuota Iklan: *{$user->ads_quota}*\n" .
+               "Berikut adalah informasi slot iklan Anda:\n\n" .
+               "✅ Sisa Slot Iklan: *{$user->ads_quota}*\n" .
                "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n";
 
-        if ($unusedPremium > 0) {
-            $msg .= "💎 Paket Premium Tersedia: *{$unusedPremium}*\n";
-            $msg .= "\n_Anda memiliki paket premium yang siap digunakan! Ketik *pasang iklan* untuk menggunakannya._";
+        if ($user->ads_quota <= 0) {
+            $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
         } else {
-            $msg .= "\n_Ketik *pasang iklan* untuk menggunakan kuota Anda atau hubungi admin untuk menambah kuota._";
+            $msg .= "\n_Ketik *pasang iklan* untuk menggunakan slot Anda._";
         }
 
         $this->whatsapp->sendMessage($phone, $msg);
     }
 
-    private function handleCheckPackageRequest(string $phone): void
-    {
-        $user = User::where('whatsapp', $phone)->first();
-
-        if (!$user) {
-            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar.");
-            return;
-        }
-
-        $premiumRequests = PremiumRequest::where('user_id', $user->id)
-            ->whereNull('listing_id')
-            ->with('package')
-            ->get();
-
-        if ($premiumRequests->isEmpty()) {
-            $this->whatsapp->sendMessage(
-                $phone,
-                "💎 *Paket Premium Saya*\n\n" .
-                "Anda belum memiliki paket premium yang tersedia.\n\n" .
-                "Ketik *pasang iklan* jika Anda ingin membeli paket premium untuk iklan baru Anda."
-            );
-            return;
-        }
-
-        $msg = "💎 *Paket Premium Tersedia*\n\n";
-        $msg .= "Berikut adalah paket premium Anda yang belum digunakan:\n\n";
-
-        foreach ($premiumRequests as $req) {
-            $statusStr = $req->status === 'active' ? "✅ Aktif (Siap Pakai)" : "⏳ Menunggu Verifikasi";
-            $msg .= "📦 *{$req->package->name}*\n" .
-                   "   Status: {$statusStr}\n" .
-                   "   ID: PREM-{$req->id}\n\n";
-        }
-
-        $msg .= "_Ketik *pasang iklan* untuk menggunakan paket ini pada iklan baru Anda._";
-
-        $this->whatsapp->sendMessage($phone, $msg);
-    }
 
     private function handleOtpRequest(string $phone): void
     {
@@ -515,52 +465,17 @@ class WhatsappBotService
             );
         }
 
-        // --- NEW: Check for unused premium packages ---
-        $unusedRequests = PremiumRequest::where('user_id', $user->id)
-            ->whereNull('listing_id')
-            ->whereIn('status', ['pending', 'active'])
-            ->with('package')
-            ->get();
+        // Premium dinonaktifkan sementara — skip cek paket premium yang belum digunakan
 
-        if ($unusedRequests->isNotEmpty()) {
-            $grouped = $unusedRequests->groupBy('package_id');
-            $msg = "👋 Halo! Kami menemukan Anda memiliki paket premium yang belum digunakan.\n\n";
-            $packageMap = [];
-            $idx = 1;
-            foreach ($grouped as $packageId => $requests) {
-                $pkg = $requests->first()->package;
-                $packageName = $pkg ? $pkg->name : 'Paket Tidak Dikenal';
-                $count = $requests->count();
-                $msg .= "{$idx}. {$packageName} ({$count} slot)\n";
-                $packageMap[$idx] = $packageId;
-                $idx++;
-            }
-            $msg .= "\n*Pilih paket mana* yang akan Anda gunakan untuk iklan Anda ini?\n\n";
-            $msg .= "_Atau ketik *TIDAK* untuk iklan reguler, atau *BELI* untuk beli paket baru._";
-
-            $this->setState($phone, [
-                'step'    => 'awaiting_use_existing_premium',
-                'user_id' => $user->id,
-                'package_map' => $packageMap,
-                'ad_data' => [],
-                'photos'  => []
-            ]);
-            $this->whatsapp->sendMessage($phone, $msg);
-            return;
-        }
-
+        // Cek kuota slot iklan gratis
         if ($user->ads_quota <= 0) {
-            $this->setState($phone, [
-                'step'    => 'awaiting_premium_upsell',
-                'user_id' => $user->id,
-                'ad_data' => [],
-                'photos'  => []
-            ]);
+            $adminWa = get_setting('admin_whatsapp', config('services.whatsapp.bot_number', ''));
             $this->whatsapp->sendMessage(
                 $phone,
-                "⚠️ *Kuota Iklan Habis*\n\n" .
-                "Maaf, kuota iklan untuk nomor WA ini sudah habis.\n\n" .
-                "Apakah Anda mau menambah slot iklan? (Ya/Tidak)"
+                "⚠️ *Jatah Slot Iklan Habis*\n\n" .
+                "Maaf, jatah slot iklan gratis Anda sudah habis.\n\n" .
+                "Silakan hubungi admin untuk menambah slot iklan Anda." .
+                ($adminWa ? "\n\n📞 Admin: wa.me/{$adminWa}" : "")
             );
             return;
         }
@@ -594,10 +509,6 @@ class WhatsappBotService
         }
 
         match ($step) {
-            'awaiting_use_existing_premium' => $this->handleUseExistingPremium($phone, $lower, $state),
-            'awaiting_premium_upsell'     => $this->handlePremiumUpsell($phone, $lower, $state),
-            'awaiting_package_selection'  => $this->handlePackageSelection($phone, $text, $state),
-            'awaiting_payment_confirmation' => $this->handlePaymentConfirmation($phone, $text, $state),
             'awaiting_start_confirmation' => $this->handleAdStartConfirmation($phone, $lower, $state),
             'awaiting_title'           => $this->handleAdTitle($phone, $text, $state),
             'awaiting_detail'          => $this->handleAdDetail($phone, $text, $state),
@@ -614,206 +525,13 @@ class WhatsappBotService
         };
     }
 
-    private function handleUseExistingPremium(string $phone, string $lower, array $state): void
-    {
-        // Handle numeric selection
-        if (is_numeric($lower)) {
-            $choice = (int) $lower;
-            $packageId = $state['package_map'][$choice] ?? null;
-            
-            if ($packageId) {
-                // Find one request of this package
-                $request = PremiumRequest::where('user_id', $state['user_id'])
-                    ->where('package_id', $packageId)
-                    ->whereNull('listing_id')
-                    ->whereIn('status', ['pending', 'active'])
-                    ->with('package')
-                    ->first();
-                
-                if ($request) {
-                    $state['step'] = 'awaiting_title';
-                    $state['premium_request_id'] = $request->id;
-                    unset($state['package_map']);
-                    $this->setState($phone, $state);
-                    
-                    $this->whatsapp->sendMessage(
-                        $phone,
-                        "✅ Baik, iklan ini akan menggunakan paket *{$request->package->name}* Anda.\n\n" .
-                        "📝 *Langkah 1 — Judul Iklan*\n\n" .
-                        "Silakan kirim *Judul Iklan* Anda."
-                    );
-                    return;
-                }
-            }
-        }
+    // ── Fungsi-fungsi premium di bawah ini dinonaktifkan sementara ───────────
+    // handleUseExistingPremium, handlePremiumUpsell, showPremiumPackages,
+    // handlePackageSelection, handlePaymentConfirmation — semua dinonaktifkan.
+    // Aktifkan kembali saat fitur premium akan dijalankan.
+    // ─────────────────────────────────────────────────────────────────────────
 
-        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
-            // If they just say "YA", and there's only one type of package, we can auto-select it
-            if (isset($state['package_map']) && count($state['package_map']) === 1) {
-                $this->handleUseExistingPremium($phone, '1', $state);
-                return;
-            }
 
-            $this->whatsapp->sendMessage($phone, "Mohon ketik *nomor paket* yang ingin Anda gunakan.");
-            return;
-        }
-
-        if (in_array($lower, ['beli', 'paket', 'premium'], true)) {
-            $this->showPremiumPackages($phone, $state);
-            return;
-        }
-
-        if (in_array($lower, ['tidak', 't', 'no'], true)) {
-            // User doesn't want to use the existing premium for THIS ad.
-            // Check quota for normal ad.
-            $user = User::find($state['user_id']);
-            if ($user && $user->ads_quota <= 0) {
-                $state['step'] = 'awaiting_premium_upsell';
-                $this->setState($phone, $state);
-                $this->whatsapp->sendMessage(
-                    $phone,
-                    "⚠️ *Kuota Iklan Habis*\n\n" .
-                    "Maaf, kuota iklan reguler Anda sudah habis. Apakah Anda ingin membeli paket premium baru? (Ya/Tidak)"
-                );
-                return;
-            }
-
-            // Continue as normal ad creation
-            unset($state['premium_request_id']);
-            $state['step'] = 'awaiting_start_confirmation';
-            $this->setState($phone, $state);
-            $this->whatsapp->sendMessage($phone, "Baik, iklan ini akan dipasang sebagai iklan reguler.\n\nApakah Anda ingin melanjutkan? (Ya/Tidak)");
-            return;
-        }
-
-        $this->whatsapp->sendMessage(
-            $phone,
-            "Mohon balas:\n" .
-            "- *Nomor Paket* untuk menggunakan paket premium\n" .
-            "- *TIDAK* untuk pasang iklan reguler\n" .
-            "- *BELI* untuk beli paket baru"
-        );
-    }
-
-    private function handlePremiumUpsell(string $phone, string $lower, array $state): void
-    {
-        if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok'], true)) {
-            $this->showPremiumPackages($phone, $state);
-            return;
-        }
-
-        $this->whatsapp->sendMessage($phone, "Baik, terima kasih. Kirim *pasang iklan* kapan saja jika Anda ingin menambah slot nanti.");
-        $this->clearState($phone);
-    }
-
-    /**
-     * Helper to show premium packages to user
-     */
-    private function showPremiumPackages(string $phone, array $state): void
-    {
-        $packages = PremiumPackage::whereRaw('is_active = true')->orderBy('price')->get();
-        
-        if ($packages->isEmpty()) {
-            $this->whatsapp->sendMessage($phone, "❌ Maaf, saat ini belum ada paket premium yang tersedia. Silakan hubungi admin.");
-            $this->clearState($phone);
-            return;
-        }
-
-        $list = "💎 *Pilih Paket Iklan Premium*\n\n";
-        $idx = 1;
-        $packageMap = [];
-        foreach ($packages as $pkg) {
-            $list .= "{$idx}. *{$pkg->name}*\n   Harga: Rp " . number_format($pkg->price, 0, ',', '.') . "\n   Durasi: {$pkg->duration_days} hari\n\n";
-            $packageMap[$idx] = $pkg->id;
-            $idx++;
-        }
-        $list .= "_Ketik nomor paket yang Anda pilih._";
-
-        $state['step'] = 'awaiting_package_selection';
-        $state['package_map'] = $packageMap;
-        $this->setState($phone, $state);
-        $this->whatsapp->sendMessage($phone, $list);
-    }
-
-    private function handlePackageSelection(string $phone, string $text, array $state): void
-    {
-        $choice = (int) $text;
-        $packageId = $state['package_map'][$choice] ?? null;
-
-        if (!$packageId) {
-            $this->whatsapp->sendMessage($phone, "⚠️ Pilihan tidak valid. Mohon ketik nomor paket yang tersedia.");
-            return;
-        }
-
-        $package = PremiumPackage::find($packageId);
-        if (!$package) {
-            $this->whatsapp->sendMessage($phone, "❌ Paket tidak ditemukan. Silakan coba lagi.");
-            return;
-        }
-
-        $uniqueCode = rand(100, 999);
-        $total = $package->price + $uniqueCode;
-
-        $state['step'] = 'awaiting_payment_confirmation';
-        $state['premium_package_id'] = $package->id;
-        $state['unique_code'] = $uniqueCode;
-        $this->setState($phone, $state);
-
-        // Kirim QRIS dengan info total bayar
-        $qrisUrl = rtrim((string)config('app.url'), '/') . '/qris.jpeg';
-        $this->whatsapp->sendImage(
-            $phone, 
-            $qrisUrl, 
-            "🙏 *Terima kasih sudah memilih paket {$package->name}*\n\n" .
-            "💰 *Total Bayar: Rp " . number_format($total, 0, ',', '.') . "*\n" .
-            "⚠️ _Penting: Mohon transfer tepat sesuai nominal di atas (termasuk 3 digit terakhir) agar verifikasi otomatis lebih cepat._\n\n" .
-            "Silakan simpan/scan QRIS di atas untuk melakukan pembayaran."
-        );
-
-        $this->whatsapp->sendMessage(
-            $phone,
-            "Apakah Anda sudah bayar? (Ya/Tidak)"
-        );
-    }
-
-    private function handlePaymentConfirmation(string $phone, string $text, array $state): void
-    {
-        $lower = strtolower(trim($text));
-        
-        if (in_array($lower, ['1', 'ya', 'y', 'yes', 'sudah'], true)) {
-            // Create Premium Request immediately so it's persisted even if user cancels ad creation later
-            $premiumRequest = PremiumRequest::create([
-                'user_id' => $state['user_id'],
-                'listing_id' => null,
-                'package_id' => $state['premium_package_id'],
-                'unique_code' => $state['unique_code'] ?? 0,
-                'status' => 'pending',
-            ]);
-
-            $state['premium_request_id'] = $premiumRequest->id;
-            $state['step'] = 'awaiting_title';
-            $this->setState($phone, $state);
-
-            $this->whatsapp->sendMessage($phone, "✅ Terima kasih! Admin akan melakukan verifikasi pembayaran Anda.\n\nSekarang, mari kita lanjutkan ke proses pembuatan iklan Anda.");
-            
-            $this->whatsapp->sendMessage(
-                $phone,
-                "📝 *Langkah 1 — Judul Iklan*\n\n" .
-                "Silakan kirim *Judul Iklan* Anda.\n" .
-                "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
-                "_Ketik *batal* untuk membatalkan._"
-            );
-            return;
-        }
-
-        if (in_array($lower, ['2', 'tidak', 't', 'no', 'batal', 'belum'], true)) {
-            $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "❌ Pembayaran belum dilakukan atau dibatalkan. Proses pasang iklan dihentikan. Silakan ketik *pasang iklan* kembali jika sudah siap.");
-            return;
-        }
-
-        $this->whatsapp->sendMessage($phone, "Mohon balas *YA* jika Anda sudah melakukan pembayaran, atau *TIDAK* untuk membatalkan.");
-    }
 
     private function handleAdStartConfirmation(string $phone, string $lower, array $state): void
     {
@@ -1127,16 +845,10 @@ class WhatsappBotService
                     $listing->update(['is_premium' => \DB::raw('true')]);
                 }
 
-                // Decrement quota if not using premium package (or maybe premium package adds a slot?)
-                // The prompt says "lanjutkan ke proses pembuatan iklan dengan fitur paket premium"
-                // which usually implies they paid for THIS ad to be premium.
-                // If they have 0 quota, we allow them to proceed because they are paying for a premium slot.
-                // Decrement quota if not using premium package
-                if (!isset($state['premium_request_id']) && !isset($state['premium_package_id'])) {
-                    $user = User::find($state['user_id']);
-                    if ($user && $user->ads_quota > 0) {
-                        $user->decrement('ads_quota');
-                    }
+                // Decrement quota (semua iklan chatbot adalah gratis, kuota selalu dikurangi)
+                $user = User::find($state['user_id']);
+                if ($user && $user->ads_quota > 0) {
+                    $user->decrement('ads_quota');
                 }
 
                 $this->clearState($phone);

@@ -10,9 +10,7 @@
             @endif
         </h1>
         <div style="display: flex; gap: 10px;">
-            <a href="{{ route('dashboard.premium.upgrade') }}" class="btn btn-outline" style="border-color: #f59e0b; color: #f59e0b;">
-                <i class="fa-solid fa-crown"></i> Beli Paket Premium
-            </a>
+            {{-- Beli Paket Premium dinonaktifkan sementara --}}
             <a href="{{ route('listings.create') }}" class="btn btn-primary">+ Buat Iklan Baru</a>
         </div>
     </div>
@@ -38,57 +36,7 @@
     </div>
     @endif
 
-    @if(isset($unusedPremiumRequests) && $unusedPremiumRequests->count() > 0)
-    <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-top: 30px; border-left: 4px solid #f59e0b;">
-        <h2 style="font-size: 1.1rem; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-            <i class="fa-solid fa-crown" style="color: #f59e0b;"></i>
-            Paket Premium Tersedia
-        </h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
-            @foreach($unusedPremiumRequests as $req)
-                <div style="background: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column;">
-                    <div style="font-weight: 700; color: #f59e0b; font-size: 1.1rem;">{{ $req->package->name }}</div>
-                    <div style="font-size: 0.85rem; margin-top: 5px;">
-                        Status: 
-                        @if($req->status === 'active')
-                            <span style="color: #22c55e; font-weight: 600;">Siap Digunakan</span>
-                        @else
-                            <span style="color: #f59e0b; font-weight: 600;">Menunggu Verifikasi Admin</span>
-                        @endif
-                    </div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">ID: PREM-{{ $req->id }}</div>
-                    
-                    @if($req->status === 'active')
-                        <div style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 15px;">
-                            <form action="{{ route('dashboard.premium.apply') }}" method="POST" style="margin-top: 0px;">
-                                @csrf
-                                <input type="hidden" name="premium_request_id" value="{{ $req->id }}">
-                                <label style="font-size: 0.75rem; color: #64748b; display: block; margin-bottom: 8px; font-weight: 600;">Terapkan ke Iklan Saya:</label>
-                                <select name="listing_id" required style="width: 100%; padding: 12px; border-radius: 10px; background: #f8fafc; border: 1px solid #cbd5e1; color: #1e293b; font-size: 0.85rem; margin-bottom: 12px; outline: none; cursor: pointer;">
-                                    <option value="" style="color: #64748b;">-- Pilih Iklan --</option>
-                                    @foreach(auth()->user()->listings->where('is_premium', false) as $l)
-                                        <option value="{{ $l->id }}" style="color: #1e293b;">{{ $l->title }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="submit" class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.85rem; padding: 12px; font-weight: 700; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 163, 255, 0.2);">Gunakan Sekarang</button>
-                            </form>
-                            <div style="text-align: center; margin-top: 10px; font-size: 0.8rem;">
-                                <span style="color: var(--text-muted);">Atau</span> 
-                                <a href="{{ route('listings.create', ['premium_request_id' => $req->id]) }}" style="color: var(--primary); font-weight: 700; text-decoration: none;">+ Buat Iklan Baru</a>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-            @endforeach
-        </div>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 15px;">
-            * Paket di atas dapat Anda terapkan pada iklan yang sudah ada atau digunakan saat membuat iklan baru. 
-            @if($unusedPremiumRequests->where('status', 'pending')->count() > 0)
-                Mohon tunggu verifikasi admin untuk paket yang masih tertunda.
-            @endif
-        </p>
-    </div>
-    @endif
+    {{-- Panel Paket Premium dinonaktifkan sementara --}}
 
     <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -172,15 +120,9 @@
                                         </button>
                                     </form>
                                 @else
-                                    @if(!$listing->is_premium && !$listing->hasPendingPremiumRequest())
-                                        <a href="{{ route('dashboard.premium.upgrade', $listing->id) }}" style="color: #ea580c;" title="Upgrade ke Premium">
-                                            <i class="fa-solid fa-crown"></i>
-                                        </a>
-                                    @endif
+                                    {{-- Icon upgrade ke premium dinonaktifkan sementara --}}
 
-                                    @if($listing->hasPendingPremiumRequest())
-                                        <span class="badge badge-pending" style="font-size: 0.65rem; margin-right: 10px;">PROSES PREMIUM...</span>
-                                    @endif
+                                    {{-- Badge proses premium dinonaktifkan sementara --}}
 
                                     <form action="{{ route('listings.toggle', $listing->id) }}" method="POST">
                                         @csrf

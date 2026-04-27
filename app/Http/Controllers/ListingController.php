@@ -99,13 +99,11 @@ class ListingController extends Controller
         }
 
         $user = auth()->user();
-        $isPremiumPackage = $request->ad_package === 'premium';
+        $isPremiumPackage = false; // Premium dinonaktifkan sementara — semua iklan adalah standar gratis
         
-        // Check quota: only if NOT choosing premium package
-        if (!$isPremiumPackage) {
-            if ($user->ads_quota <= 0) {
-                return back()->withErrors(['error' => 'Kuota iklan gratis Anda sudah habis. Silakan pilih paket premium atau hubungi admin untuk menambah kuota.'])->withInput();
-            }
+        // Cek kuota slot iklan gratis
+        if ($user->ads_quota <= 0) {
+            return back()->withErrors(['error' => 'Jatah slot iklan gratis Anda sudah habis. Silakan hubungi admin untuk menambah slot iklan.'])->withInput();
         }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
@@ -190,10 +188,6 @@ class ListingController extends Controller
                 $premiumRequest->update($updateData);
                 return redirect()->route('dashboard')->with('success', 'Iklan berhasil dibuat dan dihubungkan dengan paket premium Anda.');
             }
-        }
-
-        if ($isPremiumPackage) {
-            return redirect()->route('dashboard.premium.upgrade', $listing->id)->with('success', 'Iklan berhasil dibuat. Silakan pilih paket premium untuk mengaktifkan fitur premium.');
         }
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil dikirim dan ditayangkan.');

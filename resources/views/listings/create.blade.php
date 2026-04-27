@@ -25,12 +25,14 @@
                 <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; color: #991b1b;">
                     <div style="font-size: 1.5rem;"><i class="fa-solid fa-circle-exclamation"></i></div>
                     <div>
-                        <p style="font-weight: 700; margin-bottom: 4px;">Kuota Iklan Gratis Habis</p>
-                        <p style="font-size: 0.9rem; margin: 0;">Anda tidak dapat menerbitkan iklan standar. Silakan pilih <strong>Paket Premium</strong> untuk tetap dapat menerbitkan iklan, atau hubungi admin untuk penambahan kuota.</p>
+                        <p style="font-weight: 700; margin-bottom: 4px;">Jatah Slot Iklan Gratis Habis</p>
+                        <p style="font-size: 0.9rem; margin: 0;">Jatah slot iklan gratis Anda sudah habis. Silakan hubungi admin untuk menambah slot iklan.</p>
                     </div>
                 </div>
             @endif
             
+            <input type="hidden" name="ad_package" value="standard">
+            {{-- 
             <div class="form-group-horizontal">
                 <label>Paket Iklan</label>
                 <div class="form-input-side">
@@ -59,6 +61,7 @@
                     @enderror
                 </div>
             </div>
+            --}}
 
             <div class="form-group-horizontal">
                 <label for="listing_type_id">Kategori Iklan</label>
@@ -162,7 +165,7 @@
                 <label for="description">Deskripsi Lengkap</label>
                 <div class="form-input-side">
                     <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan kondisi barang, kelengkapan, dsb." required maxlength="{{ get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
-                    <small class="text-muted">Maksimal {{ get_setting('huruf_deskripsi_iklan', 100) }} huruf. Upgrade ke premium untuk tambahan hingga {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }} huruf.</small>
+                    <small class="text-muted">Maksimal {{ get_setting('huruf_deskripsi_iklan', 100) }} huruf.</small>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -185,7 +188,7 @@
                 <div class="form-input-side">
                     <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto untuk iklan biasa, atau <strong>{{ get_setting('max_foto_iklan_premium') }}</strong> foto untuk iklan premium.
+                        Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto.
                     </small>
                     @error('photos')
                         <div class="invalid-feedback">{{ $message }}</div>
