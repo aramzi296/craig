@@ -622,7 +622,7 @@ class WhatsappBotService
         // Jika tidak/selesai, lanjut ke kategori
         $state['step'] = 'awaiting_category';
         $this->setState($phone, $state);
-        $this->whatsapp->sendMessage($phone, "📂 Ketik *Kategori* iklan Anda (maksimal 30 huruf).");
+        $this->whatsapp->sendMessage($phone, "📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf). Contoh: Motor, Mobil, Properti, Jasa, dll");
     }
 
     private function handleAdPhotoUpload(string $phone, array $payload, array $state): void
@@ -630,7 +630,7 @@ class WhatsappBotService
         // GOWA payload can be in 'data' or 'payload'
         $data = $payload['data'] ?? ($payload['payload'] ?? []);
         
-        // Find the image path/URL
+        // Find the image path/URLs
         $imagePath = $data['image'] ?? ($data['url'] ?? ($data['file_url'] ?? null));
         
         if (is_array($imagePath)) {
