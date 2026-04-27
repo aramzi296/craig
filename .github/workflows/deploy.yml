@@ -42,9 +42,9 @@ jobs:
           script: |
             cd ${{ secrets.SERVER_PATH }}
             git pull origin main
-            composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
+            # composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
             php artisan migrate --force
-            php artisan optimize:clear
+            # php artisan optimize:clear
             php artisan optimize
-            npm install
-            npm run build
+            # npm install
+            # npm run build
