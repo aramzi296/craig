@@ -622,8 +622,26 @@ class WhatsappBotService
         // Jika tidak/selesai, lanjut ke kategori
         $state['step'] = 'awaiting_category';
         $this->setState($phone, $state);
-        $this->whatsapp->sendMessage($phone, "📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf). Contoh: Motor, Mobil, Properti, Jasa, dll");
+
+        $topCategories = Category::withCount('listings')
+            ->orderBy('listings_count', 'desc')
+            ->take(10)
+            ->get();
+
+        $catList = "";
+        if ($topCategories->isNotEmpty()) {
+            $catList = "\n\n*Contoh kategori terpopuler:*\n";
+            foreach ($topCategories as $cat) {
+                $catList .= "- {$cat->name}\n";
+            }
+        }
+
+        $this->whatsapp->sendMessage(
+            $phone, 
+            "📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf)." . $catList
+        );
     }
+
 
     private function handleAdPhotoUpload(string $phone, array $payload, array $state): void
     {
@@ -666,7 +684,24 @@ class WhatsappBotService
             if ($photoCount >= $maxPhotos) {
                 $state['step'] = 'awaiting_category';
                 $this->setState($phone, $state);
-                $this->whatsapp->sendMessage($phone, "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Ketik *Kategori* iklan Anda (maksimal 30 huruf).");
+
+                $topCategories = Category::withCount('listings')
+                    ->orderBy('listings_count', 'desc')
+                    ->take(10)
+                    ->get();
+
+                $catList = "";
+                if ($topCategories->isNotEmpty()) {
+                    $catList = "\n\n*Contoh kategori terpopuler:*\n";
+                    foreach ($topCategories as $cat) {
+                        $catList .= "- {$cat->name}\n";
+                    }
+                }
+
+                $this->whatsapp->sendMessage(
+                    $phone, 
+                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf)." . $catList
+                );
             } else {
                 $next = $photoCount + 1;
                 $state['step'] = 'awaiting_photo_ask';
