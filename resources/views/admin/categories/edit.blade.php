@@ -36,6 +36,15 @@
             @enderror
         </div>
 
+        <div class="form-group" style="margin-top: 20px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" name="is_approved" value="1" {{ $category->is_approved ? 'checked' : '' }} style="width: 20px; height: 20px;">
+                <span style="font-weight: 600;">Setujui Kategori (Approved)</span>
+            </label>
+            <small style="color: var(--text-muted); display: block; margin-top: 5px; margin-left: 30px;">Hanya kategori yang disetujui yang akan muncul di website.</small>
+        </div>
+
+
         <div style="display: flex; gap: 15px; margin-top: 30px;">
             <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Kategori</button>
             <a href="{{ route('admin.categories') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>

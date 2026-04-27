@@ -70,6 +70,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/categories/{id}/edit', [AdminController::class, 'editCategory'])->name('categories.edit');
         Route::put('/categories/{id}', [AdminController::class, 'updateCategory'])->name('categories.update');
         Route::delete('/categories/{id}', [AdminController::class, 'destroyCategory'])->name('categories.destroy');
+        Route::post('/categories/{id}/toggle-approval', [AdminController::class, 'toggleCategoryApproval'])->name('categories.toggle-approval');
+
 
         // Listing Management
         Route::get('/listings', [AdminController::class, 'listings'])->name('listings');

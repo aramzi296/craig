@@ -36,6 +36,12 @@ class Listing extends Model
         return $this->belongsToMany(Category::class);
     }
 
+    public function approvedCategories()
+    {
+        return $this->belongsToMany(Category::class)->whereRaw('is_approved = true');
+    }
+
+
     public function isExpired()
     {
         return $this->expires_at && $this->expires_at->isPast();

@@ -75,10 +75,12 @@ class HomeController extends Controller
             }
         }
 
-        // Fetch categories that have at least one active, non-expired listing
-        $categories = \App\Models\Category::whereHas('listings', function($q) {
-            $q->whereRaw('is_active = true')->notExpired();
-        })->orderBy('name')->get();
+        // Fetch categories that have at least one active, non-expired listing AND are approved
+        $categories = \App\Models\Category::whereRaw('is_approved = true')
+            ->whereHas('listings', function($q) {
+                $q->whereRaw('is_active = true')->notExpired();
+            })->orderBy('name')->get();
+
 
         // Filter by Category (Apply this LAST to the listings query only)
         if ($request->filled('category')) {
@@ -159,7 +161,8 @@ class HomeController extends Controller
 
     public function categories()
     {
-        $categories = \App\Models\Category::orderBy('name')->get();
+        $categories = \App\Models\Category::whereRaw('is_approved = true')->orderBy('name')->get();
+
         
         $groupedCategories = $categories->groupBy(function ($item) {
             return strtoupper(substr($item->name, 0, 1));

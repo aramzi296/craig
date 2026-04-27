@@ -120,7 +120,8 @@
                                 </div>
                                 <div class="listing-location" style="margin: 0; font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
                                 <div class="listing-category" style="margin: 0; font-size: 0.7rem; display: flex; align-items: center; gap: 5px;">
-                                    {{ $listing->categories->take(1)->pluck('name')->join('') }}
+                                    {{ $listing->approvedCategories->take(1)->pluck('name')->join('') }}
+
                                     @if($listing->listingType)
                                         <span style="background: {{ $listing->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem;">
                                             {{ $listing->listingType->name }}

@@ -4,7 +4,8 @@
 <div class="container listing-detail-container">
     <nav style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">
         <a href="{{ route('home') }}">Beranda</a> / 
-        <a href="{{ route('home', ['category' => $listing->categories->first()->slug ?? 'lainnya']) }}">{{ $listing->categories->first()->name ?? 'Tanpa Kategori' }}</a> / 
+        <a href="{{ route('home', ['category' => $listing->approvedCategories->first()->slug ?? 'lainnya']) }}">{{ $listing->approvedCategories->first()->name ?? 'Tanpa Kategori' }}</a> / 
+
         {{ $listing->title }}
     </nav>
 
@@ -166,8 +167,9 @@
                                 </span>
                             @endif
                             <span style="font-size: 1rem; font-weight: 600; color: var(--primary);">
-                                {{ $listing->categories->pluck('name')->join(' • ') }}
+                                {{ $listing->approvedCategories->pluck('name')->join(' • ') }}
                             </span>
+
                         </div>
                     </div>
 
@@ -372,7 +374,8 @@
                                 <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
                                 <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
                                     <span class="badge badge-premium" style="font-size: 0.55rem; padding: 2px 4px;">PREMIUM</span>
-                                    <span>{{ $premium->categories->first()->name ?? '' }}</span>
+                                    <span>{{ $premium->approvedCategories->first()->name ?? '' }}</span>
+
                                 </div>
                                 <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
                                     @if($premium->price && $premium->price > 0)
@@ -407,7 +410,8 @@
                                             {{ $related->listingType->name }}
                                         </span>
                                     @endif
-                                    <span>{{ $related->categories->take(1)->pluck('name')->join(', ') }}</span>
+                                    <span>{{ $related->approvedCategories->take(1)->pluck('name')->join(', ') }}</span>
+
                                 </div>
                                 <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 2px; color: var(--primary); font-weight: 700;">
                                     @if($related->price && $related->price > 0)

@@ -62,7 +62,11 @@ class AdminController extends Controller
             'name' => 'required|string|max:255|unique:categories,name,'.$id,
             'icon' => 'required|string|max:50',
             'sort_order' => 'nullable|integer|min:0',
+            'is_approved' => 'nullable|boolean',
         ]);
+
+        $data['is_approved'] = $request->has('is_approved');
+
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
 
@@ -83,6 +87,16 @@ class AdminController extends Controller
 
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil dihapus.');
     }
+
+    public function toggleCategoryApproval($id)
+    {
+        $category = \App\Models\Category::findOrFail($id);
+        $newStatus = $category->is_approved ? 'false' : 'true';
+        $category->update(['is_approved' => \DB::raw($newStatus)]);
+
+        return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
+    }
+
 
     public function listings(Request $request)
     {

@@ -836,7 +836,11 @@ class WhatsappBotService
                     $category = Category::create([
                         'name' => $ad['category_name'],
                         'slug' => Str::slug($ad['category_name']),
+                        'is_approved' => false,
+                        'icon' => 'fa-solid fa-tag',
+                        'sort_order' => Category::max('sort_order') + 1,
                     ]);
+
                 }
                 $listing->categories()->attach($category->id);
 

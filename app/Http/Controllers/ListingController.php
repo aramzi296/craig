@@ -18,7 +18,8 @@ class ListingController extends Controller
 
     public function create()
     {
-        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $categories = \App\Models\Category::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
         
@@ -160,9 +161,11 @@ class ListingController extends Controller
                     [
                         'slug' => \Illuminate\Support\Str::slug($categoryName),
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => \App\Models\Category::max('sort_order') + 1
+                        'sort_order' => \App\Models\Category::max('sort_order') + 1,
+                        'is_approved' => false
                     ]
                 );
+
                 $categoryIds[] = $category->id;
             }
         }
@@ -196,7 +199,8 @@ class ListingController extends Controller
     public function edit($id)
     {
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
-        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $categories = \App\Models\Category::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
 
