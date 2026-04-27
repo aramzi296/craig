@@ -58,6 +58,8 @@
                 <th>Pemilik</th>
                 <th>Tipe / Kategori</th>
                 <th>Harga</th>
+                <th style="text-align:center;">Rank</th>
+                <th style="text-align:center;">Expire</th>
                 <th>Status</th>
                 <th>Aksi</th>
             </tr>
@@ -81,6 +83,32 @@
                         Rp {{ number_format($listing->price, 0, ',', '.') }}
                     @else
                         -
+                    @endif
+                </td>
+                <td style="text-align:center;">
+                    @php
+                        $rank = $listing->listing_rank ?? 0;
+                        $rankColor = $rank <= 100 ? '#f59e0b' : ($rank <= 500 ? '#0ea5e9' : '#94a3b8');
+                    @endphp
+                    <span style="display:inline-block; background: {{ $rankColor }}22; color: {{ $rankColor }}; border: 1px solid {{ $rankColor }}44; border-radius: 6px; padding: 3px 10px; font-weight: 700; font-size: 0.82rem;">
+                        #{{ number_format($rank, 0, ',', '.') }}
+                    </span>
+                </td>
+                <td style="text-align:center; font-size: 0.82rem;">
+                    @if($listing->expires_at)
+                        @if($listing->isExpired())
+                            <span style="color:#ef4444; font-weight:600;" title="{{ $listing->expires_at->format('d/m/Y') }}">
+                                <i class="fa-solid fa-circle-xmark" style="margin-right:3px;"></i>
+                                {{ $listing->expires_at->format('d M Y') }}
+                            </span>
+                        @else
+                            <span style="color:#22c55e; font-weight:600;" title="Berakhir: {{ $listing->expires_at->format('d/m/Y') }}">
+                                <i class="fa-solid fa-clock" style="margin-right:3px;"></i>
+                                {{ $listing->expires_at->format('d M Y') }}
+                            </span>
+                        @endif
+                    @else
+                        <span style="color:var(--text-muted);">—</span>
                     @endif
                 </td>
                 <td>
@@ -109,7 +137,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                     <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
                     Tidak ada iklan yang ditemukan dengan kriteria tersebut.
                 </td>
