@@ -130,13 +130,6 @@
                                 </button>
                             </form>
 
-                            <form action="{{ route('admin.users.toggle-admin', $user->id) }}" method="POST" style="margin: 0;">
-                                @csrf
-                                <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
-                                    <i class="fa-solid fa-user-shield" style="width: 16px; color: #6366f1;"></i>
-                                    {{ $user->is_admin ? 'Remove Admin' : 'Make Admin' }}
-                                </button>
-                            </form>
 
                             <a href="{{ route('admin.listings.create', ['user_id' => $user->id]) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
                                 <i class="fa-solid fa-square-plus" style="width: 16px;"></i> Pasang Iklan

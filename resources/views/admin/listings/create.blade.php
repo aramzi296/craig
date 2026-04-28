@@ -91,24 +91,69 @@
         <div class="form-group-horizontal">
             <label>Kategori</label>
             <div class="form-input-side">
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                    @foreach($categories as $category)
-                        <label style="display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;">
-                            <input type="checkbox" name="category_ids[]" value="{{ $category->id }}" 
-                                {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}
-                                style="width: 18px; height: 18px;">
-                            {{ $category->name }}
-                        </label>
-                    @endforeach
-                </div>
-                @error('category_ids')
+                <!-- Added Tagify CSS -->
+                <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+                <style>
+                    .tagify {
+                        --tag-bg: var(--primary);
+                        --tag-hover: var(--primary-dark);
+                        --tag-text-color: #fff;
+                        --tag-border-radius: 8px;
+                        --tag-remove-btn-color: #fff;
+                        --tag-remove-btn-bg--hover: rgba(255, 255, 255, 0.2);
+                        border-radius: 12px;
+                        border: 1px solid #e2e8f0;
+                        padding: 8px;
+                        width: 100%;
+                        background: #f8fafc;
+                        transition: all 0.2s;
+                    }
+                    .tagify--focus {
+                        border-color: var(--primary);
+                        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+                        background: white;
+                    }
+                    .tagify__tag > div {
+                        padding: 0.3em 0.7em;
+                        font-weight: 500;
+                    }
+                    .tagify__tag__removeBtn {
+                        margin-right: 0.4em;
+                    }
+                    .tagify__dropdown__item--active {
+                        background: var(--primary);
+                        color: white;
+                    }
+                </style>
+
+                <input name="categories" id="categories-tagify" class="form-control" placeholder="Pilih atau ketik kategori..." value="{{ old('categories', '') }}">
+                
+                <small id="category-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Ketik dan pilih kategori yang sesuai. Maksimal <strong>10</strong> kategori. 
+                    Jika kategori tidak ada di daftar, ketik saja nama kategori baru lalu tekan <strong>Enter</strong>.
+                </small>
+                @error('categories')
                     <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
 
-                <div style="margin-top: 15px;">
-                    <label for="category_other" style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Kategori Baru:</label>
-                    <input type="text" name="category_other" id="category_other" class="form-control" placeholder="Tulis nama kategori baru..." value="{{ old('category_other') }}">
-                </div>
+                <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const input = document.querySelector('#categories-tagify');
+                        const whitelist = @json($categories->pluck('name'));
+                        
+                        new Tagify(input, {
+                            whitelist: whitelist,
+                            maxTags: 10,
+                            dropdown: {
+                                maxItems: 20,
+                                classname: "tags-look",
+                                enabled: 0,
+                                closeOnSelect: true
+                            }
+                        });
+                    });
+                </script>
             </div>
         </div>
 

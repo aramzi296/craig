@@ -45,8 +45,9 @@ class HomeController extends Controller
         $premiumListings = (clone $query)->whereRaw('is_premium = true')->latest()->take(6)->get();
 
         $recentListings = $query->with('district')
+            ->orderBy('created_at', 'desc')
+            ->orderBy('is_premium', 'desc')
             ->orderBy('listing_rank', 'asc')
-            ->latest('updated_at')
             ->paginate(12);
 
         return view('home', compact('premiumListings', 'recentListings'));
@@ -98,8 +99,9 @@ class HomeController extends Controller
             }
         }
 
-        $listings = $query->orderBy('listing_rank', 'asc')
-            ->latest('updated_at')
+        $listings = $query->orderBy('created_at', 'desc')
+            ->orderBy('is_premium', 'desc')
+            ->orderBy('listing_rank', 'asc')
             ->paginate(20);
         
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
@@ -184,8 +186,9 @@ class HomeController extends Controller
             ->where('user_id', $id)
             ->whereRaw('is_active = true')
             ->notExpired()
+            ->orderBy('created_at', 'desc')
+            ->orderBy('is_premium', 'desc')
             ->orderBy('listing_rank', 'asc')
-            ->latest('updated_at')
             ->paginate(20);
             
         $categories = \App\Models\Category::whereRaw('is_approved = true')

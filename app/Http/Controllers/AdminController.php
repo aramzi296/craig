@@ -169,9 +169,7 @@ class AdminController extends Controller
     public function storeListing(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'category_ids' => 'nullable|array',
-            'category_ids.*' => 'exists:categories,id',
-            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -180,35 +178,37 @@ class AdminController extends Controller
             'user_id' => 'required|exists:users,id',
         ]);
 
-        $categoryOther = $data['category_other'] ?? null;
-        unset($data['category_other'], $data['category_ids']);
+        $rawCategories = $data['categories'] ?? null;
+        unset($data['categories']);
 
-        // user_id is already in $data from validation
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = \DB::raw('true');
 
         $listing = \App\Models\Listing::create($data);
 
-        $categoryIds = $request->category_ids ?? [];
-        if ($categoryOther) {
-            $catName = trim($categoryOther);
-            $slug = \Illuminate\Support\Str::slug($catName);
+        // Process Categories from Tagify
+        $categoryIds = [];
+        if ($rawCategories) {
+            $tagifyCategories = json_decode($rawCategories, true);
+            foreach ($tagifyCategories as $cat) {
+                $categoryName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($categoryName);
 
-            // Cari berdasarkan nama (case-insensitive) atau slug
-            $newCategory = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
-                ->orWhere('slug', $slug)
-                ->first();
+                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                    ->orWhere('slug', $slug)
+                    ->first();
 
-            if (!$newCategory) {
-                $newCategory = \App\Models\Category::create([
-                    'name' => $catName,
-                    'slug' => $slug,
-                    'icon' => 'fa-solid fa-tag',
-                    'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
-                    'is_approved' => \DB::raw('true') // Admin-created is approved by default
-                ]);
+                if (!$category) {
+                    $category = \App\Models\Category::create([
+                        'name' => $categoryName,
+                        'slug' => $slug,
+                        'icon' => 'fa-solid fa-tag',
+                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'is_approved' => \DB::raw('true')
+                    ]);
+                }
+                $categoryIds[] = $category->id;
             }
-            $categoryIds[] = $newCategory->id;
         }
 
         $listing->categories()->sync($categoryIds);
@@ -230,9 +230,7 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::findOrFail($id);
 
         $data = $request->validate([
-            'category_ids' => 'nullable|array',
-            'category_ids.*' => 'exists:categories,id',
-            'category_other' => 'required_without:category_ids|nullable|string|max:255',
+            'categories' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -240,8 +238,8 @@ class AdminController extends Controller
             'district_id' => 'required|exists:districts,id',
         ]);
 
-        $categoryOther = $data['category_other'] ?? null;
-        unset($data['category_other'], $data['category_ids']);
+        $rawCategories = $data['categories'] ?? null;
+        unset($data['categories']);
 
         if ($data['title'] !== $listing->title) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
@@ -249,26 +247,29 @@ class AdminController extends Controller
 
         $listing->update($data);
 
-        $categoryIds = $request->category_ids ?? [];
-        if ($categoryOther) {
-            $catName = trim($categoryOther);
-            $slug = \Illuminate\Support\Str::slug($catName);
+        // Process Categories from Tagify
+        $categoryIds = [];
+        if ($rawCategories) {
+            $tagifyCategories = json_decode($rawCategories, true);
+            foreach ($tagifyCategories as $cat) {
+                $categoryName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($categoryName);
 
-            // Cari berdasarkan nama (case-insensitive) atau slug
-            $newCategory = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
-                ->orWhere('slug', $slug)
-                ->first();
+                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                    ->orWhere('slug', $slug)
+                    ->first();
 
-            if (!$newCategory) {
-                $newCategory = \App\Models\Category::create([
-                    'name' => $catName,
-                    'slug' => $slug,
-                    'icon' => 'fa-solid fa-tag',
-                    'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
-                    'is_approved' => \DB::raw('true') // Admin-created is approved by default
-                ]);
+                if (!$category) {
+                    $category = \App\Models\Category::create([
+                        'name' => $categoryName,
+                        'slug' => $slug,
+                        'icon' => 'fa-solid fa-tag',
+                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'is_approved' => \DB::raw('true')
+                    ]);
+                }
+                $categoryIds[] = $category->id;
             }
-            $categoryIds[] = $newCategory->id;
         }
 
         $listing->categories()->sync($categoryIds);
