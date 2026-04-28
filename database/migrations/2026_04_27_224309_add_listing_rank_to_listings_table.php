@@ -21,7 +21,7 @@ return new class extends Migration
 
         // 2. Free ads → rank per-user (1000, 2000, 3000 ... ordered by created_at)
         $freeListings = \DB::table('listings')
-            ->where('is_premium', false)
+            ->whereRaw('is_premium = false')
             ->orderBy('user_id')
             ->orderBy('created_at')
             ->get(['id', 'user_id']);
