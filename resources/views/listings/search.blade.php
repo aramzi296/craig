@@ -3,15 +3,15 @@
 @section('content')
 <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
     <div class="container" style="max-width: 800px; text-align: center;">
-        <h1 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">
+        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">
             @if(request('q')) 
                 Hasil: "{{ request('q') }}"
             @else
                 Cari di Batam
             @endif
-        </h1>
-        <p style="color: #374151; font-size: 1.2rem; margin-bottom: 35px; font-weight: 500;">
-            Temukan iklan dan penawaran terbaik dari seluruh penjuru Batam.
+        </h2>
+        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">
+            Temukan berbagai iklan dan penawaran terbaik dengan cepat.
         </p>
         
         <form action="{{ route('search') }}" method="GET" class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">
@@ -82,9 +82,8 @@
                     </select>
                 </div>
 
-                <!-- Reset Button -->
                 <div style="text-align: right;">
-                    <a href="{{ route('search', request()->only(['q'])) }}" style="color: #ef4444; font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 12px;">
+                    <a href="{{ route('search') }}" style="color: #ef4444; font-size: 0.85rem; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 12px;">
                         <i class="fa-solid fa-rotate-left"></i> Reset Filter
                     </a>
                 </div>
