@@ -31,6 +31,7 @@ class User extends Authenticatable
         'wa_login_token',
         'wa_login_token_expires_at',
         'is_verified',
+        'is_admin',
         'profile_photo',
         'ik_file_id',
         'ads_quota',
@@ -60,6 +61,7 @@ class User extends Authenticatable
             'email_verified_at'          => 'datetime',
             'password'                   => 'hashed',
             'is_verified'                => 'boolean',
+            'is_admin'                   => 'boolean',
             'wa_otp1_expires_at'         => 'datetime',
 
             'wa_otp2_expires_at'         => 'datetime',
