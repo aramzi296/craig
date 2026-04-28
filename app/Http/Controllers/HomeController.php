@@ -205,4 +205,10 @@ class HomeController extends Controller
             'isUserPage' => true
         ]);
     }
+
+    public function bacaSaya()
+    {
+        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
+        return view('baca-saya', compact('listingTypes'));
+    }
 }
