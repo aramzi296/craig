@@ -127,7 +127,7 @@
 
     <footer style="padding: 60px 0; background: #0f172a; color: white; text-align: center; margin-top: 80px;">
         <div class="container">
-            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white;">SEBATAM</div>
+            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white; justify-content: center;">SEBATAM</div>
             <p style="color: #94a3b8; margin-bottom: 30px;">Platform Penawaran dan Pengumuman No.1 di Batam, Kepulauan Riau.</p>
             <div style="display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
                 <a href="{{ config('services.social.facebook') }}"><i class="fab fa-facebook"></i></a>
