@@ -695,7 +695,58 @@ class AdminController extends Controller
 
     public function whatsappForm()
     {
-        return view('admin.whatsapp.index');
+        $templates = \App\Models\WaTemplate::orderBy('name')->get();
+        return view('admin.whatsapp.index', compact('templates'));
+    }
+
+    public function waTemplates()
+    {
+        $templates = \App\Models\WaTemplate::latest()->get();
+        return view('admin.whatsapp.templates.index', compact('templates'));
+    }
+
+    public function createWaTemplate()
+    {
+        return view('admin.whatsapp.templates.create');
+    }
+
+    public function storeWaTemplate(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        \App\Models\WaTemplate::create($data);
+
+        return redirect()->route('admin.wa_templates')->with('success', 'Template WA berhasil dibuat.');
+    }
+
+    public function editWaTemplate($id)
+    {
+        $template = \App\Models\WaTemplate::findOrFail($id);
+        return view('admin.whatsapp.templates.edit', compact('template'));
+    }
+
+    public function updateWaTemplate(Request $request, $id)
+    {
+        $template = \App\Models\WaTemplate::findOrFail($id);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'content' => 'required|string',
+        ]);
+
+        $template->update($data);
+
+        return redirect()->route('admin.wa_templates')->with('success', 'Template WA berhasil diperbarui.');
+    }
+
+    public function destroyWaTemplate($id)
+    {
+        $template = \App\Models\WaTemplate::findOrFail($id);
+        $template->delete();
+
+        return redirect()->route('admin.wa_templates')->with('success', 'Template WA berhasil dihapus.');
     }
 
     public function sendWaMessage(Request $request, WhatsappService $whatsappService)

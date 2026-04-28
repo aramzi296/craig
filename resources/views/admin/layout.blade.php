@@ -66,6 +66,11 @@
                     <i class="fa-brands fa-whatsapp"></i> Kirim WA
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.wa_templates') }}" class="sidebar-link {{ request()->routeIs('admin.wa_templates*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clipboard-list"></i> Template WA
+                </a>
+            </li>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
             <li class="sidebar-item">
                 <a href="{{ route('dashboard') }}" class="sidebar-link">

@@ -24,13 +24,33 @@
             <small style="display: block; margin-top: 8px; color: var(--text-muted);">Gunakan format angka saja (08xx atau 62xx).</small>
         </div>
 
+        <div style="margin-bottom: 25px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text);">Pilih Template (Opsional)</label>
+            <select id="templateSelector" 
+                style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e2e8f0; background: white; font-size: 0.95rem; outline: none;">
+                <option value="">-- Pilih Template Pesan --</option>
+                @foreach($templates as $template)
+                    <option value="{{ $template->content }}">{{ $template->name }}</option>
+                @endforeach
+            </select>
+        </div>
+
         <div style="margin-bottom: 30px;">
             <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text);">Isi Pesan</label>
-            <textarea name="message" rows="6" placeholder="Tulis pesan Anda di sini..." required 
+            <textarea id="waMessage" name="message" rows="6" placeholder="Tulis pesan Anda di sini..." required 
                 style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #cbd5e1; background: #f8fafc; color: var(--text); font-size: 1rem; resize: vertical; outline: none; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"
                 onfocus="this.style.borderColor='var(--primary)'; this.style.background='white'; this.style.boxShadow='0 0 0 4px rgba(14, 165, 233, 0.1), inset 0 2px 4px rgba(0,0,0,0.05)';"
                 onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.05)';"></textarea>
         </div>
+
+        <script>
+            document.getElementById('templateSelector').addEventListener('change', function() {
+                const content = this.value;
+                if (content) {
+                    document.getElementById('waMessage').value = content;
+                }
+            });
+        </script>
 
         <div style="display: flex; gap: 15px;">
             <button type="submit" class="btn btn-primary" style="padding: 15px 35px; border-radius: 10px; font-weight: 600; display: flex; align-items: center; gap: 10px;">

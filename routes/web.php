@@ -132,6 +132,14 @@ Route::middleware('auth')->group(function () {
         // WhatsApp Messaging
         Route::get('/whatsapp', [AdminController::class, 'whatsappForm'])->name('whatsapp');
         Route::post('/send-wa', [AdminController::class, 'sendWaMessage'])->name('send_wa');
+
+        // WhatsApp Templates
+        Route::get('/wa-templates', [AdminController::class, 'waTemplates'])->name('wa_templates');
+        Route::get('/wa-templates/create', [AdminController::class, 'createWaTemplate'])->name('wa_templates.create');
+        Route::post('/wa-templates', [AdminController::class, 'storeWaTemplate'])->name('wa_templates.store');
+        Route::get('/wa-templates/{id}/edit', [AdminController::class, 'editWaTemplate'])->name('wa_templates.edit');
+        Route::put('/wa-templates/{id}', [AdminController::class, 'updateWaTemplate'])->name('wa_templates.update');
+        Route::delete('/wa-templates/{id}', [AdminController::class, 'destroyWaTemplate'])->name('wa_templates.destroy');
     });
 
     // Member Premium Upgrade
