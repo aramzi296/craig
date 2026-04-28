@@ -5,7 +5,7 @@
     <div class="auth-card" style="max-width: 450px;">
         <div style="text-align: center; margin-bottom: 30px;">
             <h2 style="margin-bottom: 5px;">Selamat Datang Kembali</h2>
-            <p>Silakan masuk ke akun Sebatam Anda</p>
+            <p>Silakan masuk ke akun {{ config('app.name') }} Anda</p>
         </div>
 
         <!-- WhatsApp Method (Recommended) -->

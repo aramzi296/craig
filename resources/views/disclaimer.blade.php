@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Disclaimer – sebatam.com')
+@section('title', 'Disclaimer – ' . parse_url(config('app.url'), PHP_URL_HOST))
 
 @section('content')
 <div class="legal-page">
@@ -8,7 +8,7 @@
     <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
         <div class="container" style="max-width: 800px; text-align: center;">
             <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 10px; letter-spacing: -0.02em;">Disclaimer</h1>
-            <p style="font-size: 1.1rem; color: #374151; font-weight: 500;">Penyangkalan & batasan tanggung jawab SEBATAM</p>
+            <p style="font-size: 1.1rem; color: #374151; font-weight: 500;">Penyangkalan & batasan tanggung jawab {{ config('app.name') }}</p>
         </div>
     </section>
 
@@ -20,13 +20,13 @@
                     
                     <div style="margin-bottom: 35px;">
                         <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">1. Informasi Umum</h2>
-                        <p style="font-size: 0.95rem;">Informasi yang disediakan di SEBATAM hanya untuk tujuan informasi umum. Meskipun kami berusaha menjaga informasi tetap akurat, kami tidak memberikan jaminan dalam bentuk apa pun tentang kelengkapan atau keandalan informasi yang tercantum.</p>
+                        <p style="font-size: 0.95rem;">Informasi yang disediakan di {{ config('app.name') }} hanya untuk tujuan informasi umum. Meskipun kami berusaha menjaga informasi tetap akurat, kami tidak memberikan jaminan dalam bentuk apa pun tentang kelengkapan atau keandalan informasi yang tercantum.</p>
                     </div>
 
                     <div style="margin-bottom: 35px;">
                         <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">2. Tanggung Jawab Pengguna</h2>
-                        <p style="font-size: 0.95rem; margin-bottom: 12px;">SEBATAM adalah platform iklan dan pengumuman online. Segala bentuk transaksi atau interaksi yang terjadi antara pengguna adalah tanggung jawab penuh masing-masing pihak. Kami tidak terlibat dalam proses transaksi dan tidak bertanggung jawab atas kerugian yang mungkin terjadi.</p>
-                        <p style="font-size: 0.95rem;">Dengan mempublikasikan nomor WhatsApp, Anda memahami bahwa nomor tersebut dapat dihubungi oleh siapa saja. SEBATAM tidak bertanggung jawab atas pesan spam atau gangguan lain yang mungkin timbul.</p>
+                        <p style="font-size: 0.95rem; margin-bottom: 12px;">{{ config('app.name') }} adalah platform iklan dan pengumuman online. Segala bentuk transaksi atau interaksi yang terjadi antara pengguna adalah tanggung jawab penuh masing-masing pihak. Kami tidak terlibat dalam proses transaksi dan tidak bertanggung jawab atas kerugian yang mungkin terjadi.</p>
+                        <p style="font-size: 0.95rem;">Dengan mempublikasikan nomor WhatsApp, Anda memahami bahwa nomor tersebut dapat dihubungi oleh siapa saja. {{ config('app.name') }} tidak bertanggung jawab atas pesan spam atau gangguan lain yang mungkin timbul.</p>
                     </div>
 
                     <div style="margin-bottom: 35px;">

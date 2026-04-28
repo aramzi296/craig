@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Hubungi Kami - Sebatam.com')
+@section('title', 'Hubungi Kami - ' . parse_url(config('app.url'), PHP_URL_HOST))
 
 @section('content')
 <div class="legal-page">
@@ -8,7 +8,7 @@
     <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
         <div class="container" style="max-width: 800px; text-align: center;">
             <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 12px; letter-spacing: -0.02em;">Hubungi Kami</h1>
-            <p style="font-size: 1.1rem; color: #374151; max-width: 600px; margin: 0 auto; line-height: 1.5; font-weight: 500;">Butuh bantuan atau ingin bertanya? Tim SEBATAM siap melayani kebutuhan informasi Anda.</p>
+            <p style="font-size: 1.1rem; color: #374151; max-width: 600px; margin: 0 auto; line-height: 1.5; font-weight: 500;">Butuh bantuan atau ingin bertanya? Tim {{ config('app.name') }} siap melayani kebutuhan informasi Anda.</p>
         </div>
     </section>
 

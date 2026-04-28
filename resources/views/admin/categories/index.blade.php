@@ -4,7 +4,7 @@
 <div class="dashboard-header">
     <div>
         <h1>Kelola Kategori</h1>
-        <p style="color: var(--text-muted);">Daftar kategori listing di BatamCraig.</p>
+        <p style="color: var(--text-muted);">Daftar kategori listing di {{ config('app.name') }}.</p>
     </div>
     <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">+ Kategori Baru</a>
 </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Sedang Dalam Perbaikan – sebatam.com</title>
+    <title>Sistem Sedang Dalam Perbaikan – {{ parse_url(config('app.url'), PHP_URL_HOST) }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -126,7 +126,7 @@
         </div>
 
         <div style="margin-top: 40px; font-size: 0.8rem; color: #cbd5e1;">
-            &copy; 2026 sebatam.com
+            &copy; {{ date('Y') }} {{ parse_url(config('app.url'), PHP_URL_HOST) }}
         </div>
     </div>
 </body>

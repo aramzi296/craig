@@ -3,7 +3,7 @@
 @section('admin_content')
 <div style="margin-bottom: 40px;">
     <h1 style="font-size: 2rem; font-weight: 700;">Admin Dashboard</h1>
-    <p style="color: var(--text-muted);">Selamat datang di panel kontrol BatamCraig.</p>
+    <p style="color: var(--text-muted);">Selamat datang di panel kontrol {{ config('app.name') }}.</p>
 </div>
 
 <div class="stats-grid">

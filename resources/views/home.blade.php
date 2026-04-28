@@ -3,8 +3,8 @@
 @section('content')
 <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb;">
     <div class="container" style="max-width: 800px;">
-        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">Cari Apa Saja di Batam</h2>
-        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Temukan berbagai iklan dan penawaran terbaik dengan cepat.</p>
+        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">LAPAK SEBATAM</h2>
+        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Cari apa saja di Batam. Cepat dan ringkas.</p>
         
         <form action="{{ route('search') }}" method="GET" class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">
             <input type="text" name="q" placeholder="Contoh: Tukang AC, Kos-kosan..." value="{{ request('q') }}">
@@ -12,6 +12,7 @@
         </form>
     </div>
 </section>
+
 
 <div class="container page-section" style="padding-top: 0;">
 
@@ -67,7 +68,7 @@
     </div>
     @endif
 
-    <h2 class="section-title">Listing Terbaru</h2>
+    <h2 class="section-title">Postingan Terbaru</h2>
     <div class="listing-grid">
         @foreach($recentListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">

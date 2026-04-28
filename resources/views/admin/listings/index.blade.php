@@ -4,7 +4,7 @@
 <div class="dashboard-header">
     <div>
         <h1>Kelola Listing</h1>
-        <p style="color: var(--text-muted);">Kelola semua iklan yang terpasang di BatamCraig.</p>
+        <p style="color: var(--text-muted);">Kelola semua iklan yang terpasang di {{ config('app.name') }}.</p>
     </div>
     <a href="{{ route('admin.listings.create') }}" class="btn btn-primary">+ Listing Baru</a>
 </div>

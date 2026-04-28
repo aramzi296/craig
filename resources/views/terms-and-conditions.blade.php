@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Syarat & Ketentuan – sebatam.com')
+@section('title', 'Syarat & Ketentuan – ' . parse_url(config('app.url'), PHP_URL_HOST))
 
 @section('content')
 <div class="legal-page">
@@ -18,7 +18,7 @@
             <div style="background: white; padding: 0;">
                 <div class="prose" style="color: #334155; line-height: 1.6;">
                     <p style="font-size: 1rem; color: #475569; margin-bottom: 30px;">
-                        Selamat datang di <strong>SEBATAM</strong>. Mohon luangkan waktu sejenak untuk membaca Syarat & Ketentuan berikut sebelum menggunakan layanan kami.
+                        Selamat datang di <strong>{{ config('app.name') }}</strong>. Mohon luangkan waktu sejenak untuk membaca Syarat & Ketentuan berikut sebelum menggunakan layanan kami.
                     </p>
 
                     <div style="margin-bottom: 35px;">
@@ -26,7 +26,7 @@
                             <span style="background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">1</span>
                             Penerimaan Ketentuan
                         </h2>
-                        <p style="font-size: 0.95rem;">Dengan mengakses SEBATAM, Anda setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju, mohon untuk tidak melanjutkan penggunaan layanan.</p>
+                        <p style="font-size: 0.95rem;">Dengan mengakses {{ config('app.name') }}, Anda setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju, mohon untuk tidak melanjutkan penggunaan layanan.</p>
                     </div>
 
                     <div style="margin-bottom: 35px;">
@@ -79,7 +79,6 @@
             </div>
         </div>
     </section>
-</div>
 </div>
 @endsection
 

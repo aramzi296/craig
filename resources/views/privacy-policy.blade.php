@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Kebijakan Privasi – sebatam.com')
+@section('title', 'Kebijakan Privasi – ' . parse_url(config('app.url'), PHP_URL_HOST))
 
 @section('content')
 <div class="legal-page">
@@ -18,7 +18,7 @@
             <div style="background: white; padding: 0; border-radius: 0;">
                 <div class="prose" style="color: #334155; line-height: 1.6;">
                     <p style="font-size: 1rem; color: #475569; margin-bottom: 30px;">
-                        Di <strong>SEBATAM</strong>, kami sangat menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.
+                        Di <strong>{{ config('app.name') }}</strong>, kami sangat menghargai privasi Anda. Kebijakan Privasi ini menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi informasi pribadi Anda.
                     </p>
 
                     <div style="margin-bottom: 35px;">
@@ -42,6 +42,16 @@
                     <div style="margin-bottom: 35px;">
                         <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">3. Keamanan Data</h2>
                         <p style="font-size: 0.95rem;">Kami mengelola data Anda pada infrastruktur server dengan standar keamanan SSL/HTTPS. Kami berkomitmen melindungi data Anda sesuai standar industri.</p>
+                    </div>
+
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">4. Penggunaan Cookies</h2>
+                        <p style="font-size: 0.95rem;">Kami menggunakan cookies untuk meningkatkan pengalaman navigasi Anda, mengingat preferensi Anda, dan menganalisis trafik situs. Anda dapat mengatur browser Anda untuk menolak cookies jika diinginkan.</p>
+                    </div>
+
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">5. Hak Pengguna</h2>
+                        <p style="font-size: 0.95rem;">Anda berhak untuk mengakses, memperbarui, atau meminta penghapusan data pribadi Anda yang tersimpan di sistem kami kapan saja melalui menu pengaturan profil atau menghubungi admin.</p>
                     </div>
 
                     <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 40px 0;">
@@ -68,6 +78,4 @@
         </div>
     </section>
 </div>
-</div>
 @endsection
-

@@ -35,10 +35,10 @@ class ProfileController extends Controller
                 $this->imageService->deleteFileById($user->ik_file_id);
             }
 
-            // Store file temporarily (Hardcoded Absolute Path approach)
-            $tempDir = '/www/wwwroot/sebatam.com/craig/storage/app/private/temp_uploads';
+            // Store file temporarily
+            $tempDir = storage_path('app/private/temp_uploads');
             if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0777, true);
+                mkdir($tempDir, 0755, true);
             }
             
             $file = $request->file('photo');

@@ -137,7 +137,7 @@
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di SEBATAM: {{ $listing->title }}." target="_blank" class="btn btn-primary" style="padding: 14px; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" class="btn btn-primary" style="padding: 14px; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
                             <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i> Hubungi WhatsApp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)

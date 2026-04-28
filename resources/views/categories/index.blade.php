@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Kategori - BatamCraig')
+@section('title', 'Daftar Kategori - ' . config('app.name'))
 
 @section('content')
 <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb;">
     <div class="container" style="max-width: 800px;">
-        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">Semua Kategori</h2>
-        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Temukan layanan dan produk berdasarkan kategori yang Anda butuhkan.</p>
+        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">Kategori LAPAK SEBATAM</h2>
+        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Kategori apa saja yang ada di Lapak Sebatam.</p>
 
         <!-- Search Bar inside Hero -->
         <div class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">

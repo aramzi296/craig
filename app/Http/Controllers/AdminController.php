@@ -271,6 +271,38 @@ class AdminController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
+    public function storeUser(Request $request)
+    {
+        $data = $request->validate([
+            'whatsapp' => 'required|string|max:20',
+        ]);
+
+        $normalizedWa = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']);
+
+        // Check if WA already exists
+        if (\App\Models\User::where('whatsapp', $normalizedWa)->exists()) {
+            return back()->with('error', 'Nomor WhatsApp ini sudah terdaftar.')->withInput();
+        }
+
+        // Generate automatic name and email (Match WhatsappBotService logic)
+        $randomName = 'user-' . rand(100000, 999999);
+        $randomSuffix = rand(100, 999);
+        $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
+        
+        $randomPassword = \Illuminate\Support\Str::random(16);
+
+        \App\Models\User::create([
+            'name' => $randomName,
+            'whatsapp' => $normalizedWa,
+            'email' => $autoEmail,
+            'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
+            'is_verified' => \DB::raw('true'),
+            'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+        ]);
+
+        return redirect()->route('admin.users')->with('success', "Pengguna baru ({$normalizedWa}) berhasil ditambahkan sebagai {$randomName}.");
+    }
+
     public function editUser($id)
     {
         $user = \App\Models\User::findOrFail($id);

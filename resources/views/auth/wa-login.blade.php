@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login via WhatsApp OTP – BatamCraig')
+@section('title', 'Login via WhatsApp OTP – ' . config('app.name'))
 
 @section('content')
 <div class="auth-wrapper">

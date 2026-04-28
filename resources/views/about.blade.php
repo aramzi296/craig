@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tentang Kami - Sebatam.com')
+@section('title', 'Tentang Kami - ' . parse_url(config('app.url'), PHP_URL_HOST))
 
 @section('content')
 <div class="about-page">
@@ -9,7 +9,7 @@
         <div class="container" style="max-width: 850px; text-align: center;">
             <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 12px; letter-spacing: -0.02em;">Satu Platform,<br>Semua Informasi Batam.</h1>
             <p style="font-size: 1.1rem; color: #374151; max-width: 650px; margin: 0 auto; line-height: 1.6; font-weight: 500;">
-                SEBATAM hadir sebagai pusat rujukan digital dan papan pengumuman modern untuk seluruh warga Batam.
+                {{ config('app.name') }} hadir sebagai pusat rujukan digital dan papan pengumuman modern untuk seluruh warga Batam.
             </p>
         </div>
     </section>
