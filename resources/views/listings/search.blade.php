@@ -80,7 +80,9 @@
             </button>
             <div style="margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                 <h2 class="section-title" style="margin: 0; font-size: 1.6rem;">
-                    @if(request('q')) 
+                    @if(isset($isUserPage) && $isUserPage)
+                        Iklan oleh: {{ $user->name }}
+                    @elseif(request('q')) 
                         Hasil untuk "{{ request('q') }}"
                     @else
                         Semua Iklan

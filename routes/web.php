@@ -159,4 +159,5 @@ Route::get('/test-tailwind', function () {
 });
 
 // Wildcard Routes (Must be at the bottom)
+Route::get('/pengiklan/{id}', [HomeController::class, 'userListings'])->name('user.listings');
 Route::get('/listing/{slug}', [HomeController::class, 'show'])->name('listings.show');

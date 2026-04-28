@@ -44,7 +44,10 @@ class HomeController extends Controller
 
         $premiumListings = (clone $query)->whereRaw('is_premium = true')->latest()->take(6)->get();
 
-        $recentListings = $query->with('district')->latest()->paginate(12);
+        $recentListings = $query->with('district')
+            ->orderBy('listing_rank', 'asc')
+            ->latest('updated_at')
+            ->paginate(12);
 
         return view('home', compact('premiumListings', 'recentListings'));
     }
@@ -95,7 +98,9 @@ class HomeController extends Controller
             }
         }
 
-        $listings = $query->orderBy('is_premium', 'desc')->latest()->paginate(20);
+        $listings = $query->orderBy('listing_rank', 'asc')
+            ->latest('updated_at')
+            ->paginate(20);
         
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
@@ -171,9 +176,33 @@ class HomeController extends Controller
         return view('categories.index', compact('groupedCategories'));
     }
 
-    public function bacaSaya()
+    public function userListings($id)
     {
+        $user = \App\Models\User::findOrFail($id);
+        
+        $listings = \App\Models\Listing::query()
+            ->where('user_id', $id)
+            ->whereRaw('is_active = true')
+            ->notExpired()
+            ->orderBy('listing_rank', 'asc')
+            ->latest('updated_at')
+            ->paginate(20);
+            
+        $categories = \App\Models\Category::whereRaw('is_approved = true')
+            ->whereHas('listings', function($q) use ($id) {
+                $q->where('user_id', $id)->whereRaw('is_active = true')->notExpired();
+            })->orderBy('name')->get();
+            
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
-        return view('baca-saya', compact('listingTypes'));
+        $districts = \App\Models\District::orderBy('name')->get();
+
+        return view('listings.search', [
+            'listings' => $listings,
+            'categories' => $categories,
+            'listingTypes' => $listingTypes,
+            'districts' => $districts,
+            'user' => $user,
+            'isUserPage' => true
+        ]);
     }
 }

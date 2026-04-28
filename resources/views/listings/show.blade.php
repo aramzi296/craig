@@ -194,7 +194,9 @@
                         <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover;" alt="">
                         <div>
                             <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
-                                {{ $listing->user->name }}
+                                <a href="{{ route('user.listings', $listing->user_id) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='inherit'">
+                                    {{ $listing->user->name }}
+                                </a>
                                 @if($listing->user->is_verified)
                                     <i class="fa-solid fa-circle-check verified-badge" style="font-size: 0.9rem;" title="Akun Terverifikasi"></i>
                                 @endif
