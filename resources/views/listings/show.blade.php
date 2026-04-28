@@ -1,29 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container listing-detail-container">
-    <nav style="margin-bottom: 20px; color: var(--text-muted); font-size: 0.9rem;">
-        <a href="{{ route('home') }}">Beranda</a> / 
-        <a href="{{ route('home', ['category' => $listing->approvedCategories->first()->slug ?? 'lainnya']) }}">{{ $listing->approvedCategories->first()->name ?? 'Tanpa Kategori' }}</a> / 
-
-        {{ $listing->title }}
+<div class="container listing-detail-container" style="padding-top: 20px;">
+    <!-- Breadcrumbs -->
+    <nav style="margin-bottom: 20px; color: #64748b; font-size: 0.85rem; font-weight: 500;">
+        <a href="{{ route('home') }}" style="color: #64748b; text-decoration: none;">Beranda</a> 
+        <span style="margin: 0 8px; opacity: 0.5;">/</span>
+        <a href="{{ route('home', ['category' => $listing->approvedCategories->first()->slug ?? 'lainnya']) }}" style="color: #64748b; text-decoration: none;">{{ $listing->approvedCategories->first()->name ?? 'Tanpa Kategori' }}</a> 
+        <span style="margin: 0 8px; opacity: 0.5;">/</span>
+        <span style="color: #1e293b; font-weight: 700;">{{ $listing->title }}</span>
     </nav>
 
     <div class="listing-details-grid {{ $listing->is_premium ? 'premium-layout' : '' }}">
         <div class="listing-main-column">
             <!-- Layout Galeri & Lightbox -->
             @if($listing->photos->count() > 0)
-            <div class="glass" style="border-radius: var(--radius); overflow: hidden; margin-bottom: 25px;">
+            <div style="background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 1px solid #f1f5f9; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
                 <!-- Foto Utama -->
-                <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; cursor: pointer;" onclick="openLightbox(0)">
-                    <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="width: 100%; aspect-ratio: 16/10; overflow: hidden; cursor: pointer; background: #f8fafc;" onclick="openLightbox(0)">
+                    <img src="{{ $listing->getImageUrl() }}" alt="{{ $listing->title }}" style="width: 100%; height: 100%; object-fit: contain;">
                 </div>
 
                 <!-- Galeri Thumbnail -->
                 @if($listing->photos->count() > 1)
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; padding: 10px; background: #f8fafc; border-top: 1px solid var(--border);">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; padding: 12px; background: white; border-top: 1px solid #f1f5f9;">
                     @foreach($listing->photos as $index => $photo)
-                    <div style="aspect-ratio: 1/1; border-radius: 6px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
+                    <div style="aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid transparent; transition: all 0.2s;" 
                          onclick="openLightbox({{ $index }})"
                          onmouseover="this.style.borderColor='var(--primary)'" 
                          onmouseout="this.style.borderColor='transparent'">
@@ -34,112 +36,50 @@
                 @endif
             </div>
 
-            <!-- Lightbox Modal Modern -->
+            <!-- Lightbox Modal Modern (Script remains same) -->
             <div id="lightbox" style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; padding: 20px; user-select: none;">
-                <!-- Close Button -->
                 <span style="position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; font-weight: 300; cursor: pointer; line-height: 1; z-index: 10001;" onclick="closeLightbox()">&times;</span>
-                
-                <!-- Nav Buttons -->
-                <button onclick="prevImage()" style="position: absolute; left: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                    <i class="fa-solid fa-chevron-left" style="font-size: 2rem;"></i>
-                </button>
-                
-                <button onclick="nextImage()" style="position: absolute; right: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                    <i class="fa-solid fa-chevron-right" style="font-size: 2rem;"></i>
-                </button>
-
-                <!-- Image Area -->
+                <button onclick="prevImage()" style="position: absolute; left: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="nextImage()" style="position: absolute; right: 20px; background: rgba(255,255,255,0.1); color: white; border: none; padding: 20px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; z-index: 10001;"><i class="fa-solid fa-chevron-right"></i></button>
                 <div style="max-width: 90%; max-height: 90%; display: flex; flex-direction: column; align-items: center; gap: 15px;">
-                    <img id="lightbox-img" style="max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5); transition: opacity 0.3s ease-in-out;">
-                    <div id="lightbox-counter" style="color: rgba(255,255,255,0.6); font-size: 0.9rem; font-weight: 500; background: rgba(255,255,255,0.1); padding: 4px 15px; border-radius: 20px;"></div>
+                    <img id="lightbox-img" style="max-width: 100%; max-height: 85vh; border-radius: 8px; box-shadow: 0 0 50px rgba(0,0,0,0.5);">
+                    <div id="lightbox-counter" style="color: rgba(255,255,255,0.6); font-size: 0.8rem; background: rgba(255,255,255,0.1); padding: 4px 15px; border-radius: 20px;"></div>
                 </div>
             </div>
 
             <script>
                 const galleryImages = @json($listing->photos->map(fn($p) => $p->getUrl()));
                 let currentIndex = 0;
-
-                function openLightbox(index) {
-                    currentIndex = index;
-                    updateLightboxContent();
-                    document.getElementById('lightbox').style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                }
-
-                function closeLightbox() {
-                    document.getElementById('lightbox').style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-
-                function updateLightboxContent() {
-                    const img = document.getElementById('lightbox-img');
-                    const counter = document.getElementById('lightbox-counter');
-                    
-                    img.style.opacity = '0';
-                    setTimeout(() => {
-                        img.src = galleryImages[currentIndex];
-                        counter.innerText = `${currentIndex + 1} / ${galleryImages.length}`;
-                        img.style.opacity = '1';
-                    }, 150);
-                }
-
-                function nextImage() {
-                    currentIndex = (currentIndex + 1) % galleryImages.length;
-                    updateLightboxContent();
-                }
-
-                function prevImage() {
-                    currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length;
-                    updateLightboxContent();
-                }
-
-                // Keyboard Support
-                document.addEventListener('keydown', function(e) {
-                    const lightbox = document.getElementById('lightbox');
-                    if (lightbox.style.display === 'flex') {
-                        if (e.key === 'ArrowRight') nextImage();
-                        if (e.key === 'ArrowLeft') prevImage();
-                        if (e.key === 'Escape') closeLightbox();
-                    }
-                });
-
-                // Close on click outside
-                document.getElementById('lightbox').onclick = function(e) {
-                    if (e.target.id === 'lightbox') closeLightbox();
-                };
+                function openLightbox(index) { currentIndex = index; updateLightboxContent(); document.getElementById('lightbox').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+                function closeLightbox() { document.getElementById('lightbox').style.display = 'none'; document.body.style.overflow = 'auto'; }
+                function updateLightboxContent() { const img = document.getElementById('lightbox-img'); const counter = document.getElementById('lightbox-counter'); img.style.opacity = '0'; setTimeout(() => { img.src = galleryImages[currentIndex]; counter.innerText = `${currentIndex + 1} / ${galleryImages.length}`; img.style.opacity = '1'; }, 150); }
+                function nextImage() { currentIndex = (currentIndex + 1) % galleryImages.length; updateLightboxContent(); }
+                function prevImage() { currentIndex = (currentIndex - 1 + galleryImages.length) % galleryImages.length; updateLightboxContent(); }
+                document.addEventListener('keydown', function(e) { const lightbox = document.getElementById('lightbox'); if (lightbox.style.display === 'flex') { if (e.key === 'ArrowRight') nextImage(); if (e.key === 'ArrowLeft') prevImage(); if (e.key === 'Escape') closeLightbox(); } });
+                document.getElementById('lightbox').onclick = function(e) { if (e.target.id === 'lightbox') closeLightbox(); };
             </script>
             @endif
 
             <!-- 1. Judul (Title) -->
-            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h1 style="font-size: 2.2rem; font-weight: 700; margin: 0; color: var(--text); line-height: 1.2;">
-                    {{ $listing->title }}
-                    @if($listing->is_premium)
-                        <span class="badge badge-premium" style="font-size: 0.8rem; vertical-align: middle; margin-top: -5px; display: inline-block;">PREMIUM</span>
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
+                    @if($listing->listingType)
+                        <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 2px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
+                            {{ $listing->listingType->name }}
+                        </span>
                     @endif
-                </h1>
-            </div>
-
-            <!-- 2. Keterangan (Description) -->
-            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 15px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                    Deskripsi
-                </h3>
-                <div style="line-height: 1.8; color: var(--text); font-size: 1.05rem;">
-                    {!! nl2br(e($listing->description)) !!}
+                    @if($listing->is_premium)
+                        <span style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800;">PREMIUM</span>
+                    @endif
                 </div>
+                <h1 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin: 0;">{{ $listing->title }}</h1>
             </div>
 
-            <!-- 3. Atribut (Attributes) -->
-            <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 20px;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 10px;">
-                    Atribut & Informasi
-                </h3>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                    <!-- Harga -->
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Harga</span>
+            <!-- 3. Atribut Penting (Price & Info Grid) -->
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
+                    <div>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Harga</span>
                         <span style="font-size: 1.5rem; font-weight: 800; color: var(--primary);">
                             @if($listing->price && $listing->price > 0)
                                 Rp {{ number_format($listing->price, 0, ',', '.') }}
@@ -148,109 +88,85 @@
                             @endif
                         </span>
                     </div>
-
-                    <!-- Lokasi -->
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Lokasi</span>
-                        <span style="font-size: 1.1rem; font-weight: 600; color: var(--text);">
-                            <i class="fa-solid fa-location-dot" style="color: var(--secondary);"></i> {{ $listing->district?->name ?? 'Batam' }}, Batam
+                    <div>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Lokasi</span>
+                        <span style="font-size: 1.1rem; font-weight: 700; color: #334155;">
+                            <i class="fa-solid fa-location-dot" style="color: #64748b; margin-right: 4px;"></i> {{ $listing->district?->name ?? 'Batam' }}
                         </span>
                     </div>
-
-                    <!-- Kategori -->
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Kategori</span>
-                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                            @if($listing->listingType)
-                                <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 2px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase;">
-                                    {{ $listing->listingType->name }}
-                                </span>
-                            @endif
-                            <span style="font-size: 1rem; font-weight: 600; color: var(--primary);">
-                                {{ $listing->approvedCategories->pluck('name')->join(' • ') }}
-                            </span>
-
-                        </div>
+                    <div>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Kategori</span>
+                        <span style="font-size: 1.1rem; font-weight: 700; color: #334155;">
+                            {{ $listing->approvedCategories->pluck('name')->first() }}
+                        </span>
                     </div>
-
-                    <!-- Website -->
-                    @if($listing->website)
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">Website</span>
-                        <a href="{{ $listing->website }}" target="_blank" rel="nofollow" style="font-size: 1rem; font-weight: 600; color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 5px;">
-                            <i class="fa-solid fa-globe"></i> Kunjungi Situs
-                        </a>
-                    </div>
-                    @endif
-
                 </div>
             </div>
 
+            <!-- 2. Deskripsi (Description) -->
+            <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9;">
+                <h3 style="font-size: 1.1rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Deskripsi</h3>
+                <div style="line-height: 1.7; color: #475569; font-size: 1rem;">
+                    {!! nl2br(e($listing->description)) !!}
+                </div>
+            </div>
 
             <!-- 4. Kontak & User (Interaction) -->
-            <div class="glass" style="padding: 25px; border-radius: var(--radius); border: 1px solid var(--border); margin-bottom: 40px;">
-                <div class="listing-footer-row">
-                    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8fafc; border-radius: 12px; border: 1px solid var(--border);">
-                        <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover;" alt="">
+            <div style="background: white; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9; margin-bottom: 30px;">
+                <div class="listing-footer-row" style="margin-bottom: 25px;">
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px solid #f1f5f9;">
+                        <img src="{{ $listing->user->getProfilePhoto() }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid white;" alt="">
                         <div>
-                            <div style="font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px;">
-                                <a href="{{ route('user.listings', $listing->user_id) }}" style="color: inherit; text-decoration: none;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='inherit'">
-                                    {{ $listing->user->name }}
-                                </a>
-                                @if($listing->user->is_verified)
-                                    <i class="fa-solid fa-circle-check verified-badge" style="font-size: 0.9rem;" title="Akun Terverifikasi"></i>
-                                @endif
+                            <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">
+                                <a href="{{ route('user.listings', $listing->user_id) }}" style="color: inherit; text-decoration: none;">{{ $listing->user->name }}</a>
+                                @if($listing->user->is_verified) <i class="fa-solid fa-circle-check" style="color: #3b82f6; font-size: 0.85rem;" title="Terverifikasi"></i> @endif
                             </div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
+                            <div style="font-size: 0.8rem; color: #64748b;">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
                         </div>
                     </div>
-                    
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.85rem; color: var(--text-muted);">Terbit: {{ $listing->created_at->format('d M Y') }}</div>
+                    <div style="text-align: right; color: #94a3b8; font-size: 0.8rem; font-weight: 500;">
+                        ID: #{{ 1000 + $listing->id }}<br>Terbit: {{ $listing->created_at->format('d M Y') }}
                     </div>
                 </div>
 
-                <div class="listing-footer-buttons">
+                <div class="listing-footer-buttons" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                     @php
                         $canSeeContact = false;
-                        if ($listing->whatsapp_visibility == 2) {
-                            $canSeeContact = true;
-                        } elseif ($listing->whatsapp_visibility == 1) {
-                            $canSeeContact = auth()->check();
-                        }
+                        if ($listing->whatsapp_visibility == 2) { $canSeeContact = true; } 
+                        elseif ($listing->whatsapp_visibility == 1) { $canSeeContact = auth()->check(); }
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di Sebatam: {{ $listing->title }}. Apakah masih tersedia%3F" target="_blank" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px;">
-                            <i class="fa-brands fa-whatsapp" style="font-size: 1.5rem;"></i> Hubungi via whatsapp
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di SEBATAM: {{ $listing->title }}." target="_blank" class="btn btn-primary" style="padding: 14px; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.3rem;"></i> Hubungi WhatsApp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)
-                        <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 18px; font-size: 1.1rem; border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <i class="fa-solid fa-lock"></i> Login untuk kirim WA
+                        <a href="{{ route('login') }}" class="btn btn-primary" style="padding: 14px; font-weight: 800; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-lock"></i> Login untuk Chat
                         </a>
                     @else
-                        <div class="btn btn-secondary disabled" style="padding: 18px; font-size: 1rem; border-radius: 12px; cursor: not-allowed; opacity: 0.7; display: flex; align-items: center; justify-content: center; gap: 8px; background: #e2e8f0; color: #64748b; border: none;">
-                            <i class="fa-solid fa-eye-slash"></i> WA tidak ditampilkan
+                        <div class="btn btn-secondary disabled" style="padding: 14px; font-weight: 800; border-radius: 10px; opacity: 0.7; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-eye-slash"></i> WA Private
                         </div>
                     @endif
                     
                     @auth
                         <form action="{{ route('listings.favorite', $listing->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'btn-secondary' : 'btn-outline' }}" style="padding: 18px; font-size: 1.1rem; width: 100%; border-radius: 12px;">
+                            <button type="submit" class="btn {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'btn-secondary' : 'btn-outline' }}" style="width: 100%; padding: 14px; font-weight: 800; border-radius: 10px;">
                                 <i class="fa-{{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'solid' : 'regular' }} fa-heart" style="{{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'color: #ef4444;' : '' }}"></i> 
-                                {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'Favorit Terdaftar' : 'Tambah ke Favorit' }}
+                                Favorit
                             </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="btn btn-outline" style="padding: 18px; font-size: 1.1rem; text-align: center; border-radius: 12px;">
-                            <i class="fa-regular fa-heart"></i> Tambah ke Favorit
+                        <a href="{{ route('login') }}" class="btn btn-outline" style="padding: 14px; font-weight: 800; border-radius: 10px; text-align: center;">
+                            <i class="fa-regular fa-heart"></i> Favorit
                         </a>
                     @endauth
                 </div>
 
-                <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 500;">
-                    Iklan ID: #BT{{ 1000 + $listing->id }} • Dilihat {{ number_format($listing->views_count, 0, ',', '.') }} kali • Diperbarui {{ $listing->updated_at->diffForHumans() }}
+                <div style="margin-top: 25px; text-align: center; color: #94a3b8; font-size: 0.8rem; border-top: 1px solid #f8fafc; padding-top: 15px;">
+                    Dilihat {{ number_format($listing->views_count, 0, ',', '.') }} kali • Diperbarui {{ $listing->updated_at->diffForHumans() }}
                 </div>
             </div>
 

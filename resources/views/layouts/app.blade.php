@@ -45,38 +45,31 @@
             </div>
         </div>
     </div>
-    <header class="glass">
+    <header>
         <div class="container nav-content">
-            <div style="display: flex; align-items: center; gap: 15px;">
+            <div class="nav-left">
                 @yield('header_left')
-                <a href="{{ route('home') }}" class="logo">se<span>batam</span>.com</a>
+                <a href="{{ route('home') }}" class="logo">SEBATAM</a>
             </div>
-            <button class="nav-toggle" id="navToggle" onclick="toggleNav()">
-                <i class="fa-solid fa-bars"></i>
-            </button>
 
-            <nav class="nav-links" id="navLinks">
+            <nav class="nav-links hidden md:flex" id="navLinks">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
                 <a href="{{ route('baca-saya') }}" class="{{ request()->routeIs('baca-saya') ? 'active' : '' }}">Baca Saya</a>
-                
-                @guest
-                    <a href="{{ route('listings.create') }}" class="{{ request()->routeIs('listings.create') ? 'active' : '' }}">Pasang Iklan</a>
-                @endguest
+            </nav>
 
-                <div class="nav-divider"></div>
-
+            <div class="nav-actions">
                 @guest
-                    <a href="{{ route('login') }}" style="font-weight: 600; color: var(--text);">Masuk</a>
-                    <a href="{{ route('register') }}" class="btn btn-primary">Daftar</a>
+                    <a href="{{ route('listings.create') }}" class="btn-nav-primary hidden md:block">Pasang Iklan</a>
+                    <a href="{{ route('login') }}" class="btn-nav-outline">Masuk</a>
                 @else
                     <div class="dropdown">
                         <div class="dropdown-trigger">
                             <img src="{{ auth()->user()->getProfilePhoto() }}" style="width: 35px; height: 35px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border);">
-                            <span class="nav-greeting">Halo, <strong>{{ auth()->user()->name }}</strong></span>
+                            <span class="nav-greeting hidden sm:inline">Halo, <strong>{{ auth()->user()->name }}</strong></span>
                             <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem; color: var(--text-muted);"></i>
                         </div>
-                        <div class="dropdown-menu glass">
+                        <div class="dropdown-menu">
                             <a href="{{ route('listings.create') }}" class="dropdown-item" style="font-weight: 700; color: var(--primary) !important;">
                                 <i class="fa-solid fa-plus-circle"></i> Pasang Iklan
                             </a>
@@ -102,7 +95,11 @@
                         </div>
                     </div>
                 @endguest
-            </nav>
+                
+                <button class="nav-toggle md:hidden" id="navToggle" onclick="toggleNav()" style="background: none; border: none; font-size: 1.5rem; color: var(--primary); cursor: pointer;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -130,7 +127,7 @@
 
     <footer style="padding: 60px 0; background: #0f172a; color: white; text-align: center; margin-top: 80px;">
         <div class="container">
-            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white;">se<span>batam</span>.com</div>
+            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white;">SEBATAM</div>
             <p style="color: #94a3b8; margin-bottom: 30px;">Platform Penawaran dan Pengumuman No.1 di Batam, Kepulauan Riau.</p>
             <div style="display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
                 <a href="{{ config('services.social.facebook') }}"><i class="fab fa-facebook"></i></a>

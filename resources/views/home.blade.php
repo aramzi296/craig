@@ -1,20 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
-    <div class="container">
-        <h1 class="hidden md:block">Cari Apa Saja Sebatam</h1>
-        <p class="hidden md:block">Dengan satu atau beberapa kata kunci, temukan berbagai iklan dan penawaran terbaik di Batam dengan mudah dan cepat!</p>
-        <div style="display: flex; gap: 15px; justify-content: center; align-items: center; flex-wrap: wrap;">
-            <form action="{{ route('search') }}" method="GET" class="search-box" style="margin: 0; width: 100%; max-width: 600px;">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" name="q" placeholder="Apa yang sedang Anda cari hari ini?" value="{{ request('q') }}">
-                <button type="submit" class="btn btn-primary" style="margin-right: -2px; border-radius: 50px; padding: 12px 30px;">Cari</button>
-            </form>
-            <a href="{{ route('listings.create') }}" class="btn btn-primary" style="border-radius: 50px; padding: 15px 30px; height: 58px; background: var(--secondary); border: none; box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.39);">
-                <i class="fa-solid fa-plus"></i> Pasang Iklan Anda
-            </a>
-        </div>
+<section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb;">
+    <div class="container" style="max-width: 800px;">
+        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">Cari Apa Saja di Batam</h2>
+        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Temukan berbagai iklan dan penawaran terbaik dengan cepat.</p>
+        
+        <form action="{{ route('search') }}" method="GET" class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">
+            <input type="text" name="q" placeholder="Contoh: Tukang AC, Kos-kosan..." value="{{ request('q') }}">
+            <button type="submit">CARI</button>
+        </form>
     </div>
 </section>
 

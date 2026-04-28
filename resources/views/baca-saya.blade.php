@@ -5,45 +5,38 @@
 @section('content')
 <div class="read-me-page">
     <!-- Hero Section -->
-    <section class="premium-hero" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%); padding: 80px 20px; text-align: center; color: white; position: relative; overflow: hidden;">
-        <div class="container" style="position: relative; z-index: 2;">
-            <h1 style="font-size: 3.5rem; font-weight: 900; margin-bottom: 20px; letter-spacing: -2px; line-height: 1.1;">Panduan Penggunaan Sebatam.com</h1>
-            <p style="font-size: 1.4rem; opacity: 0.9; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-                Semua yang perlu Anda ketahui untuk mulai mencari dan menawarkan informasi di Batam.
+    <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
+        <div class="container" style="max-width: 800px; text-align: center;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 12px; letter-spacing: -0.02em;">Panduan Penggunaan SEBATAM</h1>
+            <p style="font-size: 1.1rem; color: #374151; max-width: 650px; margin: 0 auto; line-height: 1.5; font-weight: 500;">
+                Segala hal yang perlu Anda ketahui untuk mencari dan menawarkan informasi di Batam dengan cara yang paling simpel dan efektif.
             </p>
         </div>
-        <!-- Decorative background elements -->
-        <div style="position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; background: rgba(255,255,255,0.1); border-radius: 50%; filter: blur(50px);"></div>
-        <div style="position: absolute; bottom: -150px; left: -150px; width: 500px; height: 500px; background: rgba(0,0,0,0.05); border-radius: 50%; filter: blur(50px);"></div>
     </section>
 
     <!-- Content Sections -->
-    <section class="legal-section" style="background: #f8fafc;">
-        <div class="container" style="max-width: 1000px;">
-            <div style="display: flex; flex-direction: column; gap: 40px;">
+    <section class="legal-section" style="background: #ffffff; padding: 50px 0;">
+        <div class="container" style="max-width: 850px;">
+            <div style="display: flex; flex-direction: column; gap: 25px;">
                 
-                <!-- Question 1 -->
-                <div class="faq-card legal-card glass" style="width: 100%;">
-                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
-                        <div style="min-width: 60px; height: 60px; background: #eef2ff; color: #4f46e5; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                <!-- Section 1: What to do -->
+                <div class="faq-card" style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <div style="min-width: 40px; height: 40px; background: white; color: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid #e2e8f0;">
                             <i class="fas fa-rocket"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Apa yang bisa Anda lakukan dengan website ini?</h2>
-                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Sebatam.com adalah platform iklan dan pengumuman online khusus untuk warga Batam. Tipe iklan dan pengumuman yang tersedia:
+                            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Apa yang bisa Anda lakukan di sini?</h2>
+                            <p style="color: #475569; font-size: 0.95rem; line-height: 1.6; margin-bottom: 15px;">
+                                SEBATAM adalah platform pengumuman online khusus warga Batam. Berikut adalah tipe informasi yang bisa Anda temukan atau pasang:
                             </p>
-                            <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
+                            <ul style="margin: 0; padding: 0; list-style: none;">
                                 @foreach($listingTypes as $type)
-                                <li style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #10b981; margin-top: 5px;"></i>
+                                <li style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; color: #4b5563; font-size: 0.9rem;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; margin-top: 4px;"></i>
                                     <span>
-                                        <strong style="color: #1e293b; font-weight: 850;">{{ strtoupper($type->name) }}:</strong> 
-                                        @if($type->keterangan)
-                                            {!! nl2br(e($type->keterangan)) !!}
-                                        @else
-                                            Informasi mengenai {{ strtolower($type->name) }}.
-                                        @endif
+                                        <strong style="color: #1e293b; font-weight: 700;">{{ strtoupper($type->name) }}:</strong> 
+                                        {{ $type->keterangan ?? 'Informasi mengenai ' . strtolower($type->name) . '.' }}
                                     </span>
                                 </li>
                                 @endforeach
@@ -52,82 +45,59 @@
                     </div>
                 </div>
 
-                <!-- Question 2: Why Us -->
-                <div class="faq-card legal-card glass" style="width: 100%;">
-                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
-                        <div style="min-width: 60px; height: 60px; background: #f5f3ff; color: #8b5cf6; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                <!-- Section 2: Why Us -->
+                <div class="faq-card" style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <div style="min-width: 40px; height: 40px; background: white; color: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid #e2e8f0;">
                             <i class="fas fa-bolt"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Kenapa harus di Sebatam.com?</h2>
-                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Kami memberikan pengalaman berbeda dalam beriklan dan mencari informasi:
-                            </p>
-                            <ul style="margin: 20px 0 0 0; padding: 0; list-style: none;">
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">SUMBER UTAMA:</strong> Platform ini akan menjadi sumber utama informasi bagi warga Batam. Anda tak akan rugi beriklan di sini.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">FOKUS LOKAL:</strong> 100% didedikasikan untuk komunitas di Batam.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">TANPA RIBET:</strong> Gak perlu email/password ribet, cukup masuk via WhatsApp.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">SEARCH ENGINE FRIENDLY:</strong> Iklan Anda dirancang agar mudah ditemukan di Google.</span>
-                                </li>
-                                <li style="display: flex; align-items: center; gap: 12px; color: #64748b;">
-                                    <i class="fas fa-check-circle" style="color: #8b5cf6;"></i>
-                                    <span><strong style="color: #1e293b; font-weight: 850;">ALGORITMA MODERN:</strong> Tampilan bersih dan sangat mudah digunakan bahkan melalui HP.</span>
-                                </li>
+                            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Kenapa harus di SEBATAM?</h2>
+                            <ul style="margin: 0; padding: 0; list-style: none; font-size: 0.9rem; color: #4b5563;">
+                                <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check" style="color: var(--primary);"></i> <span><strong style="color: #1e293b;">SUMBER UTAMA:</strong> Platform rujukan utama bagi seluruh warga Batam.</span></li>
+                                <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check" style="color: var(--primary);"></i> <span><strong style="color: #1e293b;">FOKUS LOKAL:</strong> 100% didedikasikan untuk komunitas di Batam.</span></li>
+                                <li style="margin-bottom: 8px; display: flex; gap: 8px;"><i class="fas fa-check" style="color: var(--primary);"></i> <span><strong style="color: #1e293b;">TANPA RIBET:</strong> Cukup masuk via WhatsApp, tanpa email/password rumit.</span></li>
+                                <li style="display: flex; gap: 8px;"><i class="fas fa-check" style="color: var(--primary);"></i> <span><strong style="color: #1e293b;">MODERN:</strong> Tampilan bersih dan sangat mudah digunakan melalui HP.</span></li>
                             </ul>
                         </div>
                     </div>
                 </div>
 
-                    <!-- Question 4 -->
-                <div class="faq-card legal-card glass" style="width: 100%;">
-                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
-                        <div style="min-width: 60px; height: 60px; background: #ecfdf5; color: #10b981; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                <!-- Section 3: Is it free? -->
+                <div class="faq-card" style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <div style="min-width: 40px; height: 40px; background: white; color: #10b981; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid #e2e8f0;">
                             <i class="fas fa-hand-holding-dollar"></i>
                         </div>
                         <div>
-                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Apakah ini gratis?</h2>
-                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                <strong>Ya, 100% Gratis!</strong> Memasang iklan reguler di Sebatam.com tidak dipungut biaya apapun. Kami ingin membantu ekonomi lokal Batam tumbuh melalui kemudahan berbagi informasi.
+                            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 8px;">Apakah ini gratis?</h2>
+                            <p style="color: #475569; font-size: 0.95rem; line-height: 1.6;">
+                                <strong style="color: #10b981;">Ya, 100% Gratis!</strong> Memasang iklan reguler di SEBATAM tidak dipungut biaya. Kami ingin membantu ekonomi lokal Batam tumbuh melalui kemudahan berbagi informasi.
                             </p>
                         </div>
                     </div>
                 </div>
 
-
-                <!-- Question 3 -->
-                <div class="faq-card legal-card glass" style="width: 100%;">
-                    <div class="faq-card-content" style="display: flex; align-items: flex-start; gap: 25px;">
-                        <div style="min-width: 60px; height: 60px; background: #fff7ed; color: #f97316; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem;">
+                <!-- Section 4: How to post -->
+                <div class="faq-card" style="background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <div style="display: flex; align-items: flex-start; gap: 15px;">
+                        <div style="min-width: 40px; height: 40px; background: white; color: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid #e2e8f0;">
                             <i class="fas fa-paper-plane"></i>
                         </div>
                         <div style="flex: 1;">
-                            <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Bagaimana cara memasang iklan?</h2>
-                            <p style="color: #475569; font-size: 1.15rem; line-height: 1.8;">
-                                Kami merancang proses posting yang sangat mudah dan tanpa ribet:
-                            </p>
-                            <div class="posting-steps-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 25px;">
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">01</span>
-                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Daftar/Masuk via WhatsApp</p>
+                            <h2 style="font-size: 1.25rem; font-weight: 800; color: #1e293b; margin-bottom: 12px;">Cara Pasang Iklan</h2>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                                    <span style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: block;">01</span>
+                                    <p style="font-size: 0.8rem; font-weight: 700; color: #334155;">Login WA</p>
                                 </div>
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">02</span>
-                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Klik Pasang Iklan</p>
+                                <div style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                                    <span style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: block;">02</span>
+                                    <p style="font-size: 0.8rem; font-weight: 700; color: #334155;">Isi Detail</p>
                                 </div>
-                                <div style="background: #f1f5f9; padding: 20px; border-radius: 20px; text-align: center;">
-                                    <span style="display: block; font-size: 1.5rem; font-weight: 900; color: #cbd5e1; margin-bottom: 10px;">03</span>
-                                    <p style="font-weight: 600; color: #1e293b; margin: 0;">Isi Detail & Publish</p>
+                                <div style="background: white; padding: 12px; border-radius: 8px; text-align: center; border: 1px solid #e2e8f0;">
+                                    <span style="font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: block;">03</span>
+                                    <p style="font-size: 0.8rem; font-weight: 700; color: #334155;">Tayangkan</p>
                                 </div>
                             </div>
                         </div>
@@ -169,12 +139,12 @@
     </section>
 
     <!-- Bottom CTA -->
-    <section style="padding: 100px 20px; background: white; text-align: center;">
+    <section style="padding: 60px 0; background: #f8fafc; text-align: center; border-top: 1px solid #f1f5f9;">
         <div class="container">
-            <h2 style="font-size: 2.5rem; font-weight: 850; color: #1e293b; margin-bottom: 30px;">Punya Pertanyaan Lain?</h2>
-            <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="{{ route('contact') }}" class="btn btn-outline" style="padding: 16px 40px; font-size: 1.1rem; border-radius: 16px;">Hubungi Kami</a>
-                <a href="{{ route('listings.create') }}" class="btn btn-primary" style="padding: 16px 40px; font-size: 1.1rem; border-radius: 16px; background: #4f46e5;">Mulai Pasang Iklan</a>
+            <h2 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 20px;">Masih Bingung?</h2>
+            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                <a href="{{ route('listings.create') }}" class="btn btn-primary" style="padding: 10px 25px; font-weight: 700; font-size: 0.9rem;">Mulai Pasang Iklan</a>
+                <a href="{{ route('contact') }}" class="btn btn-outline" style="padding: 10px 25px; font-weight: 700; font-size: 0.9rem;">Tanya CS Kami</a>
             </div>
         </div>
     </section>

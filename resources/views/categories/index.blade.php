@@ -3,35 +3,35 @@
 @section('title', 'Daftar Kategori - BatamCraig')
 
 @section('content')
-<section class="hero" style="background-image: url('{{ asset('gelombang.png') }}');">
-    <div class="container">
-        <h1 class="hidden md:block">Semua Kategori</h1>
-        <p class="hidden md:block">Cari berdasarkan kategori yang Anda butuhkan. Semua listing dikelompokkan dengan rapi untuk memudahkan pencarian Anda.</p>
+<section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb;">
+    <div class="container" style="max-width: 800px;">
+        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">Semua Kategori</h2>
+        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Temukan layanan dan produk berdasarkan kategori yang Anda butuhkan.</p>
 
         <!-- Search Bar inside Hero -->
-        <div style="max-width: 600px; margin: 0 auto;">
-            <div class="search-box">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="categorySearch" placeholder="Cari kategori (misal: Properti, Jasa, Elektronik...)">
-                <div id="searchBadge" style="display: none; align-items: center; background: var(--primary); color: white; padding: 6px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; margin-right: 4px;">
-                    <span id="matchCount" style="margin-right: 4px;">0</span> ditemukan
-                </div>
+        <div class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">
+            <input type="text" id="categorySearch" placeholder="Cari kategori (misal: Properti, Jasa, Elektronik...)" style="flex: 1;">
+            <div id="searchBadge" style="display: none; align-items: center; background: var(--primary); color: white; padding: 0 15px; font-size: 0.8rem; font-weight: 600; white-space: nowrap;">
+                <span id="matchCount" style="margin-right: 4px;">0</span> ditemukan
             </div>
+            <button type="button" style="cursor: default;">CARI</button>
         </div>
     </div>
 </section>
 
-<div class="container page-section">
+<div class="container page-section" style="padding-top: 30px;">
 
-    <div id="categoriesContainer" style="display: flex; flex-direction: column; gap: 50px;">
+    <div id="categoriesContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
         @foreach($groupedCategories as $letter => $categories)
-            <div id="letter-{{ $letter }}" class="category-group" style="padding-bottom: 10px;">
-                <div class="group-header" style="font-size: 2.2rem; font-weight: 800; color: #38bdf8; margin-bottom: 5px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">
-                    {{ $letter }}
+            <div id="letter-{{ $letter }}" class="category-group" style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #f1f5f9; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                <div class="group-header" style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid #f1f5f9; padding-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                    <span style="background: var(--primary-light); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 4px;">{{ $letter }}</span>
+                    <span>Kategori</span>
                 </div>
-                <div class="category-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px 20px; padding-top: 15px;">
+                <div class="category-list" style="display: flex; flex-direction: column; gap: 8px;">
                     @foreach($categories as $category)
-                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: underline; color: #166534; font-weight: 600; font-size: 1rem; transition: color 0.2s;" onmouseover="this.style.color='#15803d'" onmouseout="this.style.color='#166534'">
+                        <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
+                            <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; color: #94a3b8;"></i>
                             <span class="name-span">{{ $category->name }}</span>
                         </a>
                     @endforeach

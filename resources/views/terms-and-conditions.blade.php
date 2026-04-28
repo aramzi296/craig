@@ -5,84 +5,73 @@
 @section('content')
 <div class="legal-page">
     <!-- Compact Hero -->
-    <section style="background: linear-gradient(135deg, var(--primary) 0%, #0369a1 100%); padding: 50px 20px; text-align: center; color: white; position: relative; overflow: hidden;">
-        <div class="container" style="position: relative; z-index: 2;">
-            <h1 style="font-size: 2.5rem; font-weight: 850; margin-bottom: 10px; letter-spacing: -1px;">Syarat & Ketentuan</h1>
-            <p style="font-size: 1.1rem; opacity: 0.9;">Terakhir Diperbarui: 30 Maret 2026</p>
+    <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
+        <div class="container" style="max-width: 800px; text-align: center;">
+            <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 10px; letter-spacing: -0.02em;">Syarat & Ketentuan</h1>
+            <p style="font-size: 0.95rem; color: #64748b; font-weight: 600;">Terakhir Diperbarui: 30 Maret 2026</p>
         </div>
-        <div style="position: absolute; top: -20px; right: -20px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
     </section>
 
     <!-- Content Section -->
-    <section class="legal-section">
-        <div class="container">
-            <div class="legal-card glass">
-                <div class="prose" style="color: var(--text); line-height: 1.8;">
-                    <p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 30px;">
-                        Selamat datang di <strong>{{ config('app.name') }}</strong>. Sebelum Anda mulai menggunakan layanan kami untuk memposting sesuatu di platform ini, mohon luangkan waktu sejenak untuk membaca Syarat & Ketentuan berikut.
+    <section class="legal-section" style="padding: 50px 0; background: #ffffff;">
+        <div class="container" style="max-width: 800px;">
+            <div style="background: white; padding: 0;">
+                <div class="prose" style="color: #334155; line-height: 1.6;">
+                    <p style="font-size: 1rem; color: #475569; margin-bottom: 30px;">
+                        Selamat datang di <strong>SEBATAM</strong>. Mohon luangkan waktu sejenak untuk membaca Syarat & Ketentuan berikut sebelum menggunakan layanan kami.
                     </p>
 
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">1</span>
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">1</span>
                             Penerimaan Ketentuan
                         </h2>
-                        <p>Dengan mengakses atau menggunakan situs web {{ config('app.name') }}, Anda menyatakan bahwa Anda telah membaca, memahami, dan setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju, mohon untuk tidak melanjutkan penggunaan layanan kami.</p>
+                        <p style="font-size: 0.95rem;">Dengan mengakses SEBATAM, Anda setuju untuk terikat oleh Syarat & Ketentuan ini. Jika Anda tidak setuju, mohon untuk tidak melanjutkan penggunaan layanan.</p>
                     </div>
 
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">2</span>
-                            Akun Pengguna & Keamanan
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">2</span>
+                            Akun & Keamanan
                         </h2>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="display: flex; gap: 12px; margin-bottom: 10px;">
-                                <i class="fas fa-check" style="color: #10b981; margin-top: 6px;"></i>
-                                <span>Anda wajib menggunakan data yang valid saat mendaftar, terutama nomor WhatsApp untuk proses verifikasi.</span>
+                        <ul style="list-style: none; padding: 0; font-size: 0.95rem;">
+                            <li style="display: flex; gap: 10px; margin-bottom: 8px;">
+                                <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                                <span>Wajib menggunakan nomor WhatsApp yang valid untuk verifikasi.</span>
                             </li>
-                            <li style="display: flex; gap: 12px; margin-bottom: 10px;">
-                                <i class="fas fa-check" style="color: #10b981; margin-top: 6px;"></i>
-                                <span>Anda bertanggung jawab penuh atas kerahasiaan kata sandi dan semua aktivitas yang terjadi di bawah akun Anda.</span>
+                            <li style="display: flex; gap: 10px; margin-bottom: 8px;">
+                                <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                                <span>Anda bertanggung jawab penuh atas aktivitas yang terjadi di bawah akun Anda.</span>
                             </li>
-                            <li style="display: flex; gap: 12px;">
-                                <i class="fas fa-check" style="color: #10b981; margin-top: 6px;"></i>
-                                <span>Kami berhak menonaktifkan akun yang terindikasi melakukan penipuan atau pelanggaran hukum lainnya.</span>
+                            <li style="display: flex; gap: 10px;">
+                                <i class="fas fa-check" style="color: #10b981; margin-top: 4px;"></i>
+                                <span>Kami berhak menonaktifkan akun yang melanggar aturan hukum.</span>
                             </li>
                         </ul>
                     </div>
 
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">3</span>
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">3</span>
                             Aturan Publikasi
                         </h2>
-                        <p style="margin-bottom: 15px;">Semua konten yang Anda unggah harus memenuhi kriteria berikut:</p>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
-                            <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border-left: 4px solid var(--secondary);">
-                                <strong style="display: block; margin-bottom: 5px;">Akurasi Data</strong>
-                                <span style="font-size: 0.9rem; color: var(--text-muted);">Informasi harus akurat dan tidak menyesatkan.</span>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid var(--primary);">
+                                <strong style="display: block; font-size: 0.9rem; margin-bottom: 3px;">Akurasi Data</strong>
+                                <span style="font-size: 0.85rem; color: #64748b;">Informasi harus benar dan tidak menyesatkan.</span>
                             </div>
-                            <div style="padding: 15px; background: #f8fafc; border-radius: 12px; border-left: 4px solid #ef4444;">
-                                <strong style="display: block; margin-bottom: 5px;">Konten Terlarang</strong>
-                                <span style="font-size: 0.9rem; color: var(--text-muted);">Dilarang memposting barang/layanan ilegal.</span>
+                            <div style="padding: 15px; background: #f8fafc; border-radius: 8px; border-left: 3px solid #ef4444;">
+                                <strong style="display: block; font-size: 0.9rem; margin-bottom: 3px;">Konten Terlarang</strong>
+                                <span style="font-size: 0.85rem; color: #64748b;">Dilarang memposting barang/layanan ilegal.</span>
                             </div>
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 40px;">
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--primary); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                            <span style="background: var(--primary); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">4</span>
-                            Moderasi & Hak Admin
-                        </h2>
-                        <p>Tim {{ config('app.name') }} berhak mengedit, menangguhkan, atau menghapus listing tanpa pemberitahuan jika ditemukan adanya ketidaksesuaian dengan standar komunitas kami demi keamanan bersama.</p>
-                    </div>
+                    <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 40px 0;">
 
-                    <hr style="border: none; border-top: 1px solid var(--border); margin: 40px 0;">
-
-                    <div style="text-align: center;">
-                        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">Hubungi Kami</h3>
-                        <p style="color: var(--text-muted); margin-bottom: 20px;">Jika ada pertanyaan terkait konten, silakan hubungi tim kami.</p>
-                        <a href="mailto:admin@sebatam.com" class="btn btn-primary" style="padding: 12px 30px;">
+                    <div style="text-align: center; background: #f8fafc; padding: 35px; border-radius: 12px; border: 1px solid #f1f5f9;">
+                        <h3 style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 15px;">Punya Pertanyaan?</h3>
+                        <a href="mailto:admin@sebatam.com" class="btn btn-primary" style="padding: 10px 25px; font-weight: 700; font-size: 0.9rem;">
                             <i class="fas fa-envelope" style="margin-right: 8px;"></i> admin@sebatam.com
                         </a>
                     </div>
@@ -90,6 +79,7 @@
             </div>
         </div>
     </section>
+</div>
 </div>
 @endsection
 
