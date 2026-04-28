@@ -11,6 +11,23 @@
         @csrf
         
         <div class="form-group-horizontal">
+            <label for="user_id">Nama Pengguna (Pemilik Iklan)</label>
+            <div class="form-input-side">
+                <select name="user_id" id="user_id" class="form-control @error('user_id') is-invalid @enderror" required>
+                    <option value="">Pilih Pengguna</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" {{ (old('user_id') == $user->id || request('user_id') == $user->id) ? 'selected' : '' }}>
+                            {{ $user->name }} ({{ $user->whatsapp }})
+                        </option>
+                    @endforeach
+                </select>
+                @error('user_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        
+        <div class="form-group-horizontal">
             <label for="listing_type_id">Tipe Iklan</label>
             <div class="form-input-side">
                 <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
@@ -102,4 +119,48 @@
         </div>
     </form>
 </div>
+
+{{-- Tambahkan Select2 untuk penanganan user dalam jumlah besar --}}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<style>
+    .select2-container--default .select2-selection--single {
+        height: 48px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        height: 46px;
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+        $('#user_id').select2({
+            placeholder: 'Ketik nama atau nomor WA pengguna...',
+            minimumInputLength: 2,
+            ajax: {
+                url: "{{ route('admin.users.search') }}",
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    return {
+                        q: params.term
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+</script>
 @endsection

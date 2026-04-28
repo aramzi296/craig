@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\WhatsappService;
+use App\Models\WhatsappLog;
+
 
 
 class AdminController extends Controller
@@ -129,12 +131,39 @@ class AdminController extends Controller
         return view('admin.listings.index', compact('listings', 'listingTypes'));
     }
 
-    public function createListing()
+    public function searchUsers(Request $request)
+    {
+        $search = $request->q;
+        $users = \App\Models\User::where('name', 'like', "%{$search}%")
+            ->orWhere('whatsapp', 'like', "%{$search}%")
+            ->orWhere('email', 'like', "%{$search}%")
+            ->latest()
+            ->take(10)
+            ->get(['id', 'name', 'whatsapp']);
+
+        return response()->json($users->map(function($user) {
+            return [
+                'id' => $user->id,
+                'text' => $user->name . ' (' . $user->whatsapp . ')'
+            ];
+        }));
+    }
+
+    public function createListing(Request $request)
     {
         $categories = \App\Models\Category::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
-        return view('admin.listings.create', compact('categories', 'listingTypes', 'districts'));
+        
+        $selectedUserId = $request->query('user_id');
+        if ($selectedUserId) {
+            $users = \App\Models\User::where('id', $selectedUserId)->get();
+        } else {
+            // Only fetch latest 20 users for initial view to keep it fast
+            $users = \App\Models\User::latest()->take(20)->get();
+        }
+        
+        return view('admin.listings.create', compact('categories', 'listingTypes', 'districts', 'users'));
     }
 
     public function storeListing(\Illuminate\Http\Request $request)
@@ -148,12 +177,13 @@ class AdminController extends Controller
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'user_id' => 'required|exists:users,id',
         ]);
 
         $categoryOther = $data['category_other'] ?? null;
         unset($data['category_other'], $data['category_ids']);
 
-        $data['user_id'] = auth()->id();
+        // user_id is already in $data from validation
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = \DB::raw('true');
 
@@ -693,10 +723,28 @@ class AdminController extends Controller
         return back()->with('success', 'Status verifikasi akun berhasil diubah.');
     }
 
-    public function whatsappForm()
+    public function whatsappForm(Request $request)
     {
         $templates = \App\Models\WaTemplate::orderBy('name')->get();
         return view('admin.whatsapp.index', compact('templates'));
+    }
+
+    public function whatsappHistory(Request $request)
+    {
+        $query = WhatsappLog::query();
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('phone', 'like', "%{$search}%")
+                  ->orWhere('message', 'like', "%{$search}%")
+                  ->orWhere('admin_notes', 'like', "%{$search}%");
+            });
+        }
+        
+        $logs = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.whatsapp.history', compact('logs'));
     }
 
     public function waTemplates()
@@ -758,10 +806,35 @@ class AdminController extends Controller
 
         $response = $whatsappService->sendMessage($request->phone, $request->message);
 
+        // Record the message in database
+        WhatsappLog::create([
+            'phone' => $request->phone,
+            'message' => $request->message,
+            'status' => $response ? 'sent' : 'failed',
+        ]);
+
         if ($response) {
             return back()->with('success', 'Pesan WhatsApp berhasil dikirim.');
         }
 
         return back()->with('error', 'Gagal mengirim pesan WhatsApp. Pastikan layanan API WA aktif.');
+    }
+
+    public function updateWhatsappLog(Request $request, $id)
+    {
+        $log = WhatsappLog::findOrFail($id);
+        $log->update($request->validate([
+            'admin_notes' => 'nullable|string',
+        ]));
+
+        return back()->with('success', 'Catatan admin berhasil diperbarui.');
+    }
+
+    public function destroyWhatsappLog($id)
+    {
+        $log = WhatsappLog::findOrFail($id);
+        $log->delete();
+
+        return back()->with('success', 'Catatan WhatsApp berhasil dihapus.');
     }
 }

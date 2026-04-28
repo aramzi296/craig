@@ -138,6 +138,10 @@
                                 </button>
                             </form>
 
+                            <a href="{{ route('admin.listings.create', ['user_id' => $user->id]) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
+                                <i class="fa-solid fa-square-plus" style="width: 16px;"></i> Pasang Iklan
+                            </a>
+
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
 
                             <a href="{{ route('admin.whatsapp', ['phone' => $user->whatsapp]) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #16a34a; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">

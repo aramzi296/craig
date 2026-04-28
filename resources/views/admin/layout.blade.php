@@ -62,8 +62,13 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="{{ route('admin.whatsapp') }}" class="sidebar-link {{ request()->routeIs('admin.whatsapp*') ? 'active' : '' }}">
+                <a href="{{ route('admin.whatsapp') }}" class="sidebar-link {{ request()->routeIs('admin.whatsapp') ? 'active' : '' }}">
                     <i class="fa-brands fa-whatsapp"></i> Kirim WA
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.whatsapp.history') }}" class="sidebar-link {{ request()->routeIs('admin.whatsapp.history') ? 'active' : '' }}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Riwayat WA
                 </a>
             </li>
             <li class="sidebar-item">
