@@ -140,6 +140,12 @@
 
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
 
+                            <a href="{{ route('admin.whatsapp', ['phone' => $user->whatsapp]) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #16a34a; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
+                                <i class="fa-brands fa-whatsapp" style="width: 16px;"></i> Kirim WA
+                            </a>
+
+                            <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
+
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini? Semua iklan milik pengguna ini juga akan terhapus.')" style="margin: 0;">
                                 @csrf
                                 @method('DELETE')

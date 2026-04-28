@@ -268,6 +268,10 @@ a {
     margin: 5px 0;
 }
 
+.dropdown {
+    position: relative;
+}
+
 /* Mobile Toggle */
 .mobile-toggle {
     display: block;
@@ -1065,7 +1069,6 @@ a {
     border-collapse: collapse;
     background: white;
     border-radius: var(--radius);
-    overflow: hidden;
     border: 1px solid var(--border);
 }
 

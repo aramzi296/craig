@@ -17,6 +17,7 @@
         <div style="margin-bottom: 25px;">
             <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text);">Nomor WhatsApp Tujuan</label>
             <input type="text" name="phone" placeholder="Contoh: 081234567890" required 
+                value="{{ request('phone') }}"
                 style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #cbd5e1; background: #f8fafc; color: var(--text); font-size: 1rem; outline: none; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"
                 onfocus="this.style.borderColor='var(--primary)'; this.style.background='white'; this.style.boxShadow='0 0 0 4px rgba(14, 165, 233, 0.1), inset 0 2px 4px rgba(0,0,0,0.05)';"
                 onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.05)';">
