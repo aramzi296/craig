@@ -94,8 +94,9 @@ class AdminController extends Controller
     public function toggleCategoryApproval($id)
     {
         $category = \App\Models\Category::findOrFail($id);
-        $newStatus = $category->is_approved ? 'false' : 'true';
-        $category->update(['is_approved' => \DB::raw($newStatus)]);
+        $newStatusSql = $category->is_approved ? 'false' : 'true';
+        
+        \DB::update("UPDATE categories SET is_approved = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
     }
@@ -369,15 +370,14 @@ class AdminController extends Controller
         if (!$listing->is_active) {
             // Activating
             $days = (int)get_setting('expire_iklan', 30);
-            $listing->update([
-                'is_active' => \DB::raw('true'),
-                'expires_at' => now()->addDays($days),
-                'activation_code' => null,
-            ]);
+            $expiresAt = now()->addDays($days)->toDateTimeString();
+            
+            \DB::update("UPDATE listings SET is_active = true, expires_at = ?, activation_code = NULL, updated_at = NOW() WHERE id = ?", [$expiresAt, $id]);
+            
             $statusText = 'diaktifkan';
         } else {
             // Deactivating
-            $listing->update(['is_active' => \DB::raw('false')]);
+            \DB::update("UPDATE listings SET is_active = false, updated_at = NOW() WHERE id = ?", [$id]);
             $statusText = 'dinonaktifkan';
         }
 
@@ -455,13 +455,14 @@ class AdminController extends Controller
 
     public function toggleAdminStatus($id)
     {
-        if ($id == auth()->id()) {
-            return back()->with('error', 'Anda tidak dapat mengubah status admin Anda sendiri.');
+        if (auth()->id() == $id) {
+            return back()->with('error', 'Anda tidak bisa mengubah status admin Anda sendiri.');
         }
 
         $user = \App\Models\User::findOrFail($id);
-        $newStatus = $user->is_admin ? 'false' : 'true';
-        $user->update(['is_admin' => \DB::raw($newStatus)]);
+        $newStatusSql = $user->is_admin ? 'false' : 'true';
+        
+        \DB::update("UPDATE users SET is_admin = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status peran pengguna berhasil diubah.');
     }
@@ -808,8 +809,10 @@ class AdminController extends Controller
     public function toggleUserVerification($id)
     {
         $user = \App\Models\User::findOrFail($id);
-        $newStatus = $user->is_verified ? 'false' : 'true';
-        $user->update(['is_verified' => \DB::raw($newStatus)]);
+        $newStatusSql = $user->is_verified ? 'false' : 'true';
+        
+        // Direct SQL update to force PG boolean keywords and avoid Eloquent casting issues
+        \DB::update("UPDATE users SET is_verified = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status verifikasi akun berhasil diubah.');
     }

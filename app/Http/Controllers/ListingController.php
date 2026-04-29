@@ -321,19 +321,18 @@ class ListingController extends Controller
             }
 
             // Activating
-            $updateData = ['is_active' => \DB::raw('true')];
-            
-            // If it has an activation code, it means it's an admin-created ad being activated for the first time
             if ($listing->activation_code) {
-                $updateData['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
-                $updateData['activation_code'] = null;
+                $days = (int)get_setting('expire_iklan', 30);
+                $expiresAt = now()->addDays($days)->toDateTimeString();
+                \DB::update("UPDATE listings SET is_active = true, expires_at = ?, activation_code = NULL, updated_at = NOW() WHERE id = ?", [$expiresAt, $id]);
+            } else {
+                \DB::update("UPDATE listings SET is_active = true, updated_at = NOW() WHERE id = ?", [$id]);
             }
             
-            $listing->update($updateData);
             $msg = 'Iklan berhasil diaktifkan.';
         } else {
             // Deactivating
-            $listing->update(['is_active' => \DB::raw('false')]);
+            \DB::update("UPDATE listings SET is_active = false, updated_at = NOW() WHERE id = ?", [$id]);
             $msg = 'Iklan berhasil dinonaktifkan.';
         }
 
