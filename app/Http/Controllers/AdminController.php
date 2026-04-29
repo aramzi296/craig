@@ -189,12 +189,13 @@ class AdminController extends Controller
         
         $isActive = $request->has('is_active');
         $data['is_active'] = $isActive ? \DB::raw('true') : \DB::raw('false');
-        $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
         
         if ($isActive) {
             $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
+            $data['activation_code'] = null;
         } else {
             $data['expires_at'] = now()->addDays(10);
+            $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
         }
 
         $listing = \App\Models\Listing::create($data);
@@ -245,7 +246,13 @@ class AdminController extends Controller
             }
         }
 
-        return redirect()->route('admin.listings')->with('success', 'Listing berhasil dibuat.');
+        $msg = 'Listing berhasil dibuat.';
+        if (!$listing->is_active && $listing->activation_code) {
+            $url = route('listings.show', ['slug' => $listing->slug, 'code' => $listing->activation_code]);
+            $msg .= " Kode Aktivasi: <strong>{$listing->activation_code}</strong>. <br>Link Aktivasi: <a href='{$url}' target='_blank'>{$url}</a>";
+        }
+
+        return redirect()->route('admin.listings')->with('success', $msg);
     }
 
     public function editListing($id)
@@ -365,11 +372,21 @@ class AdminController extends Controller
     {
         $listing = \App\Models\Listing::findOrFail($id);
         
-        // Direct SQL update to bypass ALL layers and force PG boolean keywords
-        $newStatusSql = $listing->is_active ? 'false' : 'true';
-        \DB::update("UPDATE listings SET is_active = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
+        if (!$listing->is_active) {
+            // Activating
+            $days = (int)get_setting('expire_iklan', 30);
+            $listing->update([
+                'is_active' => \DB::raw('true'),
+                'expires_at' => now()->addDays($days),
+                'activation_code' => null,
+            ]);
+            $statusText = 'diaktifkan';
+        } else {
+            // Deactivating
+            $listing->update(['is_active' => \DB::raw('false')]);
+            $statusText = 'dinonaktifkan';
+        }
 
-        $statusText = ($newStatusSql === 'true') ? 'diaktifkan' : 'dinonaktifkan';
         return back()->with('success', "Listing #{$listing->id} ({$listing->title}) berhasil {$statusText}.");
     }
 

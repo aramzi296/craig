@@ -109,6 +109,7 @@ class ListingController extends Controller
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         $data['is_active'] = \DB::raw('true');
+        $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
         if ($isPremiumPackage) {
             $data['is_premium'] = \DB::raw('true');
         }
@@ -314,6 +315,11 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
         
         if (!$listing->is_active) {
+            // Check if it's an admin-created ad that has expired
+            if ($listing->activation_code && $listing->expires_at && $listing->expires_at->isPast()) {
+                return back()->with('error', 'Masa aktivasi iklan ini sudah habis (10 hari). Silakan buat iklan baru.');
+            }
+
             // Activating
             $updateData = ['is_active' => \DB::raw('true')];
             

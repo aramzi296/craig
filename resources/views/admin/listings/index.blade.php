@@ -11,7 +11,7 @@
 
 @if(session('success'))
     <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        {{ session('success') }}
+        {!! session('success') !!}
     </div>
 @endif
 
@@ -140,7 +140,7 @@
                                 </button>
                             </form>
 
-                            <a href="{{ route('listings.show', $listing->slug) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
+                            <a href="{{ route('listings.show', ['slug' => $listing->slug, 'code' => $listing->activation_code]) }}" target="_blank" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
                                 <i class="fa-solid fa-eye" style="width: 16px; color: #64748b;"></i> Lihat Detail
                             </a>
 
