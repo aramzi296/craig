@@ -46,8 +46,8 @@
             @endif
         </div>
         @if($listings->count() > 0)
-        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
-            <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
+        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px; min-height: 300px;">
+            <table class="data-table" style="min-width: 600px; margin-bottom: 100px;">
                 <thead>
                     <tr>
                         <th>Iklan</th>
@@ -194,22 +194,31 @@
                     const rect = menu.getBoundingClientRect();
                     const container = menu.closest('.table-container');
                     const containerRect = container ? container.getBoundingClientRect() : null;
+                    const windowHeight = window.innerHeight;
                     
                     // Boundary detection
-                    const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 5);
-                    const overflowsWindow = rect.bottom > window.innerHeight - 5;
+                    // Check if it overflows the container bottom or window bottom
+                    const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 10);
+                    const overflowsWindow = rect.bottom > windowHeight - 10;
 
                     if (overflowsContainer || overflowsWindow) {
+                        // Try flipping to top
                         menu.style.top = 'auto';
                         menu.style.bottom = '100%';
                         menu.style.marginTop = '0';
                         menu.style.marginBottom = '10px';
                         
-                        // Check if it now overflows the top of the window
+                        // Check if it now overflows the top of the container or window
                         const flippedRect = menu.getBoundingClientRect();
-                        if (flippedRect.top < 0) {
+                        const overflowsTop = flippedRect.top < (containerRect ? containerRect.top : 0) || flippedRect.top < 0;
+                        
+                        if (overflowsTop) {
+                            // If it still doesn't fit at the top, show it at the bottom but 
+                            // we rely on the container's min-height and margin-bottom to provide space
                             menu.style.bottom = 'auto';
-                            menu.style.top = '10px';
+                            menu.style.top = '100%';
+                            menu.style.marginTop = '10px';
+                            menu.style.marginBottom = '0';
                         }
                     } else {
                         menu.style.top = '100%';
