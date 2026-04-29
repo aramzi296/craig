@@ -216,7 +216,7 @@ class WhatsappBotService
             ->limit($perPage)
             ->get();
 
-        $msg = "📋 *Daftar Iklan Anda (Hal {$page}/{$totalPages})*\n\n";
+        $msg = "📋 *Daftar Iklan di Lapak Anda (Hal {$page}/{$totalPages})*\n\n";
 
         foreach ($listings as $i => $listing) {
             $status = $listing->is_active ? "✅ Aktif" : "⏳ Non-Aktif";
