@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Jobs\ProcessListingImageUpload;
 use App\Services\WhatsappService;
 use App\Models\WhatsappLog;
 
@@ -176,6 +177,9 @@ class AdminController extends Controller
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'user_id' => 'required|exists:users,id',
+            'website' => 'nullable|url|max:255',
+            'photos' => 'nullable|array',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $rawCategories = $data['categories'] ?? null;
@@ -213,6 +217,25 @@ class AdminController extends Controller
 
         $listing->categories()->sync($categoryIds);
 
+        // Upload Photos
+        if ($request->hasFile('photos')) {
+            $maxPhotos = 12; // Admin has higher limit or just use a safe number
+            foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
+                // Store file temporarily
+                $tempDir = storage_path('app/private/temp_uploads');
+                if (!file_exists($tempDir)) {
+                    mkdir($tempDir, 0777, true);
+                }
+                
+                $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move($tempDir, $fileName);
+                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+
+                // Dispatch Job
+                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+            }
+        }
+
         return redirect()->route('admin.listings')->with('success', 'Listing berhasil dibuat.');
     }
 
@@ -236,6 +259,9 @@ class AdminController extends Controller
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'website' => 'nullable|url|max:255',
+            'photos' => 'nullable|array',
+            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         $rawCategories = $data['categories'] ?? null;
@@ -274,6 +300,30 @@ class AdminController extends Controller
 
         $listing->categories()->sync($categoryIds);
 
+        // Upload Photos
+        if ($request->hasFile('photos')) {
+            $currentCount = $listing->photos()->count();
+            $maxPhotos = 12; 
+            $remaining = $maxPhotos - $currentCount;
+
+            if ($remaining > 0) {
+                foreach (array_slice($request->file('photos'), 0, $remaining) as $file) {
+                    // Store file temporarily
+                    $tempDir = storage_path('app/private/temp_uploads');
+                    if (!file_exists($tempDir)) {
+                        mkdir($tempDir, 0777, true);
+                    }
+                    
+                    $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move($tempDir, $fileName);
+                    $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+
+                    // Dispatch Job
+                    ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+                }
+            }
+        }
+
         return redirect()->route('admin.listings')->with('success', 'Listing berhasil diperbarui.');
     }
 
@@ -283,6 +333,23 @@ class AdminController extends Controller
         $listing->delete();
 
         return redirect()->route('admin.listings')->with('success', 'Listing berhasil dihapus.');
+    }
+
+    public function deleteListingPhoto($id)
+    {
+        $photo = \App\Models\ListingPhoto::findOrFail($id);
+        
+        // Use ImageService if possible, or just delete if it's simpler
+        // We need ImageService to delete from ImageKit
+        $imageService = app(\App\Services\ImageService::class);
+        
+        if ($photo->ik_file_id) {
+            $imageService->deleteFileById($photo->ik_file_id);
+        }
+
+        $photo->delete();
+
+        return back()->with('success', 'Foto berhasil dihapus.');
     }
 
     public function users(Request $request)

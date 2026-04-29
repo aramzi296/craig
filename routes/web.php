@@ -81,6 +81,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/listings/{id}', [AdminController::class, 'updateListing'])->name('listings.update');
         Route::delete('/listings/{id}', [AdminController::class, 'destroyListing'])->name('listings.destroy');
         Route::post('/listings/{id}/toggle', [AdminController::class, 'toggleListingStatus'])->name('listings.toggle');
+        Route::delete('/listings/photos/{id}', [AdminController::class, 'deleteListingPhoto'])->name('listings.photos.destroy');
 
         // User Management
         Route::get('/users', [AdminController::class, 'users'])->name('users');

@@ -7,7 +7,7 @@
 </div>
 
 <div class="form-card">
-    <form action="{{ route('admin.listings.update', $listing->id) }}" method="POST">
+    <form action="{{ route('admin.listings.update', $listing->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         
@@ -52,6 +52,53 @@
                 <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
                 @error('price')
                     <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="website">Link Website (Opsional)</label>
+            <div class="form-input-side">
+                <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->website) }}" placeholder="https://example.com">
+                <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+                @error('website')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label>Galeri Foto Saat Ini</label>
+            <div class="form-input-side">
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    @forelse($listing->photos as $photo)
+                        <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
+                            <img src="{{ $photo->getThumbnailUrl() }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
+                            <button type="button" 
+                                    onclick="if(confirm('Hapus foto ini?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
+                                    style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    @empty
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto galeri.</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="photos">Tambah Foto</label>
+            <div class="form-input-side">
+                <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Unggah foto tambahan. Maksimal 12 foto total.
+                </small>
+                @error('photos')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                @enderror
+                @error('photos.*')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -150,4 +197,12 @@
         </div>
     </form>
 </div>
+
+{{-- Hidden Delete Forms for Photos --}}
+@foreach($listing->photos as $photo)
+    <form id="delete-photo-{{ $photo->id }}" action="{{ route('admin.listings.photos.destroy', $photo->id) }}" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+@endforeach
 @endsection

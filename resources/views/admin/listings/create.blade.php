@@ -7,7 +7,7 @@
 </div>
 
 <div class="form-card">
-    <form action="{{ route('admin.listings.store') }}" method="POST">
+    <form action="{{ route('admin.listings.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <div class="form-group-horizontal">
@@ -68,6 +68,33 @@
                 <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="Contoh: 500000 (kosongkan jika tidak ada)">
                 <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
                 @error('price')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="website">Link Website (Opsional)</label>
+            <div class="form-input-side">
+                <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" placeholder="https://example.com">
+                <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+                @error('website')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="photos">Foto Iklan</label>
+            <div class="form-input-side">
+                <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Anda dapat mengunggah beberapa foto sekaligus.
+                </small>
+                @error('photos')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+                @error('photos.*')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
