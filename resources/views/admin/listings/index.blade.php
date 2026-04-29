@@ -70,6 +70,11 @@
                 <td>
                     <div style="font-weight: 600;">{{ $listing->title }}</div>
                     <div style="font-size: 0.8rem; color: var(--text-muted);"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
+                    @if($listing->activation_code)
+                        <div style="font-size: 0.75rem; background: #fff7ed; color: #9a3412; display: inline-block; padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 700; border: 1px solid #ffedd5;">
+                            <i class="fa-solid fa-key" style="font-size: 0.65rem;"></i> {{ $listing->activation_code }}
+                        </div>
+                    @endif
                 </td>
                 <td>{{ $listing->user->name }}</td>
                 <td>

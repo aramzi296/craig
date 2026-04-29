@@ -136,12 +136,19 @@ class HomeController extends Controller
             }
         }
 
-        $listing = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
+        $code = request()->query('code');
+
+        $query = \App\Models\Listing::with(['categories', 'listingType', 'photos', 'user', 'comments.user', 'district'])
             ->withCount('views')
-            ->where('slug', $slug)
-            ->whereRaw('is_active = true')
-            ->notExpired()
-            ->firstOrFail();
+            ->where('slug', $slug);
+
+        if ($code) {
+            $query->where('activation_code', $code);
+        } else {
+            $query->whereRaw('is_active = true')->notExpired();
+        }
+
+        $listing = $query->firstOrFail();
 
         $relatedListings = \App\Models\Listing::with(['categories', 'listingType'])
             ->whereHas('categories', function($q) use ($listing) {

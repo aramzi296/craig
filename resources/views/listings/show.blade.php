@@ -59,6 +59,21 @@
                 document.getElementById('lightbox').onclick = function(e) { if (e.target.id === 'lightbox') closeLightbox(); };
             </script>
             @endif
+            
+            @if($listing->activation_code)
+                <div style="background: {{ $listing->is_active ? '#f0f9ff' : '#fff7ed' }}; border: 1px solid {{ $listing->is_active ? '#bae6fd' : '#ffedd5' }}; color: {{ $listing->is_active ? '#0369a1' : '#9a3412' }}; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
+                    <div style="background: {{ $listing->is_active ? '#0ea5e9' : '#f97316' }}; color: white; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">KODE UNIK IKLAN</div>
+                        <div style="font-size: 1.2rem; font-weight: 800; letter-spacing: 2px;">{{ $listing->activation_code }}</div>
+                    </div>
+                    @if(!$listing->is_active)
+                        <div style="font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 6px;">BELUM AKTIF</div>
+                    @endif
+                </div>
+            @endif
 
             <!-- 1. Judul (Title) -->
             <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9;">

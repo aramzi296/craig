@@ -186,7 +186,16 @@ class AdminController extends Controller
         unset($data['categories']);
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
-        $data['is_active'] = \DB::raw('true');
+        
+        $isActive = $request->has('is_active');
+        $data['is_active'] = $isActive ? \DB::raw('true') : \DB::raw('false');
+        $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
+        
+        if ($isActive) {
+            $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
+        } else {
+            $data['expires_at'] = now()->addDays(10);
+        }
 
         $listing = \App\Models\Listing::create($data);
 

@@ -83,6 +83,22 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: aktivasi iklan [kode] ─────────────────────────────────
+        if (str_starts_with($lowerText, 'aktivasi iklan ') || str_starts_with($lowerText, 'aktivasi ')) {
+            $parts = explode(' ', $text);
+            $code = end($parts);
+            if (strlen($code) >= 6) { // Basic sanity check for code length
+                $this->handleActivationRequest($phone, $code);
+                return;
+            }
+        }
+
+        if ($lowerText === 'aktivasi iklan' || $lowerText === 'aktivasi') {
+            $this->setState($phone, ['step' => 'awaiting_activation_code']);
+            $this->whatsapp->sendMessage($phone, "🔑 *Aktivasi Iklan*\n\nSilakan kirimkan *Kode Unik* iklan yang ingin Anda aktifkan.");
+            return;
+        }
+
         // ── Keyword: menu ──────────────────────────────────────────────────
         if ($lowerText === 'menu') {
             $this->handleMenuRequest($phone);
@@ -122,9 +138,11 @@ class WhatsappBotService
             "Untuk mendapatkan kode akses login ke website.\n\n" .
             "2️⃣ *pasang iklan*\n" .
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
-            "3️⃣ *kuota iklan*\n" .
+            "3️⃣ *aktivasi iklan*\n" .
+            "Untuk mengaktifkan iklan yang dibuat oleh Admin menggunakan Kode Unik.\n\n" .
+            "4️⃣ *kuota iklan*\n" .
             "Untuk melihat sisa jatah slot iklan Anda.\n\n" .
-            "4️⃣ *menu*\n" .
+            "5️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
         );
@@ -527,8 +545,56 @@ class WhatsappBotService
             'awaiting_wa_button'       => $this->handleAdWaButton($phone, $lower, $state),
             'awaiting_comment_section' => $this->handleAdCommentSection($phone, $lower, $state),
             'awaiting_confirmation'    => $this->handleAdConfirmation($phone, $lower, $state),
+            'awaiting_activation_code' => $this->handleActivationRequest($phone, $text),
             default                    => $this->abortUnknownStep($phone),
         };
+    }
+
+    private function handleActivationRequest(string $phone, string $code): void
+    {
+        $code = strtoupper(trim($code));
+        $listing = Listing::where('activation_code', $code)->first();
+
+        if (!$listing) {
+            $this->whatsapp->sendMessage($phone, "❌ *Kode Tidak Ditemukan*\n\nMaaf, kode unik *{$code}* tidak terdaftar di sistem kami. Pastikan kode yang Anda masukkan benar.");
+            return;
+        }
+
+        if ($listing->is_active) {
+            $this->whatsapp->sendMessage($phone, "ℹ️ *Iklan Sudah Aktif*\n\nIklan dengan kode *{$code}* sudah dalam status aktif.");
+            $this->clearState($phone);
+            return;
+        }
+
+        // Check if activation window is expired (10 days)
+        if ($listing->expires_at && $listing->expires_at->isPast()) {
+            $this->whatsapp->sendMessage($phone, "⚠️ *Kode Kedaluwarsa*\n\nMaaf, masa aktivasi untuk iklan ini sudah habis (lebih dari 10 hari). Silakan hubungi admin untuk bantuan.");
+            $this->clearState($phone);
+            return;
+        }
+
+        // Check ownership
+        if ($listing->user->whatsapp !== $phone) {
+            $this->whatsapp->sendMessage($phone, "🚫 *Akses Ditolak*\n\nNomor WhatsApp Anda tidak sesuai dengan pemilik iklan ini. Aktivasi hanya dapat dilakukan oleh pemilik iklan.");
+            $this->clearState($phone);
+            return;
+        }
+
+        // Activate
+        $listing->update([
+            'is_active' => \DB::raw('true'),
+            'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
+            'activation_code' => null, // Clear code once activated
+        ]);
+
+        $this->whatsapp->sendMessage(
+            $phone,
+            "✅ *Iklan Berhasil Diaktifkan!*\n\n" .
+            "Selamat! Iklan Anda *'{$listing->title}'* sekarang sudah aktif dan dapat dilihat oleh semua orang.\n\n" .
+            "🔗 *Link Iklan:* " . route('listings.show', $listing->slug)
+        );
+
+        $this->clearState($phone);
     }
 
     // ── Fungsi-fungsi premium di bawah ini dinonaktifkan sementara ───────────

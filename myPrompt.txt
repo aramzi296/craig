@@ -65,3 +65,35 @@ Silahkan
 
 
 
+saya punya data berikut untuk koneksi ke neon.com postgres database. 
+tolong anda buatkan settingnya supaya bisa digunakan.
+
+PGHOST='ep-shiny-mud-an6krw4i-pooler.c-6.us-east-1.aws.neon.tech'
+PGDATABASE='craigtest'
+PGUSER='neondb_owner'
+PGPASSWORD='npg_grGz5OfoY6mC'
+PGSSLMODE='require'
+PGCHANNELBINDING='require'
+
+
+kita sudah punya fitur dimana admin membuat iklan atas nama satu user.
+admin bisa mengaktifkan iklan tersebut. tap secara default, iklan yang dibuat tidak langsung aktif. 
+setiap iklan yang dibuat admin, iklan tersebut diberi kode unik.
+kemudian sistem memberikan link untuk melihat iklan.
+iklan hanya bisa dibuka dengan link menggunakan kode unik tersebut.
+di halaman iklan, tambahkan informasi nomor kode unik untuk iklan.
+dengan nomor kode unik ini, user bisa mengetahui nomor kode unik iklan. 
+link ini akan diberikan kepada user sebenarnya oleh admin.
+user sebenarnya bisa mengaktifkan iklannya kapan saja.
+cara user mengaktifkan iklan yang dibuatkan oleh admin adalah dengan
+mengirim pesan "aktivasi iklan" ke nomor chatbot admin.
+bot admin akan menanyakan nomor kode iklan.
+setelah bot menerima nomor kode iklan, bot akan memeriksa kode iklan nan nomor wa pengirim cocok.
+jika cocok, iklan diaktifkan. jika tidak, balas dengan pesan bahwa kode iklan
+tidak valid atau tidak cocok.
+iklan yang dibuat admin punya expire 10 hari. 
+setelah 10 hari, iklan tersebut tidak bisa diaktifkan. user harus membuat iklan kembali.
+apabila user sudah login, iklan yang dibuat admin akan muncul di daftar iklan user tersebut.
+user bisa aktifkan, edit atau hapus iklan tersebut.
+jika user aktifkan iklan, maka expire iklan mengacu kepada setting aplikasi.
+

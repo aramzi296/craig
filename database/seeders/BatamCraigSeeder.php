@@ -42,7 +42,7 @@ class BatamCraigSeeder extends Seeder
                     'description' => 'Ini adalah deskripsi untuk listing ' . $category->name . '. Barang/Jasa ini tersedia di area Batam dengan kondisi terbaik.',
                     'price' => rand(100000, 5000000),
                     'location' => ['Batam Centre', 'Nagoya', 'Sekupang', 'Bengkong'][rand(0, 3)],
-                    'is_featured' => $i == 1,
+                    'is_featured' => \DB::raw($i == 1 ? 'TRUE' : 'FALSE'),
                 ]);
             }
         }

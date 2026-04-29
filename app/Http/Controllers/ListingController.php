@@ -312,10 +312,26 @@ class ListingController extends Controller
     public function toggleStatus($id)
     {
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
-        $newStatus = $listing->is_active ? 'false' : 'true';
-        $listing->update(['is_active' => \DB::raw($newStatus)]);
+        
+        if (!$listing->is_active) {
+            // Activating
+            $updateData = ['is_active' => \DB::raw('true')];
+            
+            // If it has an activation code, it means it's an admin-created ad being activated for the first time
+            if ($listing->activation_code) {
+                $updateData['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
+                $updateData['activation_code'] = null;
+            }
+            
+            $listing->update($updateData);
+            $msg = 'Iklan berhasil diaktifkan.';
+        } else {
+            // Deactivating
+            $listing->update(['is_active' => \DB::raw('false')]);
+            $msg = 'Iklan berhasil dinonaktifkan.';
+        }
 
-        return back()->with('success', 'Status iklan berhasil diubah.');
+        return back()->with('success', $msg);
     }
 
     public function destroy($id)
