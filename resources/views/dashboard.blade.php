@@ -110,35 +110,48 @@
                                 -
                             @endif
                         </td>
-                        <td>
-                            <div style="display: flex; gap: 15px; align-items: center; justify-content: flex-end;">
-                                @if($tab == 'favorites')
-                                    <form action="{{ route('listings.favorite', $listing->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0;" title="Hapus dari Favorit">
-                                            <i class="fa-solid fa-heart-circle-xmark"></i>
-                                        </button>
-                                    </form>
-                                @else
-                                    {{-- Icon upgrade ke premium dinonaktifkan sementara --}}
+                        <td style="text-align: right;">
+                            <div class="dropdown" style="display: inline-block; position: relative;">
+                                <button onclick="toggleDropdown(event, 'dropdown-{{ $listing->id }}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
+                                    Aksi <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                                </button>
+                                <div id="dropdown-{{ $listing->id }}" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 12px; border: 1px solid #f1f5f9; z-index: 100; margin-top: 5px; padding: 8px 0; text-align: left;">
+                                    
+                                    <a href="{{ route('listings.show', $listing->slug) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem;">
+                                        <i class="fa-solid fa-eye" style="width: 16px; color: #64748b;"></i> Lihat Iklan
+                                    </a>
 
-                                    {{-- Badge proses premium dinonaktifkan sementara --}}
+                                    @if($tab != 'favorites')
+                                        <a href="{{ route('listings.edit', $listing->id) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem;">
+                                            <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Iklan
+                                        </a>
 
-                                    <form action="{{ route('listings.toggle', $listing->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" style="background: none; border: none; color: var(--primary); cursor: pointer; padding: 0;" title="Ganti Status">
-                                            <i class="fa-solid fa-power-off"></i>
-                                        </button>
-                                    </form>
-                                    <a href="{{ route('listings.edit', $listing->id) }}" style="color: var(--accent);"><i class="fa-solid fa-pen"></i></a>
-                                    <form action="{{ route('listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus iklan ini?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0;">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                                        <form action="{{ route('listings.toggle', $listing->id) }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
+                                                <i class="fa-solid fa-power-off" style="width: 16px; color: {{ $listing->is_active ? '#ef4444' : '#22c55e' }};"></i>
+                                                {{ $listing->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+                                            </button>
+                                        </form>
+
+                                        <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
+
+                                        <form action="{{ route('listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus iklan ini?')" style="margin: 0;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
+                                                <i class="fa-solid fa-trash" style="width: 16px;"></i> Hapus Iklan
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form action="{{ route('listings.favorite', $listing->id) }}" method="POST" style="margin: 0;">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
+                                                <i class="fa-solid fa-heart-circle-xmark" style="width: 16px;"></i> Hapus Favorit
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -159,4 +172,37 @@
         </div>
         @endif
     </div>
+
+    @section('scripts')
+    <script>
+        function toggleDropdown(event, id) {
+            event.stopPropagation();
+            
+            // Close other dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== id) {
+                    menu.style.display = 'none';
+                }
+            });
+
+            const menu = document.getElementById(id);
+            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Close dropdowns when clicking outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn-secondary') && !event.target.closest('.btn-secondary')) {
+                document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                    menu.style.display = 'none';
+                });
+            }
+        }
+    </script>
+    <style>
+        .dropdown-item:hover {
+            background-color: #f8fafc !important;
+            color: var(--primary) !important;
+        }
+    </style>
+    @endsection
 @endsection
