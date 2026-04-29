@@ -460,37 +460,8 @@ class WhatsappBotService
     {
         $user = User::where('whatsapp', $phone)->first();
 
-        if (!$user) {
-            // Register automatically if not exists
-            $randomSuffix = rand(100, 999);
-            $email = $phone . '+' . $randomSuffix . '@sebatam.com';
-            $password = Str::random(10);
-
-            try {
-                $user = User::create([
-                    'name'      => 'user-' . rand(100000, 999999),
-                    'whatsapp'  => $phone,
-                    'email'     => $email,
-                    'password'  => Hash::make($password),
-                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
-                ]);
-            } catch (\Throwable $e) {
-                $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
-                return;
-            }
-
-            $this->whatsapp->sendMessage(
-                $phone,
-                "🎉 *Selamat Datang di Sebatam!*\n\n" .
-                "Akun Anda telah dibuat secara otomatis untuk mulai pasang iklan.\n" .
-                "📧 Email: *{$email}*"
-            );
-        }
-
-        // Premium dinonaktifkan sementara — skip cek paket premium yang belum digunakan
-
-        // Cek kuota slot iklan gratis
-        if ($user->ads_quota <= 0) {
+        // If user exists, check quota
+        if ($user && $user->ads_quota <= 0) {
             $defaultSlot = (int) get_setting('jumlah_iklan_user_default', 1);
             $adminWa = get_setting('admin_whatsapp', config('services.whatsapp.bot_number', ''));
             $this->whatsapp->sendMessage(
@@ -507,7 +478,7 @@ class WhatsappBotService
         // Start flow with confirmation
         $this->setState($phone, [
             'step'    => 'awaiting_start_confirmation',
-            'user_id' => $user->id,
+            'user_id' => $user?->id,
             'ad_data' => [],
             'photos'  => []
         ]);
@@ -608,6 +579,30 @@ class WhatsappBotService
     private function handleAdStartConfirmation(string $phone, string $lower, array $state): void
     {
         if (in_array($lower, ['ya', 'y', 'yes', 'oke', 'ok', 'lanjut', 'lanjutkan'], true)) {
+            
+            // Register user if not exists (POSTPONED REGISTRATION)
+            if (empty($state['user_id'])) {
+                $randomSuffix = rand(100, 999);
+                $email = $phone . '+' . $randomSuffix . '@sebatam.com';
+                $password = Str::random(10);
+
+                try {
+                    $user = User::create([
+                        'name'      => 'user-' . rand(100000, 999999),
+                        'whatsapp'  => $phone,
+                        'email'     => $email,
+                        'password'  => Hash::make($password),
+                        'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+                    ]);
+                    $state['user_id'] = $user->id;
+                    Log::info('WA Bot: dynamic user created AFTER ad confirmation', ['phone' => $phone, 'user_id' => $user->id]);
+                } catch (\Throwable $e) {
+                    Log::error('WA Bot: failed to create dynamic user on confirmation', ['error' => $e->getMessage()]);
+                    $this->whatsapp->sendMessage($phone, "❌ Gagal menyiapkan akun. Silakan coba lagi nanti.");
+                    return;
+                }
+            }
+
             $state['step'] = 'awaiting_title';
             $this->setState($phone, $state);
 
