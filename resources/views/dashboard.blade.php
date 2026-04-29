@@ -46,8 +46,8 @@
             @endif
         </div>
         @if($listings->count() > 0)
-        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px; min-height: 300px;">
-            <table class="data-table" style="min-width: 600px; margin-bottom: 100px;">
+        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px 150px 15px; margin-bottom: -150px; min-height: 450px;">
+            <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
                 <thead>
                     <tr>
                         <th>Iklan</th>
