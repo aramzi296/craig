@@ -38,7 +38,7 @@
 
     {{-- Panel Paket Premium dinonaktifkan sementara --}}
 
-    <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px;">
+    <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px; min-height: 450px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="font-size: 1.2rem; margin: 0;">{{ $tableTitle }}</h2>
             @if(!$tab)
@@ -46,7 +46,7 @@
             @endif
         </div>
         @if($listings->count() > 0)
-        <div style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
+        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
             <table class="data-table" style="min-width: 600px;">
                 <thead>
                     <tr>
@@ -186,7 +186,34 @@
             });
 
             const menu = document.getElementById(id);
-            menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+            const isOpen = menu.style.display === 'block';
+
+            if (!isOpen) {
+                menu.style.display = 'block';
+                
+                // Detect if dropdown should open upwards (dropup)
+                const rect = menu.getBoundingClientRect();
+                const container = menu.closest('.table-container');
+                const containerRect = container ? container.getBoundingClientRect() : null;
+                
+                // If it overflows the container bottom OR the window bottom
+                const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 20);
+                const overflowsWindow = rect.bottom > window.innerHeight - 20;
+
+                if (overflowsContainer || overflowsWindow) {
+                    menu.style.top = 'auto';
+                    menu.style.bottom = '100%';
+                    menu.style.marginTop = '0';
+                    menu.style.marginBottom = '5px';
+                } else {
+                    menu.style.top = '100%';
+                    menu.style.bottom = 'auto';
+                    menu.style.marginTop = '5px';
+                    menu.style.marginBottom = '0';
+                }
+            } else {
+                menu.style.display = 'none';
+            }
         }
 
         // Close dropdowns when clicking outside
