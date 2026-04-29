@@ -187,16 +187,10 @@ class AdminController extends Controller
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         
-        $isActive = $request->has('is_active');
-        $data['is_active'] = $isActive ? \DB::raw('true') : \DB::raw('false');
-        
-        if ($isActive) {
-            $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
-            $data['activation_code'] = null;
-        } else {
-            $data['expires_at'] = now()->addDays(10);
-            $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
-        }
+        // Iklan yang dibuat admin untuk user selalu tidak langsung aktif (menunggu aktivasi)
+        $data['is_active'] = \DB::raw('false');
+        $data['expires_at'] = now()->addDays(10);
+        $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
 
         $listing = \App\Models\Listing::create($data);
 

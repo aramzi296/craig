@@ -185,16 +185,8 @@
         </div>
 
 
-        <div class="form-group-horizontal">
-            <label for="is_active">Status Aktif</label>
-            <div class="form-input-side">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" name="is_active" id="is_active" value="1" {{ old('is_active') ? 'checked' : '' }} style="width: 20px; height: 20px;">
-                    <span>Aktifkan langsung setelah dibuat</span>
-                </div>
-                <small class="text-muted">Jika tidak dicentang, iklan akan memerlukan aktivasi via Bot atau oleh user.</small>
-            </div>
-        </div>
+        {{-- Status Aktif ditiadakan saat pembuatan agar iklan selalu tidak langsung aktif --}}
+        <input type="hidden" name="is_active" value="0">
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
             <a href="{{ route('admin.listings') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
