@@ -191,7 +191,7 @@ class AdminController extends Controller
         // Iklan yang dibuat admin untuk user selalu tidak langsung aktif (menunggu aktivasi)
         $data['is_active'] = \DB::raw('false');
         $data['expires_at'] = now()->addDays(10);
-        $data['activation_code'] = strtoupper(\Illuminate\Support\Str::random(8));
+        $data['activation_code'] = (string) random_int(100000, 999999);
 
         $listing = \App\Models\Listing::create($data);
 
