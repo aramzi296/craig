@@ -214,4 +214,28 @@ class HomeController extends Controller
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         return view('baca-saya', compact('listingTypes'));
     }
+
+    public function submitContact(Request $request, \App\Services\WhatsappService $whatsappService)
+    {
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'whatsapp' => 'required|string|max:20',
+            'message' => 'required|string',
+        ]);
+
+        $adminNumber2 = config('services.whatsapp.admin_number_2');
+        
+        $text = "*PESAN KONTAK BARU*\n\n";
+        $text .= "*Nama:* " . $data['name'] . "\n";
+        $text .= "*WA:* " . $data['whatsapp'] . "\n";
+        $text .= "*Pesan:* " . $data['message'];
+
+        $response = $whatsappService->sendMessage($adminNumber2, $text);
+
+        if ($response) {
+            return back()->with('success', 'Pesan Anda berhasil dikirim ke Admin. Kami akan segera menghubungi Anda.');
+        }
+
+        return back()->with('error', 'Gagal mengirim pesan. Silakan coba hubungi kami langsung via WhatsApp.');
+    }
 }

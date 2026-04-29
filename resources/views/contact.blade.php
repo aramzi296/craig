@@ -47,31 +47,74 @@
                             <a href="mailto:support@sebatam.com" style="color: #3b82f6; font-weight: 700; text-decoration: none; font-size: 0.95rem;">support@sebatam.com</a>
                         </div>
                     </div>
+
+                    <!-- Restored Update Terbaru Section -->
+                    <div style="padding: 25px; border-radius: 10px; background: #f8fafc; border: 1px solid #f1f5f9; margin-top: 10px;">
+                        <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 10px; color: #1e293b;">Update Terbaru</h2>
+                        <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 15px; line-height: 1.5;">
+                            Ikuti kami di media sosial untuk mendapatkan info promosi dan pengumuman terbaru di Kota Batam.
+                        </p>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <a href="https://www.facebook.com/SemuaSebatam" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #1877f2; color: white; padding: 0;">
+                                <i class="fab fa-facebook-f" style="font-size: 0.9rem;"></i>
+                            </a>
+                            <a href="https://www.instagram.com/semuasebatam/" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: white; padding: 0;">
+                                <i class="fab fa-instagram" style="font-size: 0.9rem;"></i>
+                            </a>
+                            <a href="https://www.tiktok.com/@semuasebatam" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #000; color: white; padding: 0;">
+                                <i class="fab fa-tiktok" style="font-size: 0.9rem;"></i>
+                            </a>
+                        </div>
+
+                        <div style="padding: 12px; background: white; border-radius: 8px; border: 1px dashed #e2e8f0;">
+                            <h4 style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase;">Jam Operasional</h4>
+                            <p style="color: #475569; font-size: 0.85rem; font-weight: 600;">Setiap Hari: 09.00 - 21.00 WIB</p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Message instruction / Social -->
-                <div style="padding: 30px; border-radius: 12px; background: #f8fafc; border: 1px solid #f1f5f9;">
-                    <h2 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 12px; color: #1e293b;">Update Terbaru</h2>
-                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.6;">
-                        Ikuti kami di media sosial untuk mendapatkan info promosi dan pengumuman terbaru di Kota Batam.
-                    </p>
+                <!-- Contact Form -->
+                <div style="padding: 30px; border-radius: 12px; background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                    <h2 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 20px; color: #1e293b;">Kirim Pesan</h2>
                     
-                    <div style="display: flex; gap: 10px; margin-bottom: 25px;">
-                        <a href="https://www.facebook.com/SemuaSebatam" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #1877f2; color: white; padding: 0;">
-                            <i class="fab fa-facebook-f" style="font-size: 0.9rem;"></i>
-                        </a>
-                        <a href="https://www.instagram.com/semuasebatam/" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: white; padding: 0;">
-                            <i class="fab fa-instagram" style="font-size: 0.9rem;"></i>
-                        </a>
-                        <a href="https://www.tiktok.com/@semuasebatam" class="btn" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 6px; background: #000; color: white; padding: 0;">
-                            <i class="fab fa-tiktok" style="font-size: 0.9rem;"></i>
-                        </a>
-                    </div>
+                    @if(session('success'))
+                        <div style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                            <i class="fas fa-check-circle" style="margin-right: 8px;"></i> {{ session('success') }}
+                        </div>
+                    @endif
 
-                    <div style="padding: 15px; background: white; border-radius: 8px; border: 1px dashed #e2e8f0;">
-                        <h4 style="font-size: 0.85rem; font-weight: 800; color: #94a3b8; margin-bottom: 5px;">JAM OPERASIONAL</h4>
-                        <p style="color: #475569; font-size: 0.9rem; font-weight: 600;">Setiap Hari: 09.00 - 21.00 WIB</p>
-                    </div>
+                    @if($errors->any())
+                        <div style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
+                            <ul style="margin: 0; padding-left: 20px;">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('contact.send') }}" method="POST">
+                        @csrf
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px;">Nama Lengkap</label>
+                            <input type="text" name="name" required placeholder="Contoh: Budi Santoso" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-family: inherit;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px;">Nomor WhatsApp</label>
+                            <input type="text" name="whatsapp" required placeholder="Contoh: 08123456789" style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-family: inherit;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 6px;">Pesan Anda</label>
+                            <textarea name="message" required rows="4" placeholder="Tuliskan pertanyaan atau pesan Anda di sini..." style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; outline: none; font-family: inherit; resize: vertical;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-weight: 700; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                            <i class="fas fa-paper-plane"></i> Kirim Pesan Sekarang
+                        </button>
+                    </form>
                 </div>
 
             </div>

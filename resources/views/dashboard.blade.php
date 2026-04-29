@@ -79,7 +79,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $listing->categories->take(3)->pluck('name')->join(', ') }}</td>
+                        <td>{{ $listing->categories->first()->name ?? '-' }}</td>
 
                         <td>
                             @if($listing->price && $listing->price > 0)

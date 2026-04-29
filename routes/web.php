@@ -162,6 +162,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/baca-saya', [HomeController::class, 'bacaSaya'])->name('baca-saya');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
+Route::post('/contact', [HomeController::class, 'submitContact'])->name('contact.send');
 Route::view('/terms-and-conditions', 'terms-and-conditions')->name('terms.and.conditions');
 
 Route::view('/maintenance', 'maintenance')->name('maintenance');

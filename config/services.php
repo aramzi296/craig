@@ -49,6 +49,7 @@ return [
         'api_user'  => env('WHATSAPP_API_USER', 'admin'),
         'api_pass'   => env('WHATSAPP_API_PASS', ''),
         'bot_number' => env('WHATSAPP_ADMIN_NUMBER', '6282172292230'),
+        'admin_number_2' => env('WHATSAPP_ADMIN_NUMBER_2', '6282172292230'),
     ],
 
     'imagekit' => [

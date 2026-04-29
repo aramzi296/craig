@@ -60,6 +60,7 @@
             <nav class="nav-desktop">
                 <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Lapak</a>
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
                 <a href="{{ route('baca-saya') }}" class="{{ request()->routeIs('baca-saya') ? 'active' : '' }}">Panduan</a>
             </nav>
 
@@ -110,6 +111,7 @@
             <div class="mobile-menu-body">
                 <a href="{{ route('home') }}" class="mobile-link {{ request()->routeIs('home') ? 'active' : '' }}">Lapak</a>
                 <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('contact') }}" class="mobile-link {{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
                 <a href="{{ route('baca-saya') }}" class="mobile-link {{ request()->routeIs('baca-saya') ? 'active' : '' }}">Panduan</a>
                 <hr>
                 @auth

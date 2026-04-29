@@ -352,6 +352,18 @@ class AdminController extends Controller
         return back()->with('success', 'Foto berhasil dihapus.');
     }
 
+    public function toggleListingStatus($id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+        
+        // Direct SQL update to bypass ALL layers and force PG boolean keywords
+        $newStatusSql = $listing->is_active ? 'false' : 'true';
+        \DB::update("UPDATE listings SET is_active = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
+
+        $statusText = ($newStatusSql === 'true') ? 'diaktifkan' : 'dinonaktifkan';
+        return back()->with('success', "Listing #{$listing->id} ({$listing->title}) berhasil {$statusText}.");
+    }
+
     public function users(Request $request)
     {
         $query = \App\Models\User::query();
@@ -525,15 +537,6 @@ class AdminController extends Controller
         return back()->with('success', $msg);
     }
 
-
-    public function toggleListingStatus($id)
-    {
-        $listing = \App\Models\Listing::findOrFail($id);
-        $newStatus = $listing->is_active ? 'false' : 'true';
-        $listing->update(['is_active' => \DB::raw($newStatus)]);
-
-        return back()->with('success', 'Status listing berhasil diubah.');
-    }
 
     // Listing Types Management
     public function listingTypes()

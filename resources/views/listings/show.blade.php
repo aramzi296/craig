@@ -97,7 +97,7 @@
                     <div>
                         <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Kategori</span>
                         <span style="font-size: 1.1rem; font-weight: 700; color: #334155;">
-                            {{ $listing->approvedCategories->pluck('name')->first() }}
+                            {{ $listing->approvedCategories->pluck('name')->join(', ') }}
                         </span>
                     </div>
                 </div>
