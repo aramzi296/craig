@@ -111,6 +111,17 @@ class WhatsappBotService
             return;
         }
 
+        // ── Keyword: lapak saya ─────────────────────────────────────────────
+        if ($lowerText === 'lapak saya' || str_starts_with($lowerText, 'lapak saya ')) {
+            $parts = explode(' ', $lowerText);
+            $page = 1;
+            if (isset($parts[2]) && is_numeric($parts[2])) {
+                $page = (int) $parts[2];
+            }
+            $this->handleMyAdsRequest($phone, $page);
+            return;
+        }
+
 
         // ── State machine for registration sub-flow ─────────────────────────
         $state = $this->getState($phone);
@@ -138,11 +149,13 @@ class WhatsappBotService
             "Untuk mendapatkan kode akses login ke website.\n\n" .
             "2️⃣ *pasang iklan*\n" .
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
-            "3️⃣ *aktivasi iklan*\n" .
+            "3️⃣ *lapak saya*\n" .
+            "Untuk melihat daftar iklan yang telah Anda pasang beserta statusnya.\n\n" .
+            "4️⃣ *aktivasi iklan*\n" .
             "Untuk mengaktifkan iklan yang dibuat oleh Admin menggunakan Kode Unik.\n\n" .
-            "4️⃣ *kuota iklan*\n" .
+            "5️⃣ *kuota iklan*\n" .
             "Untuk melihat sisa jatah slot iklan Anda.\n\n" .
-            "5️⃣ *menu*\n" .
+            "6️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
         );
@@ -173,6 +186,58 @@ class WhatsappBotService
             $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
         } else {
             $msg .= "\n_Ketik *pasang iklan* untuk menggunakan slot Anda._";
+        }
+
+        $this->whatsapp->sendMessage($phone, $msg);
+    }
+
+    private function handleMyAdsRequest(string $phone, int $page = 1): void
+    {
+        $user = User::where('whatsapp', $phone)->first();
+        if (!$user) {
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *pasang iklan* untuk memulai.");
+            return;
+        }
+
+        $perPage = 20;
+        $total = $user->listings()->count();
+        if ($total === 0) {
+            $this->whatsapp->sendMessage($phone, "ℹ️ Anda belum memiliki iklan di Sebatam. Ketik *pasang iklan* untuk mulai.");
+            return;
+        }
+
+        $totalPages = ceil($total / $perPage);
+        if ($page < 1) $page = 1;
+        if ($page > $totalPages) $page = $totalPages;
+
+        $listings = $user->listings()
+            ->latest()
+            ->offset(($page - 1) * $perPage)
+            ->limit($perPage)
+            ->get();
+
+        $msg = "📋 *Daftar Iklan Anda (Hal {$page}/{$totalPages})*\n\n";
+
+        foreach ($listings as $i => $listing) {
+            $status = $listing->is_active ? "✅ Aktif" : "⏳ Non-Aktif";
+            if ($listing->activation_code && !$listing->is_active) {
+                $status = "🔑 Menunggu Aktivasi (Kode: {$listing->activation_code})";
+            }
+            
+            $expiry = $listing->expires_at ? $listing->expires_at->format('d/m/Y') : '-';
+            $num = (($page - 1) * $perPage) + $i + 1;
+            
+            $msg .= "{$num}. *{$listing->title}*\n";
+            $msg .= "   Status: {$status}\n";
+            $msg .= "   Berakhir: {$expiry}\n\n";
+        }
+
+        if ($totalPages > 1) {
+            $msg .= "Untuk melihat halaman lain, ketik: *lapak saya [nomor halaman]*\n";
+            if ($page < $totalPages) {
+                $nextPage = $page + 1;
+                $msg .= "_Contoh: lapak saya {$nextPage}_";
+            }
         }
 
         $this->whatsapp->sendMessage($phone, $msg);
