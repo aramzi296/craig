@@ -47,7 +47,7 @@
         </div>
         @if($listings->count() > 0)
         <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
-            <table class="data-table" style="min-width: 600px;">
+            <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
                 <thead>
                     <tr>
                         <th>Iklan</th>
@@ -112,10 +112,10 @@
                         </td>
                         <td style="text-align: right;">
                             <div class="dropdown" style="display: inline-block; position: relative;">
-                                <button onclick="toggleDropdown(event, 'dropdown-{{ $listing->id }}')" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
+                                <button onclick="toggleDropdown(event, 'dropdown-{{ $listing->id }}')" class="btn btn-secondary action-btn" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
                                     Aksi <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
                                 </button>
-                                <div id="dropdown-{{ $listing->id }}" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 12px; border: 1px solid #f1f5f9; z-index: 100; margin-top: 5px; padding: 8px 0; text-align: left;">
+                                <div id="dropdown-{{ $listing->id }}" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid #e2e8f0; z-index: 1000; margin-top: 5px; padding: 8px 0; text-align: left;">
                                     
                                     <a href="{{ route('listings.show', $listing->slug) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem;">
                                         <i class="fa-solid fa-eye" style="width: 16px; color: #64748b;"></i> Lihat Iklan
@@ -178,39 +178,46 @@
         function toggleDropdown(event, id) {
             event.stopPropagation();
             
-            // Close other dropdowns
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if (menu.id !== id) {
-                    menu.style.display = 'none';
-                }
-            });
-
             const menu = document.getElementById(id);
             const isOpen = menu.style.display === 'block';
+
+            // Close other dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m.id !== id) m.style.display = 'none';
+            });
 
             if (!isOpen) {
                 menu.style.display = 'block';
                 
-                // Detect if dropdown should open upwards (dropup)
-                const rect = menu.getBoundingClientRect();
-                const container = menu.closest('.table-container');
-                const containerRect = container ? container.getBoundingClientRect() : null;
-                
-                // If it overflows the container bottom OR the window bottom
-                const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 20);
-                const overflowsWindow = rect.bottom > window.innerHeight - 20;
+                // Ensure layout is updated before measuring
+                requestAnimationFrame(() => {
+                    const rect = menu.getBoundingClientRect();
+                    const container = menu.closest('.table-container');
+                    const containerRect = container ? container.getBoundingClientRect() : null;
+                    
+                    // Boundary detection
+                    const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 5);
+                    const overflowsWindow = rect.bottom > window.innerHeight - 5;
 
-                if (overflowsContainer || overflowsWindow) {
-                    menu.style.top = 'auto';
-                    menu.style.bottom = '100%';
-                    menu.style.marginTop = '0';
-                    menu.style.marginBottom = '5px';
-                } else {
-                    menu.style.top = '100%';
-                    menu.style.bottom = 'auto';
-                    menu.style.marginTop = '5px';
-                    menu.style.marginBottom = '0';
-                }
+                    if (overflowsContainer || overflowsWindow) {
+                        menu.style.top = 'auto';
+                        menu.style.bottom = '100%';
+                        menu.style.marginTop = '0';
+                        menu.style.marginBottom = '10px';
+                        
+                        // Check if it now overflows the top of the window
+                        const flippedRect = menu.getBoundingClientRect();
+                        if (flippedRect.top < 0) {
+                            menu.style.bottom = 'auto';
+                            menu.style.top = '10px';
+                        }
+                    } else {
+                        menu.style.top = '100%';
+                        menu.style.bottom = 'auto';
+                        menu.style.marginTop = '10px';
+                        menu.style.marginBottom = '0';
+                    }
+                });
             } else {
                 menu.style.display = 'none';
             }
@@ -218,7 +225,7 @@
 
         // Close dropdowns when clicking outside
         window.onclick = function(event) {
-            if (!event.target.matches('.btn-secondary') && !event.target.closest('.btn-secondary')) {
+            if (!event.target.matches('.action-btn') && !event.target.closest('.action-btn')) {
                 document.querySelectorAll('.dropdown-menu').forEach(menu => {
                     menu.style.display = 'none';
                 });
@@ -229,6 +236,9 @@
         .dropdown-item:hover {
             background-color: #f8fafc !important;
             color: var(--primary) !important;
+        }
+        .dropdown-menu {
+            transition: opacity 0.2s, transform 0.2s;
         }
     </style>
     @endsection
