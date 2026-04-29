@@ -46,8 +46,8 @@
             @endif
         </div>
         @if($listings->count() > 0)
-        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px;">
-            <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
+        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px; min-height: 300px;">
+            <table class="data-table" style="min-width: 600px; margin-bottom: 100px;">
                 <thead>
                     <tr>
                         <th>Iklan</th>
@@ -179,80 +179,56 @@
             event.stopPropagation();
             
             const menu = document.getElementById(id);
-            const button = event.currentTarget;
             const isOpen = menu.style.display === 'block';
 
             // Close other dropdowns
             document.querySelectorAll('.dropdown-menu').forEach(m => {
-                if (m.id !== id) {
-                    m.style.display = 'none';
-                    if (m._cleanup) {
-                        m._cleanup();
-                        m._cleanup = null;
-                    }
-                }
+                if (m.id !== id) m.style.display = 'none';
             });
 
             if (!isOpen) {
                 menu.style.display = 'block';
-                menu.style.position = 'fixed';
-                menu.style.zIndex = '9999';
                 
-                const updatePosition = () => {
-                    const rect = button.getBoundingClientRect();
+                // Ensure layout is updated before measuring
+                requestAnimationFrame(() => {
+                    const rect = menu.getBoundingClientRect();
+                    const container = menu.closest('.table-container');
+                    const containerRect = container ? container.getBoundingClientRect() : null;
+                    const windowHeight = window.innerHeight;
                     
-                    // We need to show the menu briefly to get its width/height
-                    // but it's already display: block
-                    const menuRect = menu.getBoundingClientRect();
-                    
-                    let top = rect.bottom + 8;
-                    let left = rect.right - menuRect.width;
-                    
-                    // Flip to top if it overflows window bottom
-                    if (top + menuRect.height > window.innerHeight - 15) {
-                        top = rect.top - menuRect.height - 8;
+                    // Boundary detection
+                    // Check if it overflows the container bottom or window bottom
+                    const overflowsContainer = containerRect && (rect.bottom > containerRect.bottom - 10);
+                    const overflowsWindow = rect.bottom > windowHeight - 10;
+
+                    if (overflowsContainer || overflowsWindow) {
+                        // Try flipping to top
+                        menu.style.top = 'auto';
+                        menu.style.bottom = '100%';
+                        menu.style.marginTop = '0';
+                        menu.style.marginBottom = '10px';
+                        
+                        // Check if it now overflows the top of the container or window
+                        const flippedRect = menu.getBoundingClientRect();
+                        const overflowsTop = flippedRect.top < (containerRect ? containerRect.top : 0) || flippedRect.top < 0;
+                        
+                        if (overflowsTop) {
+                            // If it still doesn't fit at the top, show it at the bottom but 
+                            // we rely on the container's min-height and margin-bottom to provide space
+                            menu.style.bottom = 'auto';
+                            menu.style.top = '100%';
+                            menu.style.marginTop = '10px';
+                            menu.style.marginBottom = '0';
+                        }
+                    } else {
+                        menu.style.top = '100%';
+                        menu.style.bottom = 'auto';
+                        menu.style.marginTop = '10px';
+                        menu.style.marginBottom = '0';
                     }
-                    
-                    // Boundary checks
-                    if (top < 10) top = 10;
-                    if (left < 10) left = 10;
-                    if (left + menuRect.width > window.innerWidth - 10) {
-                        left = window.innerWidth - menuRect.width - 10;
-                    }
-
-                    menu.style.top = top + 'px';
-                    menu.style.left = left + 'px';
-                    menu.style.margin = '0'; // Reset absolute margins
-                };
-
-                updatePosition();
-                
-                // Ensure position is correct if layout changes
-                requestAnimationFrame(updatePosition);
-
-                const scrollHandler = () => {
-                    if (menu.style.display === 'block') {
-                        updatePosition();
-                    }
-                };
-
-                window.addEventListener('scroll', scrollHandler, { passive: true });
-                window.addEventListener('resize', scrollHandler);
-                
-                const container = button.closest('.table-container');
-                if (container) container.addEventListener('scroll', scrollHandler, { passive: true });
-
-                menu._cleanup = () => {
-                    window.removeEventListener('scroll', scrollHandler);
-                    window.removeEventListener('resize', scrollHandler);
-                    if (container) container.removeEventListener('scroll', scrollHandler);
-                };
+                });
             } else {
                 menu.style.display = 'none';
-                if (menu._cleanup) {
-                    menu._cleanup();
-                    menu._cleanup = null;
-                }
             }
         }
 
