@@ -166,7 +166,7 @@ class WhatsappBotService
         $user = User::where('whatsapp', $phone)->first();
 
         if (!$user) {
-            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *pasang iklan* untuk memulai.");
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *lapak sebatam* untuk memulai.");
             return;
         }
 
@@ -185,7 +185,7 @@ class WhatsappBotService
         if ($user->ads_quota <= 0) {
             $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
         } else {
-            $msg .= "\n_Ketik *pasang iklan* untuk menggunakan slot Anda._";
+            $msg .= "\n_Ketik *lapak sebatam* untuk menggunakan slot Anda._";
         }
 
         $this->whatsapp->sendMessage($phone, $msg);
@@ -195,14 +195,14 @@ class WhatsappBotService
     {
         $user = User::where('whatsapp', $phone)->first();
         if (!$user) {
-            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *pasang iklan* untuk memulai.");
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *lapak sebatam* untuk memulai.");
             return;
         }
 
         $perPage = 20;
         $total = $user->listings()->count();
         if ($total === 0) {
-            $this->whatsapp->sendMessage($phone, "ℹ️ Anda belum memiliki iklan di Sebatam. Ketik *pasang iklan* untuk mulai.");
+            $this->whatsapp->sendMessage($phone, "ℹ️ Anda belum memiliki iklan di Sebatam. Ketik *lapak sebatam* untuk mulai.");
             return;
         }
 
@@ -305,7 +305,7 @@ class WhatsappBotService
             "🔑 *Nomor WA : {$phone}*\n" .
             "🔑 *OTP      : {$otp}*\n\n" .
             "Kode ini berlaku selama *15 menit*.\n" .
-            "Gunakan nomor WA ini dan kode di atas untuk login atau pasang iklan.\n\n" .
+            "Gunakan nomor WA ini dan kode di atas untuk login atau pasang iklan di lapak sebatam.\n\n" .
             "Halaman Login:\n{$loginUrl}\n\n" .
             "_Jangan berikan kode ini kepada siapapun._"
         );
@@ -683,7 +683,7 @@ class WhatsappBotService
 
         if (in_array($lower, ['tidak', 'n', 'no', 'gak', 'nggak', 'batal'], true)) {
             $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "Baik, pemasangan iklan dibatalkan. Kirim *pasang iklan* kapan saja untuk mencoba lagi.");
+            $this->whatsapp->sendMessage($phone, "Baik, pemasangan iklan dibatalkan. Kirim *lapak sebatam* kapan saja untuk mencoba lagi.");
             return;
         }
 
