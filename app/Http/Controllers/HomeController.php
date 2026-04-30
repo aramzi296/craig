@@ -8,75 +8,121 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
-
-        // Filter by Keyword
         if ($request->filled('q')) {
-            $keyword = $request->q;
-            $query->where(function($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('description', 'like', "%{$keyword}%");
-            });
-        }
+            $listings = \App\Models\Listing::search($request->q);
 
-        // Filter by District
-        if ($request->filled('location')) {
-            $query->where('district_id', $request->location);
-        }
-
-        // Filter by Type (Slug or ID)
-        if ($request->filled('type')) {
-            $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
-            if ($type) {
-                $query->where('listing_type_id', $type->id);
+            if ($request->filled('location')) {
+                $listings->where('district_id', (int) $request->location);
             }
-        }
 
-        // Filter by Category
-        if ($request->filled('category')) {
-            $category = \App\Models\Category::where('slug', $request->category)->first();
-            if ($category) {
-                $query->whereHas('categories', function($q) use ($category) {
-                    $q->where('categories.id', $category->id);
-                });
+            if ($request->filled('type')) {
+                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                if ($type) {
+                    $listings->where('listing_type_id', (int) $type->id);
+                }
             }
+
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    $listings->where('category_ids', (int) $category->id);
+                }
+            }
+
+            $recentListings = $listings->paginate(12);
+            $premiumListings = collect(); // Or maybe still fetch from DB?
+        } else {
+            $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+
+            // Filter by District
+            if ($request->filled('location')) {
+                $query->where('district_id', $request->location);
+            }
+
+            // Filter by Type (Slug or ID)
+            if ($request->filled('type')) {
+                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                if ($type) {
+                    $query->where('listing_type_id', $type->id);
+                }
+            }
+
+            // Filter by Category
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    $query->whereHas('categories', function($q) use ($category) {
+                        $q->where('categories.id', $category->id);
+                    });
+                }
+            }
+
+            $premiumListings = (clone $query)->whereRaw('is_premium = true')->latest()->take(6)->get();
+
+            $recentListings = $query->with('district')
+                ->orderBy('created_at', 'desc')
+                ->orderBy('is_premium', 'desc')
+                ->orderBy('listing_rank', 'asc')
+                ->paginate(12);
         }
-
-        $premiumListings = (clone $query)->whereRaw('is_premium = true')->latest()->take(6)->get();
-
-        $recentListings = $query->with('district')
-            ->orderBy('created_at', 'desc')
-            ->orderBy('is_premium', 'desc')
-            ->orderBy('listing_rank', 'asc')
-            ->paginate(12);
 
         return view('home', compact('premiumListings', 'recentListings'));
     }
 
     public function search(\Illuminate\Http\Request $request)
     {
-        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
-
-        // Filter by Keyword
         if ($request->filled('q')) {
-            $keyword = $request->q;
-            $query->where(function($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('description', 'like', "%{$keyword}%");
-            });
-        }
+            $listings = \App\Models\Listing::search($request->q);
 
-        // Filter by District
-        if ($request->filled('location')) {
-            $query->where('district_id', $request->location);
-        }
-
-        // Filter by Type (Slug or ID)
-        if ($request->filled('type')) {
-            $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
-            if ($type) {
-                $query->where('listing_type_id', $type->id);
+            if ($request->filled('location')) {
+                $listings->where('district_id', (int) $request->location);
             }
+
+            if ($request->filled('type')) {
+                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                if ($type) {
+                    $listings->where('listing_type_id', (int) $type->id);
+                }
+            }
+
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    $listings->where('category_ids', (int) $category->id);
+                }
+            }
+
+            $listings = $listings->paginate(20);
+        } else {
+            $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+
+            // Filter by District
+            if ($request->filled('location')) {
+                $query->where('district_id', $request->location);
+            }
+
+            // Filter by Type (Slug or ID)
+            if ($request->filled('type')) {
+                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                if ($type) {
+                    $query->where('listing_type_id', $type->id);
+                }
+            }
+
+            // Filter by Category
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    $query->whereHas('categories', function($q) use ($category) {
+                        $q->where('categories.id', $category->id);
+                    });
+                }
+            }
+
+            $listings = $query->orderBy('created_at', 'desc')
+                ->orderBy('is_premium', 'desc')
+                ->orderBy('listing_rank', 'asc')
+                ->paginate(20);
         }
 
         // Fetch categories that have at least one active, non-expired listing AND are approved
@@ -84,25 +130,6 @@ class HomeController extends Controller
             ->whereHas('listings', function($q) {
                 $q->whereRaw('is_active = true')->notExpired();
             })->orderBy('name')->get();
-
-
-        // Filter by Category (Apply this LAST to the listings query only)
-        if ($request->filled('category')) {
-            $category = \App\Models\Category::where('slug', $request->category)->first();
-            if ($category) {
-                $query->whereHas('categories', function($q) use ($category) {
-                    $q->where('categories.id', $category->id);
-                });
-                
-                // Ensure the selected category stays in the list even if it has no results 
-                // (though with this logic, it should have results if it's selected)
-            }
-        }
-
-        $listings = $query->orderBy('created_at', 'desc')
-            ->orderBy('is_premium', 'desc')
-            ->orderBy('listing_rank', 'asc')
-            ->paginate(20);
         
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();

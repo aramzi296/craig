@@ -97,3 +97,5 @@ apabila user sudah login, iklan yang dibuat admin akan muncul di daftar iklan us
 user bisa aktifkan, edit atau hapus iklan tersebut.
 jika user aktifkan iklan, maka expire iklan mengacu kepada setting aplikasi.
 
+saya mau menggunakan meilisearch untuk pencarian listing dan menampilkannya di halaman listing.
+untuk data detail, bis diambil dari database aplikasi.

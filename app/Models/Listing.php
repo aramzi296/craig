@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
 
 class Listing extends Model
 {
+    use Searchable;
     protected $fillable = [
         'user_id', 'listing_type_id', 'district_id', 'title', 'slug', 'activation_code', 'description', 
         'price', 'is_featured', 'is_premium', 'is_active', 'features', 
@@ -104,6 +106,40 @@ class Listing extends Model
     public function views()
     {
         return $this->hasMany(ListingView::class);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array<string, mixed>
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id' => (int) $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'price' => (float) $this->price,
+            'is_active' => (bool) $this->is_active,
+            'is_premium' => (bool) $this->is_premium,
+            'district' => $this->district?->name,
+            'district_id' => (int) $this->district_id,
+            'listing_type' => $this->listingType?->name,
+            'listing_type_id' => (int) $this->listing_type_id,
+            'categories' => $this->approvedCategories->pluck('name')->toArray(),
+            'category_ids' => $this->approvedCategories->pluck('id')->toArray(),
+            'created_at' => $this->created_at?->timestamp,
+            'expires_at' => $this->expires_at?->timestamp,
+            'listing_rank' => (int) $this->listing_rank,
+        ];
+    }
+
+    /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return $this->is_active && ($this->expires_at === null || $this->expires_at->isFuture());
     }
 }
 
