@@ -9,29 +9,59 @@ class HomeController extends Controller
     public function index(\Illuminate\Http\Request $request)
     {
         if ($request->filled('q')) {
-            $listings = \App\Models\Listing::search($request->q)
-                ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
+            try {
+                $listings = \App\Models\Listing::search($request->q)
+                    ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
 
-            if ($request->filled('location')) {
-                $listings->where('district_id', (int) $request->location);
-            }
-
-            if ($request->filled('type')) {
-                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
-                if ($type) {
-                    $listings->where('listing_type_id', (int) $type->id);
+                if ($request->filled('location')) {
+                    $listings->where('district_id', (int) $request->location);
                 }
-            }
 
-            if ($request->filled('category')) {
-                $category = \App\Models\Category::where('slug', $request->category)->first();
-                if ($category) {
-                    // Meilisearch handles array filtering with '=' if configured as filterable
-                    $listings->where('category_ids', (int) $category->id);
+                if ($request->filled('type')) {
+                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    if ($type) {
+                        $listings->where('listing_type_id', (int) $type->id);
+                    }
                 }
-            }
 
-            $recentListings = $listings->paginate(12);
+                if ($request->filled('category')) {
+                    $category = \App\Models\Category::where('slug', $request->category)->first();
+                    if ($category) {
+                        $listings->where('category_ids', (int) $category->id);
+                    }
+                }
+
+                $recentListings = $listings->paginate(12);
+            } catch (\Exception $e) {
+                // Fallback to DB if Meilisearch fails
+                $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+                $query->where(function($q) use ($request) {
+                    $q->where('title', 'ilike', '%' . $request->q . '%')
+                      ->orWhere('description', 'ilike', '%' . $request->q . '%');
+                });
+
+                if ($request->filled('location')) {
+                    $query->where('district_id', $request->location);
+                }
+
+                if ($request->filled('type')) {
+                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    if ($type) {
+                        $query->where('listing_type_id', $type->id);
+                    }
+                }
+
+                if ($request->filled('category')) {
+                    $category = \App\Models\Category::where('slug', $request->category)->first();
+                    if ($category) {
+                        $query->whereHas('categories', function($q) use ($category) {
+                            $q->where('categories.id', $category->id);
+                        });
+                    }
+                }
+
+                $recentListings = $query->with(['district', 'listingType', 'photos'])->paginate(12);
+            }
             $premiumListings = collect(); 
         } else {
             $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
@@ -74,28 +104,59 @@ class HomeController extends Controller
     public function search(\Illuminate\Http\Request $request)
     {
         if ($request->filled('q')) {
-            $listings = \App\Models\Listing::search($request->q)
-                ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
+            try {
+                $listings = \App\Models\Listing::search($request->q)
+                    ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
 
-            if ($request->filled('location')) {
-                $listings->where('district_id', (int) $request->location);
-            }
-
-            if ($request->filled('type')) {
-                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
-                if ($type) {
-                    $listings->where('listing_type_id', (int) $type->id);
+                if ($request->filled('location')) {
+                    $listings->where('district_id', (int) $request->location);
                 }
-            }
 
-            if ($request->filled('category')) {
-                $category = \App\Models\Category::where('slug', $request->category)->first();
-                if ($category) {
-                    $listings->where('category_ids', (int) $category->id);
+                if ($request->filled('type')) {
+                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    if ($type) {
+                        $listings->where('listing_type_id', (int) $type->id);
+                    }
                 }
-            }
 
-            $listings = $listings->paginate(20);
+                if ($request->filled('category')) {
+                    $category = \App\Models\Category::where('slug', $request->category)->first();
+                    if ($category) {
+                        $listings->where('category_ids', (int) $category->id);
+                    }
+                }
+
+                $listings = $listings->paginate(20);
+            } catch (\Exception $e) {
+                // Fallback to DB if Meilisearch fails
+                $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+                $query->where(function($q) use ($request) {
+                    $q->where('title', 'ilike', '%' . $request->q . '%')
+                      ->orWhere('description', 'ilike', '%' . $request->q . '%');
+                });
+
+                if ($request->filled('location')) {
+                    $query->where('district_id', $request->location);
+                }
+
+                if ($request->filled('type')) {
+                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    if ($type) {
+                        $query->where('listing_type_id', $type->id);
+                    }
+                }
+
+                if ($request->filled('category')) {
+                    $category = \App\Models\Category::where('slug', $request->category)->first();
+                    if ($category) {
+                        $query->whereHas('categories', function($q) use ($category) {
+                            $q->where('categories.id', $category->id);
+                        });
+                    }
+                }
+
+                $listings = $query->with(['district', 'listingType', 'photos'])->paginate(20);
+            }
         } else {
             $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
 
