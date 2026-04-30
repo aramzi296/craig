@@ -41,7 +41,7 @@
         <div class="container">
             <div class="wa-alert-content" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; line-height: 1.4;">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i>
-                <span class="wa-text">Kirim pesan <strong>"pasang iklan"</strong> ke <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 4px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a></span>
+                <span class="wa-text">Kirim pesan <strong>"lapak sebatam"</strong> ke <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 4px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a></span>
                 untuk pasang iklan secara instan.
             </div>
         </div>

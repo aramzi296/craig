@@ -77,8 +77,8 @@ class WhatsappBotService
             return;
         }
 
-        // ── Keyword: pasang iklan ──────────────────────────────────────────
-        if ($lowerText === 'pasang iklan') {
+        // ── Keyword: lapak sebatam ──────────────────────────────────────────
+        if ($lowerText === 'lapak sebatam') {
             $this->handleAdPostingRequest($phone);
             return;
         }
@@ -147,7 +147,7 @@ class WhatsappBotService
             "Berikut adalah perintah yang dapat Anda gunakan:\n\n" .
             "1️⃣ *login* atau *otp*\n" .
             "Untuk mendapatkan kode akses login ke website.\n\n" .
-            "2️⃣ *pasang iklan*\n" .
+            "2️⃣ *lapak sebatam*\n" .
             "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
             "3️⃣ *lapak saya*\n" .
             "Untuk melihat daftar iklan yang telah Anda pasang beserta statusnya.\n\n" .
@@ -550,7 +550,7 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone,
-            "📣 *Pasang Iklan Baru*\n\n" .
+            "📣 *Lapak Sebatam*\n\n" .
             "Selamat datang! Anda akan memulai proses pemasangan iklan di *LAPAK SEBATAM* (Sebatam.com).\n" .
             "Kami akan memandu Anda langkah demi langkah untuk mengisi informasi iklan Anda.\n\n" .
             "Dengan melanjutkan pemasangan iklan di *LAPAK SEBATAM*, maka nomor WA Anda ini akan terdaftar sebagai pemasang iklan, dan Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
