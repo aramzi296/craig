@@ -553,7 +553,7 @@ class WhatsappBotService
             "📣 *Pasang Iklan Baru*\n\n" .
             "Selamat datang! Anda akan memulai proses pemasangan iklan di *LAPAK SEBATAM* (Sebatam.com).\n" .
             "Kami akan memandu Anda langkah demi langkah untuk mengisi informasi iklan Anda.\n\n" .
-            "Dengan melanjutkan pemasangan iklan di *LAPAK SEBATAM*, maka nomor WA Anda ini akan terdaftar sebagai pemasang iklan dan Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
+            "Dengan melanjutkan pemasangan iklan di *LAPAK SEBATAM*, maka nomor WA Anda ini akan terdaftar sebagai pemasang iklan, dan Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
             "Apakah Anda ingin melanjutkan? (Ya/Tidak)"
         );
     }
