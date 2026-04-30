@@ -207,7 +207,9 @@
         </table>
     </div>
     <div style="margin-top: 20px;">
-        {{ $users->withQueryString()->links() }}
+    <div style="margin-top: 20px;">
+        {{ $users->withQueryString()->links('vendor.pagination.simple-custom') }}
+    </div>
     </div>
 </div>
 @endsection

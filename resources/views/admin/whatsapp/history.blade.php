@@ -111,7 +111,9 @@
     </div>
 
     <div style="margin-top: 30px;">
-        {{ $logs->links() }}
+    <div style="margin-top: 20px;">
+        {{ $logs->links('vendor.pagination.simple-custom') }}
+    </div>
     </div>
 </div>
 @endsection

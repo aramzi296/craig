@@ -158,7 +158,7 @@
         </tbody>
     </table>
     <div style="margin-top: 20px;">
-        {{ $users->links() }}
+        {{ $users->links('vendor.pagination.simple-custom') }}
     </div>
 </div>
 
@@ -166,15 +166,38 @@
     function toggleDropdown(event, id) {
         event.stopPropagation();
         
+        const menu = document.getElementById(id);
+        const isOpen = menu.style.display === 'block';
+
         // Close all other dropdowns
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            if (menu.id !== id) {
-                menu.style.display = 'none';
-            }
+        document.querySelectorAll('.dropdown-menu').forEach(m => {
+            if (m.id !== id) m.style.display = 'none';
         });
 
-        const menu = document.getElementById(id);
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+        if (!isOpen) {
+            menu.style.display = 'block';
+            
+            // Smart flipping logic
+            requestAnimationFrame(() => {
+                const rect = menu.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                
+                if (rect.bottom > windowHeight - 20) {
+                    // Not enough space below, flip to top
+                    menu.style.top = 'auto';
+                    menu.style.bottom = '100%';
+                    menu.style.marginBottom = '10px';
+                    menu.style.marginTop = '0';
+                } else {
+                    menu.style.top = '100%';
+                    menu.style.bottom = 'auto';
+                    menu.style.marginBottom = '0';
+                    menu.style.marginTop = '5px';
+                }
+            });
+        } else {
+            menu.style.display = 'none';
+        }
     }
 
     // Close dropdowns when clicking outside

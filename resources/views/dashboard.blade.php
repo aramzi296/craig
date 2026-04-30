@@ -38,7 +38,16 @@
 
     {{-- Panel Paket Premium dinonaktifkan sementara --}}
 
-    <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px; min-height: 450px;">
+    {{-- Force single scrollbar --}}
+    <style>
+        .dashboard-content, .dashboard-layout, .table-container, .glass {
+            overflow: visible !important;
+            height: auto !important;
+            min-height: 0 !important;
+        }
+    </style>
+
+    <div class="glass" style="padding: 30px; border-radius: var(--radius); margin-top: 40px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="font-size: 1.2rem; margin: 0;">{{ $tableTitle }}</h2>
             @if(!$tab)
@@ -46,7 +55,7 @@
             @endif
         </div>
         @if($listings->count() > 0)
-        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px 150px 15px; margin-bottom: -150px; min-height: 450px;">
+        <div class="table-container" style="overflow-x: auto; margin: 0 -15px; padding: 0 15px 150px 15px; margin-bottom: -150px;">
             <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
                 <thead>
                     <tr>

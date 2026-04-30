@@ -7,7 +7,7 @@
 @endsection
 
 @section('content')
-<div class="dashboard-layout" id="dashboardLayout">
+<div class="dashboard-layout" id="dashboardLayout" style="overflow: visible !important; min-height: auto !important;">
     <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <aside class="sidebar" id="sidebar">
@@ -54,7 +54,7 @@
         </ul>
     </aside>
 
-    <main class="dashboard-content">
+    <main class="dashboard-content" style="overflow: visible !important;">
         @if(session('success'))
             <div class="alert alert-success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbf7d0;">
                 <i class="fa-solid fa-circle-check"></i> {{ session('success') }}

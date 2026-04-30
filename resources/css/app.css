@@ -866,10 +866,9 @@ a {
 .dashboard-content {
     flex: 1;
     padding: 40px;
-    overflow-y: auto;
-    overflow-x: hidden;
     width: 100%;
     box-sizing: border-box;
+    overflow: visible !important;
 }
 
 @media (max-width: 768px) {
@@ -1016,6 +1015,7 @@ a {
 
 .dashboard-content {
     padding: 40px;
+    overflow: visible !important;
 }
 
 @media (max-width: 640px) {
