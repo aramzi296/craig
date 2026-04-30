@@ -9,7 +9,8 @@ class HomeController extends Controller
     public function index(\Illuminate\Http\Request $request)
     {
         if ($request->filled('q')) {
-            $listings = \App\Models\Listing::search($request->q);
+            $listings = \App\Models\Listing::search($request->q)
+                ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
 
             if ($request->filled('location')) {
                 $listings->where('district_id', (int) $request->location);
@@ -25,12 +26,13 @@ class HomeController extends Controller
             if ($request->filled('category')) {
                 $category = \App\Models\Category::where('slug', $request->category)->first();
                 if ($category) {
+                    // Meilisearch handles array filtering with '=' if configured as filterable
                     $listings->where('category_ids', (int) $category->id);
                 }
             }
 
             $recentListings = $listings->paginate(12);
-            $premiumListings = collect(); // Or maybe still fetch from DB?
+            $premiumListings = collect(); 
         } else {
             $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
 
@@ -72,7 +74,8 @@ class HomeController extends Controller
     public function search(\Illuminate\Http\Request $request)
     {
         if ($request->filled('q')) {
-            $listings = \App\Models\Listing::search($request->q);
+            $listings = \App\Models\Listing::search($request->q)
+                ->query(fn($q) => $q->with(['district', 'listingType', 'photos']));
 
             if ($request->filled('location')) {
                 $listings->where('district_id', (int) $request->location);
