@@ -18,7 +18,9 @@ class HomeController extends Controller
                 }
 
                 if ($request->filled('type')) {
-                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    $type = \App\Models\ListingType::where('slug', $request->type)
+                        ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                        ->first();
                     if ($type) {
                         $listings->where('listing_type_id', (int) $type->id);
                     }
@@ -41,11 +43,13 @@ class HomeController extends Controller
                 });
 
                 if ($request->filled('location')) {
-                    $query->where('district_id', $request->location);
+                    $query->where('district_id', (int)$request->location);
                 }
 
                 if ($request->filled('type')) {
-                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    $type = \App\Models\ListingType::where('slug', $request->type)
+                        ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                        ->first();
                     if ($type) {
                         $query->where('listing_type_id', $type->id);
                     }
@@ -68,12 +72,14 @@ class HomeController extends Controller
 
             // Filter by District
             if ($request->filled('location')) {
-                $query->where('district_id', $request->location);
+                $query->where('district_id', (int)$request->location);
             }
 
             // Filter by Type (Slug or ID)
             if ($request->filled('type')) {
-                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                $type = \App\Models\ListingType::where('slug', $request->type)
+                    ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                    ->first();
                 if ($type) {
                     $query->where('listing_type_id', $type->id);
                 }
@@ -113,7 +119,9 @@ class HomeController extends Controller
                 }
 
                 if ($request->filled('type')) {
-                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    $type = \App\Models\ListingType::where('slug', $request->type)
+                        ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                        ->first();
                     if ($type) {
                         $listings->where('listing_type_id', (int) $type->id);
                     }
@@ -136,11 +144,13 @@ class HomeController extends Controller
                 });
 
                 if ($request->filled('location')) {
-                    $query->where('district_id', $request->location);
+                    $query->where('district_id', (int)$request->location);
                 }
 
                 if ($request->filled('type')) {
-                    $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                    $type = \App\Models\ListingType::where('slug', $request->type)
+                        ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                        ->first();
                     if ($type) {
                         $query->where('listing_type_id', $type->id);
                     }
@@ -162,12 +172,14 @@ class HomeController extends Controller
 
             // Filter by District
             if ($request->filled('location')) {
-                $query->where('district_id', $request->location);
+                $query->where('district_id', (int)$request->location);
             }
 
             // Filter by Type (Slug or ID)
             if ($request->filled('type')) {
-                $type = \App\Models\ListingType::where('slug', $request->type)->orWhere('id', $request->type)->first();
+                $type = \App\Models\ListingType::where('slug', $request->type)
+                    ->when(is_numeric($request->type), fn($q) => $q->orWhere('id', $request->type))
+                    ->first();
                 if ($type) {
                     $query->where('listing_type_id', $type->id);
                 }
