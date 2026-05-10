@@ -6,7 +6,7 @@
     <nav style="margin-bottom: 20px; color: #64748b; font-size: 0.85rem; font-weight: 500;">
         <a href="{{ route('home') }}" style="color: #64748b; text-decoration: none;">Beranda</a> 
         <span style="margin: 0 8px; opacity: 0.5;">/</span>
-        <a href="{{ route('home', ['category' => $listing->approvedCategories->first()->slug ?? 'lainnya']) }}" style="color: #64748b; text-decoration: none;">{{ $listing->approvedCategories->first()->name ?? 'Tanpa Kategori' }}</a> 
+        <a href="{{ route('home', ['category' => $listing->approvedTags->first()->slug ?? 'lainnya']) }}" style="color: #64748b; text-decoration: none;">{{ $listing->approvedTags->first()->name ?? '#Lainnya' }}</a> 
         <span style="margin: 0 8px; opacity: 0.5;">/</span>
         <span style="color: #1e293b; font-weight: 700;">{{ $listing->title }}</span>
     </nav>
@@ -78,11 +78,7 @@
             <!-- 1. Judul (Title) -->
             <div style="background: white; padding: 25px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #f1f5f9;">
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
-                    @if($listing->listingType)
-                        <span style="background: {{ $listing->listingType->color ?? 'var(--primary)' }}; color: white; padding: 2px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase;">
-                            {{ $listing->listingType->name }}
-                        </span>
-                    @endif
+
                     @if($listing->is_premium)
                         <span style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800;">PREMIUM</span>
                     @endif
@@ -110,9 +106,9 @@
                         </span>
                     </div>
                     <div>
-                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">Kategori</span>
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px;">#Hashtag</span>
                         <span style="font-size: 1.1rem; font-weight: 700; color: #334155;">
-                            {{ $listing->approvedCategories->pluck('name')->join(', ') }}
+                            {{ $listing->approvedTags->pluck('name')->map(fn($n) => "#$n")->join(', ') }}
                         </span>
                     </div>
                 </div>
@@ -307,7 +303,7 @@
                                 <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3; color: var(--text);">{{ $premium->title }}</h3>
                                 <div class="listing-category" style="font-size: 0.65rem; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
                                     <span class="badge badge-premium" style="font-size: 0.55rem; padding: 2px 4px;">PREMIUM</span>
-                                    <span>{{ $premium->approvedCategories->first()->name ?? '' }}</span>
+                                     <span>{{ $premium->approvedTags->first()->name ?? '' }}</span>
 
                                 </div>
                                 <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 0; color: var(--primary); font-weight: 700;">
@@ -338,12 +334,8 @@
                             <div class="listing-details" style="padding: 0; flex: 1;">
                                 <h3 class="listing-title" style="font-size: 0.9rem; margin-bottom: 4px; line-height: 1.3;">{{ $related->title }}</h3>
                                 <div class="listing-category" style="font-size: 0.7rem; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
-                                    @if($related->listingType)
-                                        <span style="background: {{ $related->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem; font-weight: 700;">
-                                            {{ $related->listingType->name }}
-                                        </span>
-                                    @endif
-                                    <span>{{ $related->approvedCategories->take(1)->pluck('name')->join(', ') }}</span>
+
+                                     <span>{{ $related->approvedTags->take(1)->pluck('name')->join(', ') }}</span>
 
                                 </div>
                                 <div class="listing-price" style="font-size: 0.95rem; margin-bottom: 2px; color: var(--primary); font-weight: 700;">

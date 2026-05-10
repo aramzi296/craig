@@ -13,8 +13,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WaLoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/search', [HomeController::class, 'search'])->name('search');
-Route::get('/kategori', [HomeController::class, 'categories'])->name('categories.index');
+Route::get('/hashtag', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
@@ -159,7 +158,7 @@ Route::middleware('auth')->group(function () {
 
 
 // Static pages routes
-Route::get('/baca-saya', [HomeController::class, 'bacaSaya'])->name('baca-saya');
+Route::get('/tentang', [HomeController::class, 'tentang'])->name('tentang');
 Route::view('/about', 'about')->name('about');
 Route::view('/contact', 'contact')->name('contact');
 Route::post('/contact', [HomeController::class, 'submitContact'])->name('contact.send');

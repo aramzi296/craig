@@ -1,14 +1,85 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.6), rgba(219, 234, 254, 0.6)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb;">
+<style>
+    /* Grid Layout Styles */
+    .listing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+
+    .listing-card-grid {
+        background: #fff;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+
+    .listing-card-grid:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: #0ea5e9;
+    }
+
+    .grid-image-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%; /* 1:1 Aspect Ratio */
+        background: #f8fafc;
+    }
+
+    .grid-image-wrapper img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .grid-content {
+        padding: 12px 8px;
+    }
+
+    .grid-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.4;
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.8em;
+    }
+
+    @media (max-width: 576px) {
+        .listing-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .grid-title {
+            font-size: 0.75rem;
+        }
+        .price-current {
+            font-size: 1rem;
+        }
+    }
+</style>
+<section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
     <div class="container" style="max-width: 800px;">
-        <h2 style="font-size: 3rem; font-weight: 800; margin-bottom: 12px; color: #111827; text-shadow: 0 2px 4px rgba(255,255,255,0.5); letter-spacing: -0.02em;">LAPAK SEBATAM</h2>
-        <p style="color: #374151; font-size: 1.3rem; margin-bottom: 40px; font-weight: 500;">Cari apa saja di Batam. Cepat dan ringkas.</p>
-        
-        <form action="{{ route('search') }}" method="GET" class="search-box" style="box-shadow: 0 4px 20px -2px rgba(0,0,0,0.1);">
-            <input type="text" name="q" placeholder="Contoh: Tukang AC, Kos-kosan..." value="{{ request('q') }}">
-            <button type="submit">CARI</button>
+        <form action="{{ route('home') }}" method="GET" class="search-box" style="box-shadow: 0 10px 30px -5px rgba(0,0,0,0.08); border-radius: 20px; border: 1px solid #e2e8f0; overflow: hidden; display: flex;">
+            <input type="text" name="q" placeholder="Cari apa saja di Batam... (Contoh: Tukang AC, Kos-kosan)" value="{{ request('q') }}" style="flex: 1; border: none; padding: 15px 25px; font-size: 1rem; font-weight: 500; outline: none;">
+            <button type="submit" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; border: none; padding: 0 40px; font-weight: 800; text-transform: uppercase; cursor: pointer; transition: all 0.3s ease;">CARI</button>
         </form>
     </div>
 </section>
@@ -16,104 +87,24 @@
 
 <div class="container page-section" style="padding-top: 0;">
 
-    @if($premiumListings->count() > 0)
-    <h2 class="section-title" style="margin-top: 20px;">Postingan Premium</h2>
-    <div class="listing-grid">
-        @foreach($premiumListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
-            @if($listing->getThumbnailUrl())
-                <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
-            @endif
-            <div class="listing-details">
-                <h3 class="listing-title">
-                    {{ $listing->title }}
-                    @if($listing->is_premium)
-                        <span class="badge badge-premium" style="vertical-align: middle; font-size: 0.6rem;">PREMIUM</span>
-                    @endif
-                </h3>
-                
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 5px 0 10px 0;">
-                    {{ \Illuminate\Support\Str::limit($listing->description, 150) }}
-                </p>
 
-                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: auto;">
-                    <div class="listing-price" style="font-size: 1.2rem; margin: 0; color: var(--primary);">
-                        @if($listing->price && $listing->price > 0)
-                            Rp {{ number_format($listing->price, 0, ',', '.') }}
-                        @else
-                            Hubungi Kami
-                        @endif
-                    </div>
-                    <div class="listing-location" style="margin: 0; font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
-                    <div class="listing-category" style="margin: 0; font-size: 0.7rem; display: flex; align-items: center; gap: 5px;">
-                        {{ $listing->approvedCategories->take(1)->pluck('name')->join('') }}
-
-                        @if($listing->listingType)
-                            <span style="background: {{ $listing->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem;">
-                                {{ $listing->listingType->name }}
-                            </span>
-                        @endif
-                        <span style="font-size: 0.65rem; color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Update: {{ $listing->updated_at->diffForHumans() }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="listing-right-panel" style="min-width: 140px; justify-content: center;">
-                <div class="btn-whatsapp-sm">
-                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                </div>
-            </div>
-
-        </a>
-        @endforeach
-    </div>
+    @if(request('q'))
+        <h2 class="section-title">
+            Hasil Pencarian: "{{ request('q') }}"
+            <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} ditemukan</span>
+        </h2>
     @endif
-
-    <h2 class="section-title">Postingan Terbaru</h2>
     <div class="listing-grid">
         @foreach($recentListings as $listing)
-        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card">
-            @if($listing->getThumbnailUrl())
-                <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}" class="listing-image">
-            @endif
-            <div class="listing-details">
-                <h3 class="listing-title">
-                    {{ $listing->title }}
-                    @if($listing->is_premium)
-                        <span class="badge badge-premium" style="vertical-align: middle; font-size: 0.6rem;">PREMIUM</span>
-                    @endif
-                </h3>
-                
-                <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin: 5px 0 10px 0;">
-                    {{ \Illuminate\Support\Str::limit($listing->description, 150) }}
-                </p>
-
-                <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: auto;">
-                    <div class="listing-price" style="font-size: 1.2rem; margin: 0; color: var(--primary);">
-                        @if($listing->price && $listing->price > 0)
-                            Rp {{ number_format($listing->price, 0, ',', '.') }}
-                        @else
-                            Hubungi Kami
-                        @endif
-                    </div>
-                    <div class="listing-location" style="margin: 0; font-size: 0.85rem;"><i class="fa-solid fa-location-dot"></i> {{ $listing->district?->name ?? 'Batam' }}</div>
-                    <div class="listing-category" style="margin: 0; font-size: 0.7rem; display: flex; align-items: center; gap: 5px;">
-                        {{ $listing->approvedCategories->take(1)->pluck('name')->join('') }}
-
-                        @if($listing->listingType)
-                            <span style="background: {{ $listing->listingType->color }}; color: white; padding: 1px 6px; border-radius: 4px; font-size: 0.6rem;">
-                                {{ $listing->listingType->name }}
-                            </span>
-                        @endif
-                        <span style="font-size: 0.65rem; color: var(--text-muted);"><i class="fa-solid fa-clock"></i> Update: {{ $listing->updated_at->diffForHumans() }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="listing-right-panel" style="min-width: 140px; justify-content: center;">
-                <div class="btn-whatsapp-sm">
-                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
-                </div>
+        <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card-grid">
+            <div class="grid-image-wrapper">
+                @php $profilePhoto = $listing->user->getProfilePhoto(); @endphp
+                <img src="{{ $profilePhoto }}" alt="{{ $listing->title }}">
             </div>
 
+            <div class="grid-content">
+                <h3 class="grid-title">{{ $listing->title }}</h3>
+            </div>
         </a>
         @endforeach
     </div>

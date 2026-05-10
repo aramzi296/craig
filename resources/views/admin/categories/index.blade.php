@@ -3,10 +3,10 @@
 @section('admin_content')
 <div class="dashboard-header">
     <div>
-        <h1>Kelola Kategori</h1>
-        <p style="color: var(--text-muted);">Daftar kategori listing di {{ config('app.name') }}.</p>
+        <h1>Kelola #Hashtag</h1>
+        <p style="color: var(--text-muted);">Daftar #Hashtag listing di {{ config('app.name') }}.</p>
     </div>
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">+ Kategori Baru</a>
+    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">+ #Hashtag Baru</a>
 </div>
 
 @if(session('success'))
@@ -63,7 +63,7 @@
                 <td>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <a href="{{ route('admin.categories.edit', $category->id) }}" style="color: var(--primary);"><i class="fa-solid fa-pen"></i></a>
-                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
+                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus #Hashtag ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0;">

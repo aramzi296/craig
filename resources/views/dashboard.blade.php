@@ -60,7 +60,7 @@
                 <thead>
                     <tr>
                         <th>Iklan</th>
-                        <th>Kategori</th>
+                        <th>#Hashtag</th>
                         <th>Harga</th>
                         <th>Komentar</th>
                         <th>Dilihat</th>
@@ -88,7 +88,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $listing->categories->first()->name ?? '-' }}</td>
+                        <td>{{ $listing->tags->first()->name ?? '-' }}</td>
 
                         <td>
                             @if($listing->price && $listing->price > 0)

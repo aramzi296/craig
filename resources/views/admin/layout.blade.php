@@ -19,7 +19,7 @@
             </li>
             <li class="sidebar-item">
                 <a href="{{ route('admin.categories') }}" class="sidebar-link {{ request()->routeIs('admin.categories') ? 'active' : '' }}">
-                    <i class="fa-solid fa-tags"></i> Kategori
+                    <i class="fa-solid fa-tags"></i> #Hashtag
                 </a>
             </li>
             <li class="sidebar-item">

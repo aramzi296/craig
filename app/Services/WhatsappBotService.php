@@ -7,7 +7,7 @@ use App\Models\Listing;
 use App\Models\ListingPhoto;
 use App\Models\District;
 use App\Models\ListingType;
-use App\Models\Category;
+use App\Models\Tag;
 use App\Models\PremiumPackage;
 use App\Models\PremiumRequest;
 use App\Services\ImageService;
@@ -749,22 +749,22 @@ class WhatsappBotService
         $state['step'] = 'awaiting_category';
         $this->setState($phone, $state);
 
-        $topCategories = Category::withCount('listings')
+        $topTags = Tag::withCount('listings')
             ->orderBy('listings_count', 'desc')
             ->take(10)
             ->get();
 
-        $catList = "";
-        if ($topCategories->isNotEmpty()) {
-            $catList = "\n\n*Contoh kategori terpopuler:*\n";
-            foreach ($topCategories as $cat) {
-                $catList .= "- {$cat->name}\n";
+        $tagList = "";
+        if ($topTags->isNotEmpty()) {
+            $tagList = "\n\n*Contoh #Hashtag terpopuler:*\n";
+            foreach ($topTags as $tag) {
+                $tagList .= "- {$tag->name}\n";
             }
         }
 
         $this->whatsapp->sendMessage(
             $phone, 
-            "📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf)." . $catList
+            "📂 Apa nama *#Hashtag* untuk iklan Anda ini? (maksimal 30 huruf)." . $tagList
         );
     }
 
@@ -811,22 +811,22 @@ class WhatsappBotService
                 $state['step'] = 'awaiting_category';
                 $this->setState($phone, $state);
 
-                $topCategories = Category::withCount('listings')
+                $topTags = Tag::withCount('listings')
                     ->orderBy('listings_count', 'desc')
                     ->take(10)
                     ->get();
 
-                $catList = "";
-                if ($topCategories->isNotEmpty()) {
-                    $catList = "\n\n*Contoh kategori terpopuler:*\n";
-                    foreach ($topCategories as $cat) {
-                        $catList .= "- {$cat->name}\n";
+                $tagList = "";
+                if ($topTags->isNotEmpty()) {
+                    $tagList = "\n\n*Contoh #Hashtag terpopuler:*\n";
+                    foreach ($topTags as $tag) {
+                        $tagList .= "- {$tag->name}\n";
                     }
                 }
 
                 $this->whatsapp->sendMessage(
                     $phone, 
-                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *Kategori* untuk iklan Anda ini? (maksimal 30 huruf)." . $catList
+                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *#Hashtag* untuk iklan Anda ini? (maksimal 30 huruf)." . $tagList
                 );
             } else {
                 $next = $photoCount + 1;
@@ -843,7 +843,7 @@ class WhatsappBotService
     private function handleAdCategory(string $phone, string $text, array $state): void
     {
         if (mb_strlen($text) > 30) {
-            $this->whatsapp->sendMessage($phone, "⚠️ Kategori terlalu panjang (maksimal 30 huruf).");
+            $this->whatsapp->sendMessage($phone, "⚠️ #Hashtag terlalu panjang (maksimal 30 huruf).");
             return;
         }
 
@@ -924,7 +924,7 @@ class WhatsappBotService
                   "📌 Judul: {$title}\n" .
                   "📝 Detail: {$desc}\n" .
                   "💰 Harga: {$price}\n" .
-                  "📂 Kategori: {$cat}\n" .
+                  "📂 #Hashtag: {$cat}\n" .
                   "📍 Lokasi: {$loc}\n" .
                   "🏷️ Tipe: {$type}\n" .
                   "📲 Tombol WA: {$wa}\n" .
@@ -956,25 +956,25 @@ class WhatsappBotService
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                 ]);
 
-                // Handle Category
-                $catName = trim($ad['category_name']);
-                $slug = Str::slug($catName);
+                // Handle Tag
+                $tagName = trim($ad['category_name']);
+                $slug = Str::slug($tagName);
                 
                 // Cari berdasarkan nama (case-insensitive) atau slug
-                $category = Category::whereRaw('LOWER(name) = ?', [strtolower($catName)])
+                $tag = Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
                     ->orWhere('slug', $slug)
                     ->first();
 
-                if (!$category) {
-                    $category = Category::create([
-                        'name' => $catName,
+                if (!$tag) {
+                    $tag = Tag::create([
+                        'name' => $tagName,
                         'slug' => $slug,
-                        'is_approved' => \DB::raw('false'), // Kategori baru harus disetujui admin
+                        'is_approved' => \DB::raw('false'), // Tag baru harus disetujui admin
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)Category::max('sort_order') + 1,
+                        'sort_order' => (int)Tag::max('sort_order') + 1,
                     ]);
                 }
-                $listing->categories()->attach($category->id);
+                $listing->tags()->attach($tag->id);
 
                 // Handle Photos
                 foreach ($state['photos'] as $idx => $base64) {

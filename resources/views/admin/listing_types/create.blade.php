@@ -41,8 +41,8 @@
 
         <div class="form-group" style="margin-bottom: 25px;">
             <label for="keterangan">Keterangan</label>
-            <textarea name="keterangan" id="keterangan" class="form-control @error('keterangan') is-invalid @enderror" rows="4" placeholder="Deskripsi untuk panduan di halaman Baca Saya">{{ old('keterangan') }}</textarea>
-            <small style="color: var(--text-muted); display: block; margin-top: 8px;">Muncul sebagai penjelasan di halaman panduan/baca-saya.</small>
+            <textarea name="keterangan" id="keterangan" class="form-control @error('keterangan') is-invalid @enderror" rows="4" placeholder="Deskripsi untuk panduan di halaman Tentang">{{ old('keterangan') }}</textarea>
+            <small style="color: var(--text-muted); display: block; margin-top: 8px;">Muncul sebagai penjelasan di halaman Tentang.</small>
             @error('keterangan')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

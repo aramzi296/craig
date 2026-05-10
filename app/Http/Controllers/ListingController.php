@@ -18,7 +18,7 @@ class ListingController extends Controller
 
     public function create()
     {
-        $categories = \App\Models\Category::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+        $categories = \App\Models\Tag::whereRaw('is_approved = true')->orderBy('sort_order')->get();
 
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
@@ -43,8 +43,8 @@ class ListingController extends Controller
         $descLimit = $isPremium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100);
 
         $rules = [
-            'categories' => 'nullable|string',
-            'listing_type_id' => 'required|exists:listing_types,id',
+            'tags' => 'nullable|string',
+            'listing_type_id' => 'nullable|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => "required|string|max:{$descLimit}",
             'price' => 'nullable|numeric',
@@ -64,6 +64,11 @@ class ListingController extends Controller
         }
 
         $data = $request->validate($rules);
+
+        if (!$request->filled('listing_type_id')) {
+            $defaultType = \App\Models\ListingType::where('slug', 'lainnya')->first() ?: \App\Models\ListingType::first();
+            $data['listing_type_id'] = $defaultType?->id;
+        }
 
         if (!auth()->check()) {
             // ── Verify OTP ──────────────────────────────────────────────────────
@@ -149,36 +154,36 @@ class ListingController extends Controller
             }
         }
 
-        // Process Categories from Tagify
-        $categoryIds = [];
-        if ($request->filled('categories')) {
-            $tagifyCategories = json_decode($request->categories, true);
+        // Process Tags from Tagify
+        $tagIds = [];
+        if ($request->filled('tags')) {
+            $tagifyTags = json_decode($request->tags, true);
             $maxAllowed = $isPremiumPackage ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
-            foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
-                $categoryName = trim($cat['value']);
-                $slug = \Illuminate\Support\Str::slug($categoryName);
+            foreach (array_slice($tagifyTags, 0, $maxAllowed) as $cat) {
+                $tagName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($tagName);
 
                 // Cari berdasarkan nama (case-insensitive) atau slug
-                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
                     ->orWhere('slug', $slug)
                     ->first();
 
-                if (!$category) {
-                    $category = \App\Models\Category::create([
-                        'name' => $categoryName,
+                if (!$tag) {
+                    $tag = \App\Models\Tag::create([
+                        'name' => $tagName,
                         'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
                         'is_approved' => \DB::raw('false')
                     ]);
                 }
 
-                $categoryIds[] = $category->id;
+                $tagIds[] = $tag->id;
             }
         }
 
-        $listing->categories()->sync($categoryIds);
+        $listing->tags()->sync($tagIds);
 
         // Link to existing premium request if provided
         if ($request->filled('premium_request_id')) {
@@ -210,7 +215,7 @@ class ListingController extends Controller
     public function edit($id)
     {
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
-        $categories = \App\Models\Category::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+        $categories = \App\Models\Tag::whereRaw('is_approved = true')->orderBy('sort_order')->get();
 
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
@@ -223,8 +228,8 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
 
         $data = $request->validate([
-            'categories' => 'nullable|string',
-            'listing_type_id' => 'required|exists:listing_types,id',
+            'tags' => 'nullable|string',
+            'listing_type_id' => 'nullable|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . ($listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100)),
             'price' => 'nullable|numeric',
@@ -277,35 +282,35 @@ class ListingController extends Controller
             }
         }
 
-        // Process Categories from Tagify
-        $categoryIds = [];
-        if ($request->filled('categories')) {
-            $tagifyCategories = json_decode($request->categories, true);
+        // Process Tags from Tagify
+        $tagIds = [];
+        if ($request->filled('tags')) {
+            $tagifyTags = json_decode($request->tags, true);
             $maxAllowed = $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
             
-            foreach (array_slice($tagifyCategories, 0, $maxAllowed) as $cat) {
-                $categoryName = trim($cat['value']);
-                $slug = \Illuminate\Support\Str::slug($categoryName);
+            foreach (array_slice($tagifyTags, 0, $maxAllowed) as $cat) {
+                $tagName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($tagName);
 
                 // Cari berdasarkan nama (case-insensitive) atau slug
-                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
                     ->orWhere('slug', $slug)
                     ->first();
 
-                if (!$category) {
-                    $category = \App\Models\Category::create([
-                        'name' => $categoryName,
+                if (!$tag) {
+                    $tag = \App\Models\Tag::create([
+                        'name' => $tagName,
                         'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
                         'is_approved' => \DB::raw('false')
                     ]);
                 }
-                $categoryIds[] = $category->id;
+                $tagIds[] = $tag->id;
             }
         }
 
-        $listing->categories()->sync($categoryIds);
+        $listing->tags()->sync($tagIds);
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil diperbarui.');
     }

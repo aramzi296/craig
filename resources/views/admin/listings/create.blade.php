@@ -116,7 +116,7 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label>Kategori</label>
+            <label>#Hashtag</label>
             <div class="form-input-side">
                 <!-- Added Tagify CSS -->
                 <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
@@ -153,20 +153,20 @@
                     }
                 </style>
 
-                <input name="categories" id="categories-tagify" class="form-control" placeholder="Pilih atau ketik kategori..." value="{{ old('categories', '') }}">
+                <input name="tags" id="tags-tagify" class="form-control" placeholder="Pilih atau ketik #Hashtag..." value="{{ old('tags', '') }}">
                 
-                <small id="category-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
-                    Ketik dan pilih kategori yang sesuai. Maksimal <strong>10</strong> kategori. 
-                    Jika kategori tidak ada di daftar, ketik saja nama kategori baru lalu tekan <strong>Enter</strong>.
+                <small id="tag-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Ketik dan pilih #Hashtag yang sesuai. Maksimal <strong>10</strong> #Hashtag. 
+                    Jika #Hashtag tidak ada di daftar, ketik saja nama #Hashtag baru lalu tekan <strong>Enter</strong>.
                 </small>
-                @error('categories')
+                @error('tags')
                     <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
 
                 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
-                        const input = document.querySelector('#categories-tagify');
+                        const input = document.querySelector('#tags-tagify');
                         const whitelist = @json($categories->pluck('name'));
                         
                         new Tagify(input, {

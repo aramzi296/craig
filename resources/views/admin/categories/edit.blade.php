@@ -2,8 +2,8 @@
 
 @section('admin_content')
 <div style="margin-bottom: 40px;">
-    <h1 style="font-size: 2rem; font-weight: 700;">Edit Kategori</h1>
-    <p style="color: var(--text-muted);">Ubah informasi kategori: {{ $category->name }}</p>
+    <h1 style="font-size: 2rem; font-weight: 700;">Edit #Hashtag</h1>
+    <p style="color: var(--text-muted);">Ubah informasi #Hashtag: {{ $category->name }}</p>
 </div>
 
 <div class="glass" style="max-width: 600px; padding: 40px; border-radius: var(--radius);">
@@ -11,7 +11,7 @@
         @csrf
         @method('PUT')
         <div class="form-group">
-            <label for="name">Nama Kategori</label>
+            <label for="name">Nama #Hashtag</label>
             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $category->name) }}" required>
             @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -39,14 +39,14 @@
         <div class="form-group" style="margin-top: 20px;">
             <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                 <input type="checkbox" name="is_approved" value="1" {{ $category->is_approved ? 'checked' : '' }} style="width: 20px; height: 20px;">
-                <span style="font-weight: 600;">Setujui Kategori (Approved)</span>
+                <span style="font-weight: 600;">Setujui #Hashtag (Approved)</span>
             </label>
-            <small style="color: var(--text-muted); display: block; margin-top: 5px; margin-left: 30px;">Hanya kategori yang disetujui yang akan muncul di website.</small>
+            <small style="color: var(--text-muted); display: block; margin-top: 5px; margin-left: 30px;">Hanya #Hashtag yang disetujui yang akan muncul di website.</small>
         </div>
 
 
         <div style="display: flex; gap: 15px; margin-top: 30px;">
-            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Kategori</button>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui #Hashtag</button>
             <a href="{{ route('admin.categories') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
         </div>
     </form>

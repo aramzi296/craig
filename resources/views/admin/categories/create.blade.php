@@ -2,15 +2,15 @@
 
 @section('admin_content')
 <div style="margin-bottom: 40px;">
-    <h1 style="font-size: 2rem; font-weight: 700;">Tambah Kategori</h1>
-    <p style="color: var(--text-muted);">Buat kategori baru untukListing di BatamCraig.</p>
+    <h1 style="font-size: 2rem; font-weight: 700;">Tambah #Hashtag</h1>
+    <p style="color: var(--text-muted);">Buat #Hashtag baru untuk Listing di BatamCraig.</p>
 </div>
 
 <div class="glass" style="max-width: 600px; padding: 40px; border-radius: var(--radius);">
     <form action="{{ route('admin.categories.store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label for="name">Nama Kategori</label>
+            <label for="name">Nama #Hashtag</label>
             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" placeholder="Contoh: Barang Elektronik" required>
             @error('name')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -36,7 +36,7 @@
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 30px;">
-            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Simpan Kategori</button>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Simpan #Hashtag</button>
             <a href="{{ route('admin.categories') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
         </div>
     </form>

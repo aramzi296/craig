@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
         \App\Models\Listing::observe(\App\Observers\ListingObserver::class);
 
         \Illuminate\Support\Facades\View::composer('layouts.app', function ($view) {
-            $view->with('globalCategories', \App\Models\Category::orderBy('sort_order')->get());
+            $view->with('globalTags', \App\Models\Tag::orderBy('sort_order')->get());
         });
     }
 }

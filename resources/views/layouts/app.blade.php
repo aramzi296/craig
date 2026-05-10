@@ -25,6 +25,216 @@
     </script>
 
     @vite(['resources/css/tailwind.css', 'resources/css/app.css', 'resources/js/app.js'])
+
+    <style>
+        /* Premium Listing Row Styles - Guaranteed Application */
+        .listing-row {
+            display: flex !important;
+            flex-direction: row !important;
+            background: #ffffff !important;
+            border-radius: 24px !important;
+            padding: 24px !important;
+            gap: 24px !important;
+            align-items: center !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-decoration: none !important;
+            color: inherit !important;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08) !important;
+            margin-bottom: 20px !important;
+            border: 1px solid rgba(226, 232, 240, 0.5) !important;
+            position: relative !important;
+        }
+
+        .listing-row:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+            box-shadow: 0 20px 40px -15px rgba(14, 165, 233, 0.2) !important;
+            border-color: #0ea5e9 !important;
+        }
+
+        .listing-row-profile {
+            flex-shrink: 0 !important;
+            width: 100px !important;
+            height: 100px !important;
+        }
+
+        .avatar-container {
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 30px !important;
+            overflow: hidden !important;
+            border: 4px solid #ffffff !important;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.06) !important;
+            background: #f8fafc !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+
+        .avatar-img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+        }
+
+        .avatar-fallback {
+            width: 100% !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%) !important;
+            color: #0369a1 !important;
+            font-weight: 800 !important;
+            font-size: 2.2rem !important;
+        }
+
+        .listing-row-content {
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+
+        .listing-row-title {
+            font-size: 1.5rem !important;
+            font-weight: 800 !important;
+            margin: 0 0 8px 0 !important;
+            color: #0f172a !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            letter-spacing: -0.01em !important;
+        }
+
+        .badge-premium {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+            color: white !important;
+            font-size: 0.65rem !important;
+            padding: 4px 12px !important;
+            border-radius: 10px !important;
+            font-weight: 900 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.1em !important;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3) !important;
+            border: none !important;
+        }
+
+        .listing-row-description {
+            font-size: 1rem !important;
+            color: #64748b !important;
+            margin: 0 0 20px 0 !important;
+            line-height: 1.6 !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+        }
+
+        .listing-row-attributes {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 24px !important;
+            flex-wrap: wrap !important;
+        }
+
+        .listing-row-price {
+            font-size: 1.4rem !important;
+            font-weight: 800 !important;
+            color: #0ea5e9 !important;
+            padding: 4px 0 !important;
+        }
+
+        .listing-row-info {
+            font-size: 0.9rem !important;
+            color: #94a3b8 !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            font-weight: 500 !important;
+        }
+
+        .listing-row-info i {
+            color: #cbd5e1 !important;
+            font-size: 1rem !important;
+        }
+
+        .listing-row-update {
+            width: 220px !important;
+            text-align: right !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 15px !important;
+            border-left: 2px solid #f1f5f9 !important;
+            padding-left: 30px !important;
+            flex-shrink: 0 !important;
+        }
+
+        .update-label {
+            font-size: 0.7rem !important;
+            color: #94a3b8 !important;
+            text-transform: uppercase !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.1em !important;
+            margin-bottom: 2px !important;
+        }
+
+        .update-time {
+            font-size: 0.9rem !important;
+            color: #1e293b !important;
+            font-weight: 700 !important;
+        }
+
+        .btn-whatsapp-sm {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+            color: white !important;
+            padding: 12px 24px !important;
+            border-radius: 16px !important;
+            font-size: 0.9rem !important;
+            font-weight: 800 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            border: none !important;
+            box-shadow: 0 10px 20px -5px rgba(37, 211, 102, 0.4) !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .btn-whatsapp-sm:hover {
+            transform: scale(1.05) !important;
+            box-shadow: 0 15px 25px -5px rgba(37, 211, 102, 0.5) !important;
+        }
+
+        @media (max-width: 768px) {
+            .listing-row {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 20px !important;
+                padding: 24px !important;
+                border-radius: 28px !important;
+            }
+
+            .listing-row-profile {
+                width: 80px !important;
+                height: 80px !important;
+            }
+
+            .listing-row-update {
+                width: 100% !important;
+                border-left: none !important;
+                border-top: 2px dashed #f1f5f9 !important;
+                padding-left: 0 !important;
+                padding-top: 20px !important;
+                text-align: left !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+            
+            .btn-whatsapp-sm {
+                padding: 10px 20px !important;
+            }
+        }
+    </style>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -53,16 +263,15 @@
             <div class="nav-left">
                 @yield('header_left')
                 <a href="{{ route('home') }}" class="logo-link">
-                    <span class="logo-brand">sebatam</span><span class="logo-dot">.com</span>
+                    <span class="logo-brand">lapak sebatam</span>
                 </a>
             </div>
 
             <!-- Desktop Navigation -->
             <nav class="nav-desktop">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Lapak</a>
-                <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
                 <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
-                <a href="{{ route('baca-saya') }}" class="{{ request()->routeIs('baca-saya') ? 'active' : '' }}">Panduan</a>
+                <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
             </nav>
 
             <!-- Actions / User Menu -->
@@ -110,10 +319,9 @@
                 </button>
             </div>
             <div class="mobile-menu-body">
-                <a href="{{ route('home') }}" class="mobile-link {{ request()->routeIs('home') ? 'active' : '' }}">Lapak</a>
-                <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
                 <a href="{{ route('contact') }}" class="mobile-link {{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
-                <a href="{{ route('baca-saya') }}" class="mobile-link {{ request()->routeIs('baca-saya') ? 'active' : '' }}">Panduan</a>
+                <a href="{{ route('tentang') }}" class="mobile-link {{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
                 <hr>
                 @auth
                     <div class="mobile-account-section">
@@ -175,17 +383,15 @@
             </div>
             <hr style="border: none; border-top: 1px solid #1e293b; margin: 40px 0;">
             <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 5px;">&copy; {{ date('Y') }} sebatam.com. All rights reserved.</p>
-            <nav style="margin-top: 20px;">
-                <a href="{{ route('baca-saya') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Panduan</a>
-                |
-                <a href="{{ route('contact') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kontak</a>
-                |
-                <a href="{{ route('terms.and.conditions') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Syarat & Ketentuan</a>
-
-                |
-                <a href="{{ route('privacy.policy') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Kebijakan Privasi</a>
-                |
-                <a href="{{ route('disclaimer') }}" style="color: #94a3b8; margin: 0 10px; text-decoration: none;">Disclaimer</a>
+            <nav class="footer-nav" style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+                <a href="{{ route('categories.index') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">#Hashtag</a>
+                <a href="{{ route('contact') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">Kontak</a>
+                <a href="{{ route('tentang') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">Tentang</a>
+            </nav>
+            <nav class="footer-legal" style="margin-top: 15px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; font-size: 0.8rem;">
+                <a href="{{ route('terms.and.conditions') }}" style="color: #64748b; text-decoration: none;">Syarat & Ketentuan</a>
+                <a href="{{ route('privacy.policy') }}" style="color: #64748b; text-decoration: none;">Kebijakan Privasi</a>
+                <a href="{{ route('disclaimer') }}" style="color: #64748b; text-decoration: none;">Disclaimer</a>
             </nav>
         </div>
     </footer>

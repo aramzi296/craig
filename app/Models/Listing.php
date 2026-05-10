@@ -34,14 +34,14 @@ class Listing extends Model
     }
 
 
-    public function categories()
+    public function tags()
     {
-        return $this->belongsToMany(Category::class);
+        return $this->belongsToMany(Tag::class);
     }
 
-    public function approvedCategories()
+    public function approvedTags()
     {
-        return $this->belongsToMany(Category::class)->whereRaw('is_approved = true');
+        return $this->belongsToMany(Tag::class)->whereRaw('is_approved = true');
     }
 
 
@@ -126,8 +126,8 @@ class Listing extends Model
             'district_id' => (int) $this->district_id,
             'listing_type' => $this->listingType?->name,
             'listing_type_id' => (int) $this->listing_type_id,
-            'categories' => $this->approvedCategories->pluck('name')->toArray(),
-            'category_ids' => $this->approvedCategories->pluck('id')->toArray(),
+            'tags' => $this->approvedTags->pluck('name')->toArray(),
+            'tag_ids' => $this->approvedTags->pluck('id')->toArray(),
             'created_at' => $this->created_at?->timestamp,
             'expires_at' => $this->expires_at?->timestamp,
             'listing_rank' => (int) $this->listing_rank,

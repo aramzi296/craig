@@ -15,19 +15,19 @@ class AdminController extends Controller
     {
         $stats = [
             'users' => \App\Models\User::count(),
-            'categories' => \App\Models\Category::count(),
+            'categories' => \App\Models\Tag::count(),
             'listings' => \App\Models\Listing::count(),
             'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
         ];
 
-        $latestListings = \App\Models\Listing::with(['categories', 'user'])->latest()->take(10)->get();
+        $latestListings = \App\Models\Listing::with(['tags', 'user'])->latest()->take(10)->get();
         
         return view('admin.dashboard', compact('stats', 'latestListings'));
     }
 
     public function categories()
     {
-        $categories = \App\Models\Category::withCount('listings')->orderBy('sort_order')->get();
+        $categories = \App\Models\Tag::withCount('listings')->orderBy('sort_order')->get();
         return view('admin.categories.index', compact('categories'));
     }
 
@@ -39,30 +39,30 @@ class AdminController extends Controller
     public function storeCategory(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:categories',
+            'name' => 'required|string|max:255|unique:tags',
             'icon' => 'required|string|max:50',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
 
-        \App\Models\Category::create($data);
+        \App\Models\Tag::create($data);
 
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     public function editCategory($id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        $category = \App\Models\Tag::findOrFail($id);
         return view('admin.categories.edit', compact('category'));
     }
 
     public function updateCategory(\Illuminate\Http\Request $request, $id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        $category = \App\Models\Tag::findOrFail($id);
 
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,'.$id,
+            'name' => 'required|string|max:255|unique:tags,name,'.$id,
             'icon' => 'required|string|max:50',
             'sort_order' => 'nullable|integer|min:0',
             'is_approved' => 'nullable|boolean',
@@ -80,7 +80,7 @@ class AdminController extends Controller
 
     public function destroyCategory($id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        $category = \App\Models\Tag::findOrFail($id);
         
         if ($category->listings()->count() > 0) {
             return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki listing.');
@@ -88,15 +88,15 @@ class AdminController extends Controller
 
         $category->delete();
 
-        return redirect()->route('admin.categories')->with('success', 'Kategori berhasil dihapus.');
+        return redirect()->route('admin.categories')->with('success', '#Hashtag berhasil dihapus.');
     }
 
     public function toggleCategoryApproval($id)
     {
-        $category = \App\Models\Category::findOrFail($id);
+        $category = \App\Models\Tag::findOrFail($id);
         $newStatusSql = $category->is_approved ? 'false' : 'true';
         
-        \DB::update("UPDATE categories SET is_approved = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
+        \DB::update("UPDATE tags SET is_approved = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
     }
@@ -105,7 +105,7 @@ class AdminController extends Controller
 
     public function listings(Request $request)
     {
-        $query = \App\Models\Listing::query()->with(['categories', 'user', 'listingType']);
+        $query = \App\Models\Listing::query()->with(['tags', 'user', 'listingType']);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -153,7 +153,7 @@ class AdminController extends Controller
 
     public function createListing(Request $request)
     {
-        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $categories = \App\Models\Tag::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
         
@@ -171,7 +171,7 @@ class AdminController extends Controller
     public function storeListing(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'categories' => 'nullable|string',
+            'tags' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -183,8 +183,8 @@ class AdminController extends Controller
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
-        $rawCategories = $data['categories'] ?? null;
-        unset($data['categories']);
+        $rawTags = $data['tags'] ?? null;
+        unset($data['tags']);
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         
@@ -196,31 +196,31 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::create($data);
 
         // Process Categories from Tagify
-        $categoryIds = [];
-        if ($rawCategories) {
-            $tagifyCategories = json_decode($rawCategories, true);
-            foreach ($tagifyCategories as $cat) {
-                $categoryName = trim($cat['value']);
-                $slug = \Illuminate\Support\Str::slug($categoryName);
+        $tagIds = [];
+        if ($rawTags) {
+            $tagifyTags = json_decode($rawTags, true);
+            foreach ($tagifyTags as $cat) {
+                $tagName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($tagName);
 
-                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
                     ->orWhere('slug', $slug)
                     ->first();
 
-                if (!$category) {
-                    $category = \App\Models\Category::create([
-                        'name' => $categoryName,
+                if (!$tag) {
+                    $tag = \App\Models\Tag::create([
+                        'name' => $tagName,
                         'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
                         'is_approved' => \DB::raw('true')
                     ]);
                 }
-                $categoryIds[] = $category->id;
+                $tagIds[] = $tag->id;
             }
         }
 
-        $listing->categories()->sync($categoryIds);
+        $listing->tags()->sync($tagIds);
 
         // Upload Photos
         if ($request->hasFile('photos')) {
@@ -253,7 +253,7 @@ class AdminController extends Controller
     public function editListing($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);
-        $categories = \App\Models\Category::orderBy('sort_order')->get();
+        $categories = \App\Models\Tag::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
         return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes', 'districts'));
@@ -264,7 +264,7 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::findOrFail($id);
 
         $data = $request->validate([
-            'categories' => 'nullable|string',
+            'tags' => 'nullable|string',
             'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -275,8 +275,8 @@ class AdminController extends Controller
             'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
-        $rawCategories = $data['categories'] ?? null;
-        unset($data['categories']);
+        $rawTags = $data['tags'] ?? null;
+        unset($data['tags']);
 
         if ($data['title'] !== $listing->title) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
@@ -285,31 +285,31 @@ class AdminController extends Controller
         $listing->update($data);
 
         // Process Categories from Tagify
-        $categoryIds = [];
-        if ($rawCategories) {
-            $tagifyCategories = json_decode($rawCategories, true);
-            foreach ($tagifyCategories as $cat) {
-                $categoryName = trim($cat['value']);
-                $slug = \Illuminate\Support\Str::slug($categoryName);
+        $tagIds = [];
+        if ($rawTags) {
+            $tagifyTags = json_decode($rawTags, true);
+            foreach ($tagifyTags as $cat) {
+                $tagName = trim($cat['value']);
+                $slug = \Illuminate\Support\Str::slug($tagName);
 
-                $category = \App\Models\Category::whereRaw('LOWER(name) = ?', [strtolower($categoryName)])
+                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
                     ->orWhere('slug', $slug)
                     ->first();
 
-                if (!$category) {
-                    $category = \App\Models\Category::create([
-                        'name' => $categoryName,
+                if (!$tag) {
+                    $tag = \App\Models\Tag::create([
+                        'name' => $tagName,
                         'slug' => $slug,
                         'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Category::max('sort_order') + 1,
+                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
                         'is_approved' => \DB::raw('true')
                     ]);
                 }
-                $categoryIds[] = $category->id;
+                $tagIds[] = $tag->id;
             }
         }
 
-        $listing->categories()->sync($categoryIds);
+        $listing->tags()->sync($tagIds);
 
         // Upload Photos
         if ($request->hasFile('photos')) {
