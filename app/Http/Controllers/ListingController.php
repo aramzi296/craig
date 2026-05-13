@@ -50,9 +50,9 @@ class ListingController extends Controller
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
-            'whatsapp_visibility' => 'required|integer|in:0,1,2',
-            'comment_visibility' => 'required|integer|in:0,1,2',
+            'photos.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
+            'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
             'ad_package' => 'required|in:standard,premium',
         ];
@@ -63,7 +63,11 @@ class ListingController extends Controller
             $rules['otp'] = 'required|digits:6';
         }
 
-        $data = $request->validate($rules);
+        $data = $request->validate($rules, [
+            'photos.*.image' => 'File harus berupa gambar.',
+            'photos.*.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'photos.*.max' => 'Ukuran setiap foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
+        ]);
 
         if (!$request->filled('listing_type_id')) {
             $defaultType = \App\Models\ListingType::where('slug', 'lainnya')->first() ?: \App\Models\ListingType::first();
@@ -139,18 +143,12 @@ class ListingController extends Controller
             }
 
             foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily
-                $tempDir = storage_path('app/private/temp_uploads');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0777, true);
-                }
-                
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-                $file->move($tempDir, $fileName);
-                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+                $tempPath = $file->storeAs('temp_uploads', $fileName);
+                $fullPath = storage_path('app/private/' . $tempPath);
 
-                // Dispatch Job
-                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+                // Dispatch Job Synchronously
+                ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
             }
         }
 
@@ -184,6 +182,7 @@ class ListingController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        $listing->updateSearchableField();
 
         // Link to existing premium request if provided
         if ($request->filled('premium_request_id')) {
@@ -235,10 +234,14 @@ class ListingController extends Controller
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
-            'whatsapp_visibility' => 'required|integer|in:0,1,2',
-            'comment_visibility' => 'required|integer|in:0,1,2',
+            'photos.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
+            'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
+        ], [
+            'photos.*.image' => 'File harus berupa gambar.',
+            'photos.*.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'photos.*.max' => 'Ukuran setiap foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
         ]);
 
         if ($data['title'] !== $listing->title) {
@@ -268,10 +271,10 @@ class ListingController extends Controller
                     // Store file temporarily
                     $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                     $tempPath = $file->storeAs('temp_uploads', $fileName);
-                    $fullPath = storage_path('app/' . $tempPath);
+                    $fullPath = storage_path('app/private/' . $tempPath);
 
-                    // Dispatch Job
-                    ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+                    // Dispatch Job Synchronously
+                    ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
                 }
                 
                 if (count($files) > $remaining) {
@@ -311,6 +314,7 @@ class ListingController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        $listing->updateSearchableField();
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil diperbarui.');
     }
@@ -348,10 +352,10 @@ class ListingController extends Controller
     {
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
         
-        // Delete photos from ImageKit
+        // Delete photos from local storage
         foreach ($listing->photos as $photo) {
-            if ($photo->ik_file_id) {
-                $this->imageService->deleteFileById($photo->ik_file_id);
+            if ($photo->photo_path) {
+                $this->imageService->deleteByPath($photo->photo_path);
             }
         }
 
@@ -366,8 +370,8 @@ class ListingController extends Controller
             $q->where('user_id', auth()->id());
         })->findOrFail($id);
 
-        if ($photo->ik_file_id) {
-            $this->imageService->deleteFileById($photo->ik_file_id);
+        if ($photo->photo_path) {
+            $this->imageService->deleteByPath($photo->photo_path);
         }
 
         $photo->delete();

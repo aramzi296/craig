@@ -10,8 +10,15 @@ class ListingPhoto extends Model
         'listing_id',
         'photo_path',
         'thumbnail_path',
+        'file_type',
+        'file_size',
         'collection',
         'ik_file_id',
+        'meta',
+    ];
+
+    protected $casts = [
+        'meta' => 'array',
     ];
 
     public function listing()
@@ -21,17 +28,17 @@ class ListingPhoto extends Model
 
     public function getUrl()
     {
-        if (str_starts_with($this->photo_path, '/listings/')) {
-            return rtrim(config('services.imagekit.url_endpoint'), '/') . $this->photo_path . '?tr=w-1000';
+        if (str_starts_with($this->photo_path, 'http')) {
+            return $this->photo_path;
         }
-        return asset('storage/' . $this->photo_path);
+        return asset('storage/' . ltrim($this->photo_path, '/'));
     }
 
     public function getThumbnailUrl()
     {
-        if (str_starts_with($this->thumbnail_path, '/listings/')) {
-            return rtrim(config('services.imagekit.url_endpoint'), '/') . $this->thumbnail_path . '?tr=w-200,h-200,fo-auto';
+        if (str_starts_with($this->thumbnail_path, 'http')) {
+            return $this->thumbnail_path;
         }
-        return asset('storage/' . $this->thumbnail_path);
+        return asset('storage/' . ltrim($this->thumbnail_path, '/'));
     }
 }

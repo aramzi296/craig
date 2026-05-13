@@ -28,6 +28,8 @@ class SettingSeeder extends Seeder
             'jumlah_iklan_user_default' => ['value' => '1', 'description' => 'jumlah iklan untuk user default'],
             'is_maintenance' => ['value' => '0', 'description' => 'Mode perbaikan (1=aktif, 0=tidak)'],
             'maintenance_message' => ['value' => 'Mohon maaf, sistem sedang dalam perbaikan rutin untuk meningkatkan layanan kami. Silakan kembali lagi nanti.', 'description' => 'Pesan yang ditampilkan saat mode perbaikan aktif'],
+            'allowed_image_types' => ['value' => 'jpeg,png,jpg,webp', 'description' => 'Tipe file gambar yang diizinkan (pisahkan dengan koma)'],
+            'max_image_size' => ['value' => '2048', 'description' => 'Ukuran maksimal gambar dalam KB'],
         ];
 
         foreach ($settings as $key => $data) {

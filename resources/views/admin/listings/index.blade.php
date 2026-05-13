@@ -80,7 +80,7 @@
                 <td>
                     <div style="font-weight: 600;">{{ $listing->listingType->name ?? '-' }}</div>
                     <div style="font-size: 0.75rem; color: var(--text-muted);">
-                        {{ $listing->categories->pluck('name')->join(', ') }}
+                        {{ $listing->tags->pluck('name')->join(', ') }}
                     </div>
                 </td>
                 <td>

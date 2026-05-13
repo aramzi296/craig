@@ -121,6 +121,51 @@
             </script>
 
             <div class="form-group-horizontal">
+                <label for="listing_type_id">Tipe Iklan</label>
+                <div class="form-input-side">
+                    <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
+                        <option value="">Pilih Tipe Iklan</option>
+                        @foreach($listingTypes as $type)
+                            <option value="{{ $type->id }}" {{ old('listing_type_id') == $type->id ? 'selected' : '' }} data-description="{{ $type->keterangan }}">
+                                {{ $type->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div id="listing_type_description" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display: none; background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary);">
+                        {{-- Akan diisi via JS --}}
+                    </div>
+                    @error('listing_type_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const typeSelect = document.getElementById('listing_type_id');
+                    const typeDesc = document.getElementById('listing_type_description');
+
+                    function updateTypeDescription() {
+                        if (!typeSelect || !typeDesc) return;
+                        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                        const description = selectedOption ? selectedOption.getAttribute('data-description') : '';
+                        
+                        if (description && description.trim() !== '') {
+                            typeDesc.innerHTML = description;
+                            typeDesc.style.display = 'block';
+                        } else {
+                            typeDesc.style.display = 'none';
+                        }
+                    }
+
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', updateTypeDescription);
+                        updateTypeDescription(); // Initial call
+                    }
+                });
+            </script>
+
+            <div class="form-group-horizontal" style="margin-top: 25px;">
                 <label for="title">Judul</label>
                 <div class="form-input-side">
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Honda Vario 2022 Mulus" required>
@@ -162,7 +207,7 @@
                 <div class="form-input-side">
                     <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto.
+                        Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
                     </small>
                     @error('photos')
                         <div class="invalid-feedback">{{ $message }}</div>

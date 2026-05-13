@@ -26,7 +26,11 @@ class ProfileController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'whatsapp' => 'required|string|max:20',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+        ], [
+            'photo.image' => 'File harus berupa gambar.',
+            'photo.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'photo.max' => 'Ukuran foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
         ]);
  
         if ($request->hasFile('photo')) {

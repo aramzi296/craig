@@ -234,6 +234,118 @@
                 padding: 10px 20px !important;
             }
         }
+
+        /* Nav Dropdown Styles */
+        .nav-dropdown {
+            position: relative;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        .nav-trigger {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #475569;
+            transition: all 0.2s;
+            padding: 10px 0;
+        }
+
+        .nav-trigger i {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            transition: transform 0.2s;
+        }
+
+        .nav-dropdown:hover .nav-trigger {
+            color: var(--primary);
+        }
+
+        .nav-dropdown:hover .nav-trigger i {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        .nav-menu {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            width: 260px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1100;
+        }
+
+        .nav-dropdown:hover .nav-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(5px);
+        }
+
+        .nav-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg);
+            width: 12px;
+            height: 12px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .nav-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #475569;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .nav-menu .menu-item:hover {
+            background: #f0f9ff;
+            color: var(--primary);
+            padding-left: 20px;
+        }
+
+        /* Mobile Submenu */
+        .mobile-submenu {
+            margin-left: 20px;
+            border-left: 2px solid #f1f5f9;
+            padding-left: 15px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .mobile-submenu-link {
+            display: block;
+            padding: 10px 0;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .mobile-submenu-link.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
     </style>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
@@ -269,6 +381,21 @@
 
             <!-- Desktop Navigation -->
             <nav class="nav-desktop">
+                <a href="{{ route('listings.index') }}" class="{{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Listing</a>
+                
+                <div class="nav-dropdown">
+                    <a href="#" class="nav-trigger {{ request('type') ? 'active' : '' }}">
+                        Tipe Lapak <i class="fa-solid fa-chevron-down"></i>
+                    </a>
+                    <div class="nav-menu">
+                        @foreach($globalListingTypes as $type)
+                            <a href="{{ route('listings.index', ['type' => $type->id]) }}" class="menu-item {{ request('type') == $type->id ? 'active' : '' }}">
+                                {{ $type->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
                 <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
                 <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
@@ -319,6 +446,19 @@
                 </button>
             </div>
             <div class="mobile-menu-body">
+                <a href="{{ route('listings.index') }}" class="mobile-link {{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Listing</a>
+                
+                <div class="mobile-section" style="padding: 10px 0;">
+                    <span class="section-label" style="margin-bottom: 5px;">Tipe Lapak</span>
+                    <div class="mobile-submenu">
+                        @foreach($globalListingTypes as $type)
+                            <a href="{{ route('listings.index', ['type' => $type->id]) }}" class="mobile-submenu-link {{ request('type') == $type->id ? 'active' : '' }}">
+                                <i class="fa-solid fa-angle-right" style="font-size: 0.7rem; margin-right: 5px;"></i> {{ $type->name }}
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+
                 <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
                 <a href="{{ route('contact') }}" class="mobile-link {{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
                 <a href="{{ route('tentang') }}" class="mobile-link {{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
@@ -368,6 +508,28 @@
     </script>
 
     <main>
+        <div class="container" style="margin-top: 20px;">
+            @if(session('success'))
+                <div class="alert alert-success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-circle-check" style="font-size: 1.2rem;"></i>
+                    <div>{{ session('success') }}</div>
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #fecaca; display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-circle-xmark" style="font-size: 1.2rem;"></i>
+                    <div>{{ session('error') }}</div>
+                </div>
+            @endif
+
+            @if(session('warning'))
+                <div class="alert alert-warning" style="background: #fef9c3; color: #854d0e; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #fef08a; display: flex; align-items: center; gap: 12px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.2rem;"></i>
+                    <div>{{ session('warning') }}</div>
+                </div>
+            @endif
+        </div>
         @yield('content')
     </main>
 

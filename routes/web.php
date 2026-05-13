@@ -13,6 +13,7 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WaLoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/listing', [HomeController::class, 'listing'])->name('listings.index');
 Route::get('/hashtag', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────
@@ -129,6 +130,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/settings/{id}/edit', [AdminController::class, 'editSetting'])->name('settings.edit');
         Route::put('/settings/{id}', [AdminController::class, 'updateSetting'])->name('settings.update');
         Route::delete('/settings/{id}', [AdminController::class, 'destroySetting'])->name('settings.destroy');
+        Route::post('/settings/compress-images', [AdminController::class, 'compressImagesManually'])->name('settings.compress-images');
 
         // WhatsApp Messaging
         Route::get('/whatsapp', [AdminController::class, 'whatsappForm'])->name('whatsapp');

@@ -44,4 +44,8 @@ class ListingObserver
             $listing->listing_rank = $lastRank ? $lastRank + 1000 : 1000;
         }
     }
+    public function saved(Listing $listing): void
+    {
+        $listing->updateSearchableField();
+    }
 }

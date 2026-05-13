@@ -6,11 +6,68 @@
         <p style="color: var(--text-muted);">Ubah informasi iklan Anda: {{ $listing->title }}</p>
     </div>
 
+    @if ($errors->any())
+        <div class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid #fecaca;">
+            <div style="font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;">
+                <i class="fa-solid fa-circle-exclamation"></i> Terjadi kesalahan:
+            </div>
+            <ul style="margin: 0; padding-left: 20px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="form-card">
         <form action="{{ route('listings.update', $listing->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
+            <div class="form-group-horizontal">
+                <label for="listing_type_id">Tipe Iklan</label>
+                <div class="form-input-side">
+                    <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
+                        <option value="">Pilih Tipe Iklan</option>
+                        @foreach($listingTypes as $type)
+                            <option value="{{ $type->id }}" {{ old('listing_type_id', $listing->listing_type_id) == $type->id ? 'selected' : '' }} data-description="{{ $type->keterangan }}">
+                                {{ $type->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div id="listing_type_description" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display: none; background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary);">
+                        {{-- Akan diisi via JS --}}
+                    </div>
+                    @error('listing_type_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const typeSelect = document.getElementById('listing_type_id');
+                    const typeDesc = document.getElementById('listing_type_description');
+
+                    function updateTypeDescription() {
+                        if (!typeSelect || !typeDesc) return;
+                        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
+                        const description = selectedOption ? selectedOption.getAttribute('data-description') : '';
+                        
+                        if (description && description.trim() !== '') {
+                            typeDesc.innerHTML = description;
+                            typeDesc.style.display = 'block';
+                        } else {
+                            typeDesc.style.display = 'none';
+                        }
+                    }
+
+                    if (typeSelect) {
+                        typeSelect.addEventListener('change', updateTypeDescription);
+                        updateTypeDescription(); // Initial call
+                    }
+                });
+            </script>
 
             <div class="form-group-horizontal">
                 <label for="title">Judul</label>
@@ -78,7 +135,7 @@
                 <div class="form-input-side">
                     <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                        Unggah foto tambahan. Maksimal total foto adalah <strong>{{ $listing->is_premium ? get_setting('max_foto_iklan_premium', 8) : get_setting('max_foto_iklan', 0) }}</strong>.
+                        Unggah foto tambahan. Maksimal total foto adalah <strong>{{ $listing->is_premium ? get_setting('max_foto_iklan_premium', 8) : get_setting('max_foto_iklan', 0) }}</strong>. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
                     </small>
                     @error('photos')
                         <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
@@ -163,7 +220,7 @@
                             
                             const tagify = new Tagify(input, {
                                 whitelist: whitelist,
-                                maxTags: {{ config('sebatam.max_category', 3) }},
+                                maxTags: {{ $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3) }},
                                 dropdown: {
                                     maxItems: 20,
                                     classname: "tags-look",
@@ -173,6 +230,28 @@
                             });
                         });
                     </script>
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label>Tombol WhatsApp</label>
+                <div class="form-input-side">
+                    <select name="whatsapp_visibility" class="form-control">
+                        <option value="1" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 1 ? 'selected' : '' }}>Tampilkan (Aktif)</option>
+                        <option value="0" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 0 ? 'selected' : '' }}>Sembunyikan</option>
+                    </select>
+                    <small class="text-muted">Pilih apakah tombol chat WhatsApp muncul di iklan Anda.</small>
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label>Kolom Komentar</label>
+                <div class="form-input-side">
+                    <select name="comment_visibility" class="form-control">
+                        <option value="1" {{ old('comment_visibility', $listing->comment_visibility) == 1 ? 'selected' : '' }}>Aktifkan</option>
+                        <option value="0" {{ old('comment_visibility', $listing->comment_visibility) == 0 ? 'selected' : '' }}>Nonaktifkan</option>
+                    </select>
+                    <small class="text-muted">Pilih apakah pengunjung bisa meninggalkan komentar.</small>
                 </div>
             </div>
 

@@ -26,10 +26,7 @@ class HomeController extends Controller
 
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->where(function($sub) use ($q) {
-                $sub->where('title', 'ilike', '%' . $q . '%')
-                    ->orWhere('description', 'ilike', '%' . $q . '%');
-            });
+            $query->search($q);
             
             $recentListings = $query->with('district')
                 ->orderBy('is_premium', 'desc')
@@ -46,6 +43,30 @@ class HomeController extends Controller
         return view('home', compact('recentListings'));
     }
 
+
+    public function listing(Request $request)
+    {
+        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+
+        if ($request->filled('q')) {
+            $query->search($request->q);
+        }
+
+        $selectedType = null;
+        if ($request->filled('type')) {
+            $selectedType = \App\Models\ListingType::find($request->type);
+            if ($selectedType) {
+                $query->where('listing_type_id', $selectedType->id);
+            }
+        }
+
+        $listings = $query->with('district')
+            ->withCount('photos')
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+
+        return view('listings.listing', compact('listings', 'selectedType'));
+    }
 
     public function show($slug)
     {

@@ -108,14 +108,7 @@ class AdminController extends Controller
         $query = \App\Models\Listing::query()->with(['tags', 'user', 'listingType']);
 
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhereHas('district', function($q) use ($search) {
-                      $q->where('name', 'like', "%{$search}%");
-                  });
-            });
+            $query->search($request->search);
         }
 
         if ($request->filled('listing_type_id')) {
@@ -153,7 +146,7 @@ class AdminController extends Controller
 
     public function createListing(Request $request)
     {
-        $categories = \App\Models\Tag::orderBy('sort_order')->get();
+        $tags = \App\Models\Tag::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
         
@@ -165,7 +158,7 @@ class AdminController extends Controller
             $users = \App\Models\User::latest()->take(20)->get();
         }
         
-        return view('admin.listings.create', compact('categories', 'listingTypes', 'districts', 'users'));
+        return view('admin.listings.create', compact('tags', 'listingTypes', 'districts', 'users'));
     }
 
     public function storeListing(\Illuminate\Http\Request $request)
@@ -221,6 +214,7 @@ class AdminController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        $listing->updateSearchableField();
 
         // Upload Photos
         if ($request->hasFile('photos')) {
@@ -253,10 +247,10 @@ class AdminController extends Controller
     public function editListing($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);
-        $categories = \App\Models\Tag::orderBy('sort_order')->get();
+        $tags = \App\Models\Tag::orderBy('sort_order')->get();
         $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
-        return view('admin.listings.edit', compact('listing', 'categories', 'listingTypes', 'districts'));
+        return view('admin.listings.edit', compact('listing', 'tags', 'listingTypes', 'districts'));
     }
 
     public function updateListing(\Illuminate\Http\Request $request, $id)
@@ -310,6 +304,7 @@ class AdminController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        $listing->updateSearchableField();
 
         // Upload Photos
         if ($request->hasFile('photos')) {

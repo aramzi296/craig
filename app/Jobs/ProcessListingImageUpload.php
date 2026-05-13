@@ -31,21 +31,10 @@ class ProcessListingImageUpload implements ShouldQueue
         $this->fileName = $fileName;
     }
 
-    /**
-     * Execute the job.
-     */
     public function handle(ImageService $imageService): void
     {
         $finalPath = $this->tempPath;
 
-        // Safety Net: If not found, try adding /private/ to the path
-        if (!file_exists($finalPath)) {
-            $altPath = str_replace('/storage/app/temp_uploads/', '/storage/app/private/temp_uploads/', $finalPath);
-            if (file_exists($altPath)) {
-                $finalPath = $altPath;
-            }
-        }
-        
         if (!file_exists($finalPath)) {
             Log::warning("ProcessListingImageUpload: Temp file not found at {$finalPath}");
             return;

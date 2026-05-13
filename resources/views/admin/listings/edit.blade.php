@@ -91,6 +91,7 @@
             <label for="photos">Tambah Foto</label>
             <div class="form-input-side">
                 <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                <small class="text-muted" style="display: block; margin-top: 5px;">Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.</small>
                 <small style="color: var(--text-muted); display: block; margin-top: 8px;">
                     Unggah foto tambahan. Maksimal 12 foto total.
                 </small>
@@ -173,7 +174,7 @@
                 <script>
                     document.addEventListener('DOMContentLoaded', function() {
                         const input = document.querySelector('#tags-tagify');
-                        const whitelist = @json($categories->pluck('name'));
+                        const whitelist = @json($tags->pluck('name'));
                         
                         new Tagify(input, {
                             whitelist: whitelist,

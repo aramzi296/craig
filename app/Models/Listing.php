@@ -3,11 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Scout\Searchable;
-
 class Listing extends Model
 {
-    use Searchable;
     protected $fillable = [
         'user_id', 'listing_type_id', 'district_id', 'title', 'slug', 'activation_code', 'description', 
         'price', 'is_featured', 'is_premium', 'is_active', 'features', 
@@ -79,6 +76,7 @@ class Listing extends Model
         if ($photo) {
             return $photo->getUrl();
         }
+        
         return null;
     }
 
@@ -88,7 +86,7 @@ class Listing extends Model
         if ($photo) {
             return $photo->getThumbnailUrl();
         }
-        return null;
+        return $this->getImageUrl();
     }
 
     public function hasPendingPremiumRequest()
@@ -108,38 +106,40 @@ class Listing extends Model
         return $this->hasMany(ListingView::class);
     }
 
-    /**
-     * Get the indexable data array for the model.
-     *
-     * @return array<string, mixed>
-     */
-    public function toSearchableArray(): array
+    public function updateSearchableField()
     {
-        return [
-            'id' => (int) $this->id,
-            'title' => $this->title,
-            'description' => $this->description,
-            'price' => (float) $this->price,
-            'is_active' => (bool) $this->is_active,
-            'is_premium' => (bool) $this->is_premium,
-            'district' => $this->district?->name,
-            'district_id' => (int) $this->district_id,
-            'listing_type' => $this->listingType?->name,
-            'listing_type_id' => (int) $this->listing_type_id,
-            'tags' => $this->approvedTags->pluck('name')->toArray(),
-            'tag_ids' => $this->approvedTags->pluck('id')->toArray(),
-            'created_at' => $this->created_at?->timestamp,
-            'expires_at' => $this->expires_at?->timestamp,
-            'listing_rank' => (int) $this->listing_rank,
-        ];
+        $tags = $this->tags()->pluck('name')->implode(' ');
+        $district = $this->district ? $this->district->name : '';
+        
+        // Gabungkan semua bidang
+        $text = $this->title . ' ' . $this->description . ' ' . $tags . ' ' . $district;
+        
+        // Ganti karakter separator yang sering menyatukan kata agar bisa dicari terpisah
+        // Contoh: "Barang/Jasa" menjadi "Barang Jasa"
+        $text = str_replace(['/', '\\', '-', '_'], ' ', $text);
+        
+        $this->searchable = trim($text);
+        $this->saveQuietly();
     }
 
-    /**
-     * Determine if the model should be searchable.
-     */
-    public function shouldBeSearchable(): bool
+    public function scopeSearch($query, $term)
     {
-        return $this->is_active && ($this->expires_at === null || $this->expires_at->isFuture());
+        if (empty($term)) return $query;
+
+        // Bersihkan term dari karakter yang bisa mengganggu
+        $cleanTerm = str_replace(['/', '\\'], ' ', $term);
+        $keywords = explode(' ', $cleanTerm);
+
+        return $query->where(function($q) use ($keywords) {
+            foreach ($keywords as $keyword) {
+                $word = trim($keyword);
+                if ($word !== '') {
+                    // Menggunakan ILIKE untuk substring matching (agar "kontrak" bisa menemukan "kontrakan")
+                    // Ini bekerja baik di PostgreSQL dan SQLite (dengan bantuan Laravel abstraction)
+                    $q->where('searchable', 'ilike', '%' . $word . '%');
+                }
+            }
+        });
     }
 }
 

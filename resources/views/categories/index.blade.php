@@ -11,10 +11,10 @@
         </div>
     </div>
 
-    <div id="categoriesContainer" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px;">
+    <div id="categoriesContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
         @foreach($categories as $category)
-            <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.95rem; transition: all 0.2s; display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <span style="color: #0ea5e9;">#</span>
+            <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
+                <span style="color: #64748b; font-weight: 400;">#</span>
                 <span class="name-span">{{ $category->name }}</span>
             </a>
         @endforeach
@@ -73,17 +73,16 @@
 
 <style>
     .category-item:hover {
-        background: #ffffff !important;
+        background: #0ea5e9 !important;
         border-color: #0ea5e9 !important;
+        color: #ffffff !important;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1);
-        color: #0ea5e9 !important;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
     }
-    @media (max-width: 992px) {
-        #categoriesContainer { grid-template-columns: repeat(3, 1fr) !important; }
+    .category-item:hover span {
+        color: #ffffff !important;
     }
     @media (max-width: 768px) {
-        #categoriesContainer { grid-template-columns: repeat(2, 1fr) !important; }
         .search-box { width: 100% !important; margin-top: 15px; }
         .container.page-section > div:first-child { flex-direction: column; align-items: flex-start !important; }
     }

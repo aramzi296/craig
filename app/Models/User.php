@@ -115,7 +115,7 @@ class User extends Authenticatable
     public function getProfilePhoto()
     {
         if ($this->profile_photo) {
-            return rtrim(config('services.imagekit.url_endpoint'), '/') . $this->profile_photo . '?tr=w-200,h-200,fo-auto';
+            return asset('storage/' . ltrim($this->profile_photo, '/'));
         }
 
         $dir = public_path('images-contoh');

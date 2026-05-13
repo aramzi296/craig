@@ -20,6 +20,7 @@
                 </div>
                 <input type="file" name="photo" id="photo" style="display: none;" onchange="previewImage(this)">
                 <p style="font-size: 0.85rem; color: var(--text-muted);">Klik ikon kamera untuk mengubah foto profil.</p>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: -5px;">Format: {{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}. Maks: {{ get_setting('max_image_size', 2048) / 1024 }}MB.</p>
                 @error('photo')
                     <div style="color: #ef4444; font-size: 0.8rem; margin-top: 5px;">{{ $message }}</div>
                 @enderror
