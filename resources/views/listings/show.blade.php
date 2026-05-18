@@ -144,7 +144,9 @@
                             Login untuk Chat
                         </a>
                     @else
-                        <span style="color: #94a3b8; font-weight: 800; font-size: 1rem;">WA Private</span>
+                        <a href="#contact-form" style="color: #64748b; font-weight: 800; text-decoration: none; font-size: 1rem;">
+                            Hubungi via Form
+                        </a>
                     @endif
                     
                     @auth
@@ -187,6 +189,26 @@
 
         <!-- Section Postingan Lainnya (Pindahan dari Sidebar) -->
         <div style="margin-top: 50px;">
+        @if($listing->whatsapp_visibility == 0)
+            <div id="contact-form" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 50px; max-width: 800px;">
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 10px;">Tertarik dengan iklan ini?</h3>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Pengiklan memilih untuk menerima pesan melalui admin. Silakan isi form di bawah ini.</p>
+                
+                <form action="{{ route('listing.contact.admin', $listing->id) }}" method="POST">
+                    @csrf
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">Nomor WA Anda</label>
+                        <input type="text" name="visitor_whatsapp" class="form-control" placeholder="Contoh: 0812xxxx" required style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">Pesan kepada pengiklan</label>
+                        <textarea name="visitor_message" rows="4" class="form-control" placeholder="Tuliskan pesan atau pertanyaan Anda..." required style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: 800;">Kirim Pesan</button>
+                </form>
+            </div>
+        @endif
+
         <!-- Premium Listings Section -->
         @if($sidebarPremiumListings->count() > 0)
             <div style="margin-bottom: 50px;">

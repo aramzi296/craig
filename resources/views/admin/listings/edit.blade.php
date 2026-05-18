@@ -67,38 +67,55 @@
             </div>
         </div>
 
-        <div class="form-group-horizontal">
-            <label>Galeri Foto Saat Ini</label>
+        <div class="form-group-horizontal" style="align-items: flex-start;">
+            <label>Foto Fitur Utama</label>
             <div class="form-input-side">
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    @forelse($listing->photos as $photo)
-                        <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden;">
-                            <img src="{{ $photo->getThumbnailUrl() }}" alt="Thumbnail" style="width: 100%; height: 100%; object-fit: cover;">
-                            <button type="button" 
-                                    onclick="if(confirm('Hapus foto ini?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
-                                    style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                @php $featuredPhoto = $listing->photos->where('collection', 'foto_fitur')->first(); @endphp
+                @if($featuredPhoto)
+                    <div style="margin-bottom: 15px;">
+                        <div style="position: relative; width: 150px; height: 150px; border: 2px solid var(--primary); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            <img src="{{ $featuredPhoto->getThumbnailUrl() }}" alt="Featured" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: absolute; bottom: 0; left: 0; right: 0; background: var(--primary); color: white; font-size: 0.7rem; text-align: center; padding: 2px 0; font-weight: 700;">FOTO FITUR</div>
                         </div>
-                    @empty
-                        <p style="color: var(--text-muted); font-size: 0.9rem;">Belum ada foto galeri.</p>
-                    @endforelse
-                </div>
+                    </div>
+                @endif
+                <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*">
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    @if($featuredPhoto) Ganti foto fitur utama. @else Pilih foto fitur utama (akan muncul di daftar pencarian). @endif
+                </small>
+                @error('foto_fitur')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
-        <div class="form-group-horizontal">
-            <label for="photos">Tambah Foto</label>
+        <div class="form-group-horizontal" style="align-items: flex-start; margin-top: 30px;">
+            <label>Galeri Foto</label>
             <div class="form-input-side">
-                <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
-                <small class="text-muted" style="display: block; margin-top: 5px;">Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.</small>
+                @php $galleryPhotos = $listing->photos->where('collection', 'galeri'); @endphp
+                @if($galleryPhotos->count() > 0)
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;">
+                        @foreach($galleryPhotos as $photo)
+                            <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #f8fafc;">
+                                <img src="{{ $photo->getThumbnailUrl() }}" alt="Gallery" style="width: 100%; height: 100%; object-fit: cover;">
+                                <button type="button" 
+                                        onclick="if(confirm('Hapus foto dari galeri?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
+                                        style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+                
+                <input type="file" name="galeri[]" id="galeri" class="form-control @error('galeri') is-invalid @enderror" multiple accept="image/*">
                 <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                    Unggah foto tambahan. Maksimal 12 foto total.
+                    Unggah foto tambahan untuk galeri. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
                 </small>
-                @error('photos')
+                @error('galeri')
                     <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
-                @error('photos.*')
+                @error('galeri.*')
                     <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
             </div>
@@ -115,6 +132,29 @@
                 @error('district_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
+            <div class="form-input-side">
+                <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control">
+                    <option value="2" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
+                    <option value="1" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 1 ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
+                    <option value="0" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 0 ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
+                </select>
+                <small class="text-muted">Pilih preferensi bagaimana pengunjung dapat menghubungi Anda melalui WhatsApp.</small>
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="comment_visibility">Kolom Komentar</label>
+            <div class="form-input-side">
+                <select name="comment_visibility" id="comment_visibility" class="form-control">
+                    <option value="1" {{ old('comment_visibility', $listing->comment_visibility) == 1 ? 'selected' : '' }}>Aktifkan</option>
+                    <option value="0" {{ old('comment_visibility', $listing->comment_visibility) == 0 ? 'selected' : '' }}>Nonaktifkan</option>
+                </select>
+                <small class="text-muted">Pilih apakah pengunjung bisa meninggalkan komentar.</small>
             </div>
         </div>
 

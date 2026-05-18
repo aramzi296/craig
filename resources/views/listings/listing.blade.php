@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Daftar Listing - ' . config('app.name'))
+@section('title', 'Daftar Lapak - ' . config('app.name'))
 
 @section('content')
 <div class="container" style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
@@ -27,6 +27,10 @@
     </div>
 
     <div id="listing-container">
+        <h1 style="font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-bottom: 25px;">
+            {{ $selectedType ? $selectedType->name : 'Semua Tipe Lapak' }}
+        </h1>
+
         <!-- Listing Rows -->
         <div style="display: flex; flex-direction: column; gap: 0;">
             @forelse($listings as $listing)
@@ -68,40 +72,105 @@
         </div>
 
         <!-- Pagination -->
-        <div style="margin-top: 40px;">
+        <div class="pagination-container">
             {{ $listings->appends(request()->query())->links() }}
         </div>
     </div>
 </div>
 
 <style>
-    /* Pagination Styling Override to match premium look */
-    .pagination {
+    /* Advanced Pagination Styling */
+    .pagination-container {
+        margin-top: 60px;
+        padding-top: 40px;
+        border-top: 1px solid #f1f5f9;
+    }
+
+    /* Target the nav element from Laravel */
+    .pagination-container nav {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* Hide the default "Showing..." info for a cleaner look */
+    .pagination-container nav > div:last-child > div:first-child {
+        display: none !important;
+    }
+
+    /* Override Bootstrap/Laravel flex classes to center everything */
+    .pagination-container .justify-content-between {
+        justify-content: center !important;
+    }
+    
+    .pagination-container .d-sm-flex {
+        display: flex !important;
+        justify-content: center !important;
+        width: 100% !important;
+    }
+
+    .pagination {
+        display: flex !important;
         gap: 8px;
         list-style: none;
         padding: 0;
+        margin: 0;
     }
+
     .page-item .page-link {
-        padding: 8px 16px;
-        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0 14px;
+        border-radius: 12px;
         border: 1px solid #e2e8f0;
-        color: #64748b;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.2s;
+        color: #475569;
+        text-decoration: none !important;
+        font-weight: 700;
+        font-size: 0.95rem;
+        background: white;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
+
     .page-item.active .page-link {
         background: #0ea5e9;
         color: white;
         border-color: #0ea5e9;
+        box-shadow: 0 8px 20px -6px rgba(14, 165, 233, 0.5);
+        transform: scale(1.05);
     }
-    .page-item:hover:not(.active) .page-link {
-        background: #f1f5f9;
-        border-color: #cbd5e1;
+
+    .page-item.disabled .page-link {
+        color: #cbd5e1;
+        background: #f8fafc;
+        border-color: #f1f5f9;
+        cursor: not-allowed;
     }
-    /* Media Query for Mobile */
+
+    .page-item:hover:not(.active):not(.disabled) .page-link {
+        background: #f8fafc;
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* Mobile view buttons adjustment */
+    .d-sm-none .pagination {
+        width: 100%;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .d-sm-none .page-link {
+        flex: 1;
+        max-width: 120px;
+    }
+
+    /* Media Query for Listing Rows */
     @media (max-width: 600px) {
         #listing-container > div > div {
             gap: 15px !important;
@@ -123,6 +192,17 @@
             gap: 10px !important;
             font-size: 0.75rem !important;
             flex-wrap: wrap !important;
+        }
+        
+        .pagination {
+            gap: 4px;
+        }
+        .page-item .page-link {
+            min-width: 38px;
+            height: 38px;
+            padding: 0 8px;
+            border-radius: 10px;
+            font-size: 0.85rem;
         }
     }
 </style>

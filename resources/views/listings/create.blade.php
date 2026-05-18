@@ -104,7 +104,7 @@
                         }
 
                         // Update Photo limit info
-                        const photoInfo = document.querySelector('#photos + small');
+                        const photoInfo = document.getElementById('galeri-info');
                         if (photoInfo) {
                             const currentMaxPhotos = isPremium ? maxPhotosPremium : maxPhotosStandard;
                             photoInfo.innerHTML = `Maksimal <strong>${currentMaxPhotos}</strong> foto untuk paket yang dipilih.`;
@@ -203,14 +203,30 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="photos">Foto Fitur</label>
+                <label for="foto_fitur">Foto Fitur</label>
                 <div class="form-input-side">
-                    <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                    <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*">
                     <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                        Pilih foto fitur utama (akan muncul di daftar pencarian).
+                    </small>
+                    @error('foto_fitur')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="galeri">Galeri Foto</label>
+                <div class="form-input-side">
+                    <input type="file" name="galeri[]" id="galeri" class="form-control @error('galeri') is-invalid @enderror" multiple accept="image/*">
+                    <small id="galeri-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
                         Maksimal <strong>{{ get_setting('max_foto_iklan') }}</strong> foto. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
                     </small>
-                    @error('photos')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                    @error('galeri')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                    @enderror
+                    @error('galeri.*')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
@@ -226,6 +242,20 @@
                         @endforeach
                     </select>
                     @error('district_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
+                <div class="form-input-side">
+                    <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control @error('whatsapp_visibility') is-invalid @enderror">
+                        <option value="2" {{ old('whatsapp_visibility', 2) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
+                        <option value="1" {{ old('whatsapp_visibility') == '1' ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
+                        <option value="0" {{ old('whatsapp_visibility') == '0' ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
+                    </select>
+                    @error('whatsapp_visibility')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -311,10 +341,9 @@
 
             @guest
             <div style="background: var(--primary-light, #f0f9ff); padding: 25px; border-radius: 12px; border: 1px solid var(--primary); margin: 30px 0;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Verifikasi Kepemilikan & Autentikasi</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Nomor WA dan Verifikasi</h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-                    Untuk menerbitkan iklan, silakan verifikasi nomor WhatsApp Anda. 
-                    Jika Anda belum memiliki akun, sistem akan membuatkannya otomatis.
+                    Anda bisa mengedit postingan ini nantinya dengan login ke dasbor member menggunakan nomor WA Anda.
                 </p>
 
                 <div class="form-group-horizontal">
@@ -351,17 +380,6 @@
                 <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Terbitkan Iklan</button>
             </div>
         </form>
-    </div>
-
-    <div style="margin-top: 30px; text-align: center; color: var(--text-muted); font-size: 0.9rem; max-width: 900px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-        <p>
-            <i class="fa-solid fa-circle-info"></i> Jika Anda ingin melakukan perubahan terhadap postingan Anda, silakan lakukan melalui <strong>Dashboard Member</strong>.
-            <br>
-            Untuk masuk ke dashboard, kirimkan pesan <strong style="color: var(--primary);">login</strong> ke 
-            <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '628XXXXXXXXX') }}?text=login" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">
-                Chatbot Sebatam
-            </a>.
-        </p>
     </div>
 @endsection
 

@@ -172,8 +172,11 @@ class AdminController extends Controller
             'district_id' => 'required|exists:districts,id',
             'user_id' => 'required|exists:users,id',
             'website' => 'nullable|url|max:255',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'galeri' => 'nullable|array',
+            'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
+            'comment_visibility' => 'nullable|integer|in:0,1,2',
         ]);
 
         $rawTags = $data['tags'] ?? null;
@@ -216,22 +219,26 @@ class AdminController extends Controller
         $listing->tags()->sync($tagIds);
         $listing->updateSearchableField();
 
-        // Upload Photos
-        if ($request->hasFile('photos')) {
-            $maxPhotos = 12; // Admin has higher limit or just use a safe number
-            foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
-                // Store file temporarily
+        // Upload Foto Fitur
+        if ($request->hasFile('foto_fitur')) {
+            $file = $request->file('foto_fitur');
+            $tempDir = storage_path('app/private/temp_uploads');
+            if (!file_exists($tempDir)) { mkdir($tempDir, 0777, true); }
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($tempDir, $fileName);
+            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+            ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+        }
+
+        // Upload Galeri
+        if ($request->hasFile('galeri')) {
+            foreach ($request->file('galeri') as $file) {
                 $tempDir = storage_path('app/private/temp_uploads');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0777, true);
-                }
-                
+                if (!file_exists($tempDir)) { mkdir($tempDir, 0777, true); }
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move($tempDir, $fileName);
                 $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-
-                // Dispatch Job
-                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'galeri', $fileName);
             }
         }
 
@@ -265,8 +272,11 @@ class AdminController extends Controller
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
             'website' => 'nullable|url|max:255',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'galeri' => 'nullable|array',
+            'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
+            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
+            'comment_visibility' => 'nullable|integer|in:0,1,2',
         ]);
 
         $rawTags = $data['tags'] ?? null;
@@ -306,27 +316,26 @@ class AdminController extends Controller
         $listing->tags()->sync($tagIds);
         $listing->updateSearchableField();
 
-        // Upload Photos
-        if ($request->hasFile('photos')) {
-            $currentCount = $listing->photos()->count();
-            $maxPhotos = 12; 
-            $remaining = $maxPhotos - $currentCount;
+        // Upload Foto Fitur
+        if ($request->hasFile('foto_fitur')) {
+            $file = $request->file('foto_fitur');
+            $tempDir = storage_path('app/private/temp_uploads');
+            if (!file_exists($tempDir)) { mkdir($tempDir, 0777, true); }
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($tempDir, $fileName);
+            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+            ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+        }
 
-            if ($remaining > 0) {
-                foreach (array_slice($request->file('photos'), 0, $remaining) as $file) {
-                    // Store file temporarily
-                    $tempDir = storage_path('app/private/temp_uploads');
-                    if (!file_exists($tempDir)) {
-                        mkdir($tempDir, 0777, true);
-                    }
-                    
-                    $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-                    $file->move($tempDir, $fileName);
-                    $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-
-                    // Dispatch Job
-                    ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
-                }
+        // Upload Galeri
+        if ($request->hasFile('galeri')) {
+            foreach ($request->file('galeri') as $file) {
+                $tempDir = storage_path('app/private/temp_uploads');
+                if (!file_exists($tempDir)) { mkdir($tempDir, 0777, true); }
+                $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+                $file->move($tempDir, $fileName);
+                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'galeri', $fileName);
             }
         }
 

@@ -49,8 +49,9 @@ class ListingController extends Controller
             'description' => "required|string|max:{$descLimit}",
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'foto_fitur' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'galeri' => 'nullable|array',
+            'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
@@ -64,9 +65,12 @@ class ListingController extends Controller
         }
 
         $data = $request->validate($rules, [
-            'photos.*.image' => 'File harus berupa gambar.',
-            'photos.*.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
-            'photos.*.max' => 'Ukuran setiap foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
+            'foto_fitur.image' => 'File harus berupa gambar.',
+            'foto_fitur.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'foto_fitur.max' => 'Ukuran foto fitur tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
+            'galeri.*.image' => 'File galeri harus berupa gambar.',
+            'galeri.*.mimes' => 'Format gambar galeri harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'galeri.*.max' => 'Ukuran setiap foto galeri tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
         ]);
 
         if (!$request->filled('listing_type_id')) {
@@ -130,25 +134,23 @@ class ListingController extends Controller
             $user->decrement('ads_quota');
         }
 
-        // Upload Photos
-        if ($request->hasFile('photos')) {
-            $maxPhotos = get_setting('max_foto_iklan', 0);
-            // Since it's a new listing, we'll check if it's premium. 
-            // BUT wait, premium is usually set AFTER creation or via listing type?
-            // Let's check listing type.
-            $type = \App\Models\ListingType::find($data['listing_type_id']);
-            // If the package is premium, use premium limit.
-            if ($isPremiumPackage) {
-                $maxPhotos = get_setting('max_foto_iklan_premium', 8);
-            }
+        // Upload Foto Fitur
+        if ($request->hasFile('foto_fitur')) {
+            $file = $request->file('foto_fitur');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $tempPath = $file->storeAs('temp_uploads', $fileName);
+            $fullPath = storage_path('app/private/' . $tempPath);
+            ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
+        }
 
-            foreach (array_slice($request->file('photos'), 0, $maxPhotos) as $file) {
+        // Upload Galeri
+        if ($request->hasFile('galeri')) {
+            $maxPhotos = $isPremiumPackage ? get_setting('max_foto_iklan_premium', 8) : get_setting('max_foto_iklan', 0);
+            foreach (array_slice($request->file('galeri'), 0, $maxPhotos) as $file) {
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                 $tempPath = $file->storeAs('temp_uploads', $fileName);
                 $fullPath = storage_path('app/private/' . $tempPath);
-
-                // Dispatch Job Synchronously
-                ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
+                ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'galeri', $fileName);
             }
         }
 
@@ -233,15 +235,19 @@ class ListingController extends Controller
             'description' => 'required|string|max:' . ($listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100)),
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
-            'photos' => 'nullable|array',
-            'photos.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'foto_fitur' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'galeri' => 'nullable|array',
+            'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
         ], [
-            'photos.*.image' => 'File harus berupa gambar.',
-            'photos.*.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
-            'photos.*.max' => 'Ukuran setiap foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
+            'foto_fitur.image' => 'File harus berupa gambar.',
+            'foto_fitur.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'foto_fitur.max' => 'Ukuran foto fitur tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
+            'galeri.*.image' => 'File galeri harus berupa gambar.',
+            'galeri.*.mimes' => 'Format gambar galeri harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
+            'galeri.*.max' => 'Ukuran setiap foto galeri tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
         ]);
 
         if ($data['title'] !== $listing->title) {
@@ -250,21 +256,38 @@ class ListingController extends Controller
 
         $listing->update($data);
 
-        // Upload New Photos
-        if ($request->hasFile('photos')) {
-            $currentCount = $listing->photos()->count();
+        // Upload New Foto Fitur
+        if ($request->hasFile('foto_fitur')) {
+            // Delete old featured photo(s)
+            $oldFeatured = $listing->photos()->where('collection', 'foto_fitur')->get();
+            foreach($oldFeatured as $p) {
+                if ($p->photo_path) {
+                    $this->imageService->deleteByPath($p->photo_path);
+                }
+                $p->delete();
+            }
+
+            $file = $request->file('foto_fitur');
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $tempPath = $file->storeAs('temp_uploads', $fileName);
+            $fullPath = storage_path('app/private/' . $tempPath);
+            ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
+        }
+
+        // Upload New Galeri Photos
+        if ($request->hasFile('galeri')) {
+            $currentCount = $listing->photos()->where('collection', 'galeri')->count();
             
             // Determine limit based on type
             $maxPhotos = get_setting('max_foto_iklan', 4);
-            $type = \App\Models\ListingType::find($request->listing_type_id);
-            if (($type && $type->slug == 'premium') || $listing->is_premium) {
+            if ($listing->is_premium) {
                 $maxPhotos = get_setting('max_foto_iklan_premium', 12);
             }
             
             $remaining = $maxPhotos - $currentCount;
 
             if ($remaining > 0) {
-                $files = $request->file('photos');
+                $files = $request->file('galeri');
                 if (!is_array($files)) { $files = [$files]; }
                 
                 foreach (array_slice($files, 0, $remaining) as $file) {
@@ -274,14 +297,14 @@ class ListingController extends Controller
                     $fullPath = storage_path('app/private/' . $tempPath);
 
                     // Dispatch Job Synchronously
-                    ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
+                    ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'galeri', $fileName);
                 }
                 
                 if (count($files) > $remaining) {
-                    session()->flash('warning', 'Beberapa foto dilewati karena sudah mencapai batas maksimal.');
+                    session()->flash('warning', 'Beberapa foto galeri dilewati karena sudah mencapai batas maksimal.');
                 }
             } else {
-                session()->flash('error', 'Gagal menambah foto: Jatah foto sudah penuh.');
+                session()->flash('error', 'Gagal menambah foto galeri: Jatah foto sudah penuh.');
             }
         }
 
@@ -377,5 +400,26 @@ class ListingController extends Controller
         $photo->delete();
 
         return back()->with('success', 'Foto berhasil dihapus.');
+    }
+
+    public function contactAdmin(\Illuminate\Http\Request $request, $id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+        
+        $request->validate([
+            'visitor_whatsapp' => 'required|string',
+            'visitor_message' => 'required|string|max:1000',
+        ]);
+
+        $adminWa = config('services.whatsapp.admin_number_2', '628117007201');
+        $message = "Halo Admin, saya tertarik dengan iklan berikut:\n\n"
+                 . "Judul: " . $listing->title . "\n"
+                 . "Link: " . route('listings.show', $listing->slug) . "\n\n"
+                 . "Pesan Saya: " . $request->visitor_message . "\n"
+                 . "Nomor WA Saya: " . $request->visitor_whatsapp;
+
+        $url = "https://wa.me/{$adminWa}?text=" . urlencode($message);
+
+        return redirect()->away($url);
     }
 }

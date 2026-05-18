@@ -365,7 +365,7 @@
             <div class="wa-alert-content" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; line-height: 1.4;">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i>
                 <span class="wa-text">Kirim pesan <strong>"lapak sebatam"</strong> ke <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 4px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a></span>
-                untuk pasang iklan secara instan.
+                untuk pasang iklan di <strong>Sebatam.com</strong>.
             </div>
         </div>
     </div>
@@ -375,13 +375,13 @@
             <div class="nav-left">
                 @yield('header_left')
                 <a href="{{ route('home') }}" class="logo-link">
-                    <span class="logo-brand">lapak sebatam</span>
+                    <span class="logo-brand" style="text-transform: none;">Sebatam<span style="color: #ff6904ff;">.com</span></span>
                 </a>
             </div>
 
             <!-- Desktop Navigation -->
             <nav class="nav-desktop">
-                <a href="{{ route('listings.index') }}" class="{{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Listing</a>
+                <a href="{{ route('listings.index') }}" class="{{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Lapak</a>
                 
                 <div class="nav-dropdown">
                     <a href="#" class="nav-trigger {{ request('type') ? 'active' : '' }}">
@@ -446,7 +446,7 @@
                 </button>
             </div>
             <div class="mobile-menu-body">
-                <a href="{{ route('listings.index') }}" class="mobile-link {{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Listing</a>
+                <a href="{{ route('listings.index') }}" class="mobile-link {{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Lapak</a>
                 
                 <div class="mobile-section" style="padding: 10px 0;">
                     <span class="section-label" style="margin-bottom: 5px;">Tipe Lapak</span>
@@ -535,7 +535,7 @@
 
     <footer style="padding: 60px 0; background: #0f172a; color: white; text-align: center; margin-top: 80px;">
         <div class="container">
-            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white; justify-content: center;">{{ config('app.name') }}</div>
+            <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white; justify-content: center; text-transform: none;">Sebatam<span style="color: #94a3b8;">.com</span></div>
             <p style="color: #94a3b8; margin-bottom: 30px;">Platform Penawaran dan Pengumuman No.1 di Batam, Kepulauan Riau.</p>
             <div style="display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
                 <a href="{{ config('services.social.facebook') }}"><i class="fab fa-facebook"></i></a>

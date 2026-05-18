@@ -85,18 +85,31 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="photos">Foto Iklan</label>
+            <label for="foto_fitur">Foto Fitur Utama</label>
             <div class="form-input-side">
-                <input type="file" name="photos[]" id="photos" class="form-control @error('photos') is-invalid @enderror" multiple accept="image/*">
+                <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*">
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Pilih foto fitur utama (akan muncul di daftar pencarian).
+                </small>
+                @error('foto_fitur')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="galeri">Galeri Foto</label>
+            <div class="form-input-side">
+                <input type="file" name="galeri[]" id="galeri" class="form-control @error('galeri') is-invalid @enderror" multiple accept="image/*">
                 <small class="text-muted" style="display: block; margin-top: 5px;">Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.</small>
                 <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                    Anda dapat mengunggah beberapa foto sekaligus.
+                    Unggah beberapa foto sekaligus untuk galeri.
                 </small>
-                @error('photos')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                @error('galeri')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
-                @error('photos.*')
-                    <div class="invalid-feedback">{{ $message }}</div>
+                @error('galeri.*')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
             </div>
         </div>
@@ -113,6 +126,29 @@
                 @error('district_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
+            <div class="form-input-side">
+                <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control">
+                    <option value="2" {{ old('whatsapp_visibility', 2) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
+                    <option value="1" {{ old('whatsapp_visibility') == '1' ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
+                    <option value="0" {{ old('whatsapp_visibility') == '0' ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
+                </select>
+                <small class="text-muted">Pilih preferensi bagaimana pengunjung dapat menghubungi Anda melalui WhatsApp.</small>
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="comment_visibility">Kolom Komentar</label>
+            <div class="form-input-side">
+                <select name="comment_visibility" id="comment_visibility" class="form-control">
+                    <option value="1" {{ old('comment_visibility', 1) == 1 ? 'selected' : '' }}>Aktifkan</option>
+                    <option value="0" {{ old('comment_visibility') == '0' ? 'selected' : '' }}>Nonaktifkan</option>
+                </select>
+                <small class="text-muted">Pilih apakah pengunjung bisa meninggalkan komentar.</small>
             </div>
         </div>
 
