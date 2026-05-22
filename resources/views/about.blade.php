@@ -9,7 +9,7 @@
         <div class="container" style="max-width: 850px; text-align: center;">
             <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 12px; letter-spacing: -0.02em;">Satu Platform,<br>Semua Informasi Batam.</h1>
             <p style="font-size: 1.1rem; color: #374151; max-width: 650px; margin: 0 auto; line-height: 1.6; font-weight: 500;">
-                {{ config('app.name') }} hadir sebagai pusat rujukan digital dan papan pengumuman modern untuk seluruh warga Batam.
+                {{ config('app.name') }} hadir sebagai rujukan digital utama dan direktori bisnis terlengkap untuk menemukan berbagai jenis usaha di Batam.
             </p>
         </div>
     </section>
@@ -24,7 +24,7 @@
                     </div>
                     <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 12px; color: #1e293b;">Visi Kami</h2>
                     <p style="color: #475569; line-height: 1.6; font-size: 0.95rem;">
-                        Menjadi ekosistem digital utama dan pusat rujukan informasi bagi seluruh warga Batam dalam memenuhi segala kebutuhan harian dan layanan lokal.
+                        Menjadi rujukan digital utama dan pusat direktori bisnis terlengkap di Batam yang menghubungkan masyarakat dengan seluruh ekosistem usaha lokal secara mudah dan terpercaya.
                     </p>
                 </div>
 
@@ -34,17 +34,21 @@
                     </div>
                     <h2 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 12px; color: #1e293b;">Misi Kami</h2>
                     <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.95rem;">
-                        <li style="display: flex; gap: 10px; margin-bottom: 8px; color: #475569;">
+                        <li style="display: flex; gap: 10px; margin-bottom: 10px; color: #475569;">
                             <i class="fas fa-check-circle" style="color: #10b981; margin-top: 3px;"></i>
-                            <span>Akses informasi digital yang adil bagi warga.</span>
+                            <span>Menyediakan direktori bisnis terlengkap dan terupdate untuk segala jenis usaha di Batam.</span>
                         </li>
-                        <li style="display: flex; gap: 10px; margin-bottom: 8px; color: #475569;">
+                        <li style="display: flex; gap: 10px; margin-bottom: 10px; color: #475569;">
                             <i class="fas fa-check-circle" style="color: #10b981; margin-top: 3px;"></i>
-                            <span>Mendukung digitalisasi UMKM lokal Batam.</span>
+                            <span>Mendorong digitalisasi UMKM lokal agar memiliki daya saing digital yang kuat.</span>
+                        </li>
+                        <li style="display: flex; gap: 10px; margin-bottom: 10px; color: #475569;">
+                            <i class="fas fa-check-circle" style="color: #10b981; margin-top: 3px;"></i>
+                            <span>Menghubungkan masyarakat dengan penyedia jasa dan produk lokal secara efisien.</span>
                         </li>
                         <li style="display: flex; gap: 10px; color: #475569;">
                             <i class="fas fa-check-circle" style="color: #10b981; margin-top: 3px;"></i>
-                            <span>Menghubungkan layanan lokal secara efisien.</span>
+                            <span>Memberikan akses promosi yang adil, mudah, dan efektif bagi setiap pelaku usaha.</span>
                         </li>
                     </ul>
                 </div>
