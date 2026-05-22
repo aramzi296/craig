@@ -75,6 +75,10 @@
                             <div style="display: flex; align-items: center; gap: 12px;">
                                 @if($listing->getThumbnailUrl())
                                     <img src="{{ $listing->getThumbnailUrl() }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover;" alt="">
+                                @else
+                                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #94a3b8; border: 1px dashed #cbd5e1; flex-shrink: 0;" title="No Picture">
+                                        <i class="fa-regular fa-image" style="font-size: 1rem; color: #cbd5e1;"></i>
+                                    </div>
                                 @endif
                                 <div>
                                     <div style="font-weight: 600;">

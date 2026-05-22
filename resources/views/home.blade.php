@@ -124,12 +124,16 @@
     <div class="listing-grid">
         @foreach($recentListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card-grid">
-            @if($listing->getThumbnailUrl())
             <div class="grid-image-wrapper">
-                <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}">
-
+                @if($listing->getThumbnailUrl())
+                    <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}">
+                @else
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8fafc; color: #94a3b8; font-size: 0.75rem; font-weight: 700; gap: 6px; border-bottom: 1px solid #f1f5f9;">
+                        <i class="fa-regular fa-image" style="font-size: 1.5rem; color: #cbd5e1;"></i>
+                        <span>No Picture</span>
+                    </div>
+                @endif
             </div>
-            @endif
 
             <div class="grid-content">
                 <h3 class="grid-title">{{ $listing->title }}</h3>

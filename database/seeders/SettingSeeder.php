@@ -25,9 +25,10 @@ class SettingSeeder extends Seeder
             'expire_iklan_kuota_baru' => ['value' => '30', 'description' => 'default expire iklan kuota baru dalam hari'],
             'link_website' => ['value' => '1', 'description' => 'link website untuk listing gratis (1=ya, 0=tidak)'],
             'link_website_premium' => ['value' => '1', 'description' => 'link website untuk listing premium (1=ya, 0=tidak)'],
-            'jumlah_iklan_user_default' => ['value' => '1', 'description' => 'jumlah iklan untuk user default'],
+            'jumlah_iklan_user_default' => ['value' => '5', 'description' => 'jumlah iklan untuk user default'],
             'is_maintenance' => ['value' => '0', 'description' => 'Mode perbaikan (1=aktif, 0=tidak)'],
             'maintenance_message' => ['value' => 'Mohon maaf, sistem sedang dalam perbaikan rutin untuk meningkatkan layanan kami. Silakan kembali lagi nanti.', 'description' => 'Pesan yang ditampilkan saat mode perbaikan aktif'],
+            'max_category_premium' => ['value' => '10', 'description' => 'jumlah kategori untuk sebuah listing premium'],
             'allowed_image_types' => ['value' => 'jpeg,png,jpg,webp', 'description' => 'Tipe file gambar yang diizinkan (pisahkan dengan koma)'],
             'max_image_size' => ['value' => '2048', 'description' => 'Ukuran maksimal gambar dalam KB'],
         ];
