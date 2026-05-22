@@ -3,7 +3,6 @@
 namespace App\Observers;
 
 use App\Models\Listing;
-use App\Models\ListingType;
 
 class ListingObserver
 {
@@ -14,10 +13,7 @@ class ListingObserver
     {
         // ── Set expires_at ────────────────────────────────────────────────────
         if (!$listing->expires_at) {
-            $typeId = $listing->listing_type_id;
-            $type = ListingType::find($typeId);
-
-            $isPremium = ($type && $type->slug === 'premium') || $listing->is_premium;
+            $isPremium = $listing->is_premium;
 
             $days = $isPremium
                 ? get_setting('expire_iklan_premium', 30)
@@ -27,9 +23,7 @@ class ListingObserver
         }
 
         // ── Set listing_rank ──────────────────────────────────────────────────
-        $typeId = $listing->listing_type_id;
-        $type = $typeId ? ListingType::find($typeId) : null;
-        $isPremium = ($type && $type->slug === 'premium') || $listing->is_premium;
+        $isPremium = $listing->is_premium;
 
         if ($isPremium) {
             // Iklan premium selalu mendapat rank 100 (tampil paling atas)

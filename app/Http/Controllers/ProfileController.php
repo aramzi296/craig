@@ -39,19 +39,8 @@ class ProfileController extends Controller
                 $this->imageService->deleteFileById($user->ik_file_id);
             }
 
-            // Store file temporarily
-            $tempDir = storage_path('app/private/temp_uploads');
-            if (!file_exists($tempDir)) {
-                mkdir($tempDir, 0755, true);
-            }
-            
-            $file = $request->file('photo');
-            $fileName = "user_{$user->id}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
-            $file->move($tempDir, $fileName);
-            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-
-            // Dispatch Job
-            \App\Jobs\ProcessProfileImageUpload::dispatch($fullPath, $user->id, $fileName);
+            // Upload directly and synchronously to the public folder
+            $this->imageService->uploadProfilePhoto($request->file('photo'), $user->id);
         }
 
         $user->update($data);

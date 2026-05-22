@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', '#Hashtag - ' . config('app.name'))
+@section('title', 'Tagar - ' . config('app.name'))
 
 @section('content')
 <div class="container page-section" style="padding-top: 40px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
-        <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin: 0;">#Hashtag</h2>
+        <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin: 0;">Tagar</h2>
         <div class="search-box" style="box-shadow: none; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; width: 350px;">
-            <input type="text" id="categorySearch" placeholder="Cari hashtag..." style="flex: 1; padding: 10px 15px; border: none; outline: none;">
+            <input type="text" id="categorySearch" placeholder="Cari tagar..." style="flex: 1; padding: 10px 15px; border: none; outline: none;">
         </div>
     </div>
 
@@ -25,7 +25,7 @@
         <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 15px;">
             <i class="fa-solid fa-hashtag"></i>
         </div>
-        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Hashtag tidak ditemukan</h3>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Tagar tidak ditemukan</h3>
         <p style="color: #64748b;">Coba kata kunci lain atau periksa ejaan Anda.</p>
     </div>
 </div>

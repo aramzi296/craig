@@ -24,83 +24,98 @@
             @csrf
             @method('PUT')
             
+            @php
+                $currentCategory = $listing->categories->first();
+                $currentParentId = $currentCategory ? ($currentCategory->parent_id ?: $currentCategory->id) : null;
+                $currentChildId = $currentCategory ? ($currentCategory->parent_id ? $currentCategory->id : null) : null;
+            @endphp
+
             <div class="form-group-horizontal">
-                <label for="listing_type_id">Tipe Iklan</label>
+                <label for="parent_category_id">Kategori Utama</label>
                 <div class="form-input-side">
-                    <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
-                        <option value="">Pilih Tipe Iklan</option>
-                        @foreach($listingTypes as $type)
-                            <option value="{{ $type->id }}" {{ old('listing_type_id', $listing->listing_type_id) == $type->id ? 'selected' : '' }} data-description="{{ $type->keterangan }}">
-                                {{ $type->name }}
-                            </option>
+                    <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;" required>
+                        <option value="">Pilih Kategori Utama</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ old('parent_category_id', $currentParentId) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
                     </select>
-                    <div id="listing_type_description" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display: none; background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary);">
-                        {{-- Akan diisi via JS --}}
-                    </div>
-                    @error('listing_type_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="category_id">Sub Kategori</label>
+                <div class="form-input-side">
+                    <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" required disabled>
+                        <option value="">Pilih Sub Kategori</option>
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Pilih Kategori Utama terlebih dahulu untuk memunculkan Sub Kategori.</small>
+                    @error('category_id')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const typeSelect = document.getElementById('listing_type_id');
-                    const typeDesc = document.getElementById('listing_type_description');
+                    const parentSelect = document.getElementById('parent_category_id');
+                    const childSelect = document.getElementById('category_id');
+                    const categoryTree = @json($categories);
 
-                    function updateTypeDescription() {
-                        if (!typeSelect || !typeDesc) return;
-                        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-                        const description = selectedOption ? selectedOption.getAttribute('data-description') : '';
-                        
-                        if (description && description.trim() !== '') {
-                            typeDesc.innerHTML = description;
-                            typeDesc.style.display = 'block';
+                    function updateChildCategories(selectedParentId, selectedChildId = null) {
+                        childSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+                        if (!selectedParentId) {
+                            childSelect.disabled = true;
+                            return;
+                        }
+
+                        const parentCat = categoryTree.find(c => c.id == selectedParentId);
+                        if (parentCat && parentCat.children && parentCat.children.length > 0) {
+                            parentCat.children.forEach(child => {
+                                const opt = document.createElement('option');
+                                opt.value = child.id;
+                                opt.textContent = child.name;
+                                if (selectedChildId && child.id == selectedChildId) {
+                                    opt.selected = true;
+                                }
+                                childSelect.appendChild(opt);
+                            });
+                            childSelect.disabled = false;
                         } else {
-                            typeDesc.style.display = 'none';
+                            childSelect.disabled = true;
                         }
                     }
 
-                    if (typeSelect) {
-                        typeSelect.addEventListener('change', updateTypeDescription);
-                        updateTypeDescription(); // Initial call
+                    if (parentSelect && childSelect) {
+                        parentSelect.addEventListener('change', function() {
+                            updateChildCategories(this.value);
+                        });
+
+                        // Populate on initial or old value
+                        const initialParentId = "{{ old('parent_category_id', $currentParentId) }}";
+                        const initialChildId = "{{ old('category_id', $currentChildId) }}";
+                        if (initialParentId) {
+                            updateChildCategories(initialParentId, initialChildId);
+                        }
                     }
                 });
             </script>
 
             <div class="form-group-horizontal">
-                <label for="title">Judul</label>
+                <label for="title">Nama Usaha</label>
                 <div class="form-input-side">
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" required>
+                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" placeholder="Masukkan nama usaha Anda" required>
                     @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <div style="margin-top: 8px;">
-                        <a href="#" onclick="document.getElementById('modalContohJudul').style.display='flex'; return false;" style="font-size: 0.82rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                            <i class="fa-solid fa-lightbulb"></i> Lihat contoh judul iklan
-                        </a>
-                    </div>
                 </div>
             </div>
 
             <div class="form-group-horizontal">
-                <label for="description">Konten</label>
+                <label for="description">Keterangan Usaha</label>
                 <div class="form-input-side">
                     <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Isikan detail dari apa yang Anda iklankan/umumkan." required maxlength="{{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description) }}</textarea>
                     <small class="text-muted" style="display: block; margin-top: 5px;">Maksimal {{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }} huruf.@if(!$listing->is_premium) Upgrade ke premium untuk tambahan hingga {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }} huruf.@endif</small>
                     @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <div class="form-group-horizontal">
-                <label for="price">Harga (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" placeholder="kosongkan jika tidak ada">
-                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
-                    @error('price')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
@@ -162,9 +177,10 @@
 
 
             <div class="form-group-horizontal">
-                <label for="district_id">Lokasi di Batam</label>
+                <label for="district_id">Kecamatan</label>
                 <div class="form-input-side">
                     <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                        <option value="">Pilih Kecamatan</option>
                         @foreach($districts as $dist)
                             <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                         @endforeach
@@ -176,7 +192,29 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label>#Hashtag</label>
+                <label for="subdistrict_id">Kelurahan</label>
+                <div class="form-input-side">
+                    <select name="subdistrict_id" id="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror" required>
+                        <option value="">Pilih Kelurahan</option>
+                    </select>
+                    @error('subdistrict_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="address">Alamat Lengkap</label>
+                <div class="form-input-side">
+                    <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="Contoh: Jl. Sudirman No. 12, Ruko Citra Mas" value="{{ old('address', $listing->address) }}" required>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label>#Tagar</label>
                 <div class="form-input-side">
                     <!-- Added Tagify CSS -->
                     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
@@ -230,7 +268,7 @@
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const input = document.querySelector('#tags-tagify');
-                            const whitelist = @json($categories->pluck('name'));
+                            const whitelist = @json($tags->pluck('name'));
                             
                             const tagify = new Tagify(input, {
                                 whitelist: whitelist,
@@ -247,28 +285,7 @@
                 </div>
             </div>
 
-            <div class="form-group-horizontal">
-                <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
-                <div class="form-input-side">
-                    <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control">
-                        <option value="2" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
-                        <option value="1" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 1 ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
-                        <option value="0" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 0 ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
-                    </select>
-                    <small class="text-muted">Pilih preferensi bagaimana pengunjung dapat menghubungi Anda melalui WhatsApp.</small>
-                </div>
-            </div>
 
-            <div class="form-group-horizontal">
-                <label>Kolom Komentar</label>
-                <div class="form-input-side">
-                    <select name="comment_visibility" class="form-control">
-                        <option value="1" {{ old('comment_visibility', $listing->comment_visibility) == 1 ? 'selected' : '' }}>Aktifkan</option>
-                        <option value="0" {{ old('comment_visibility', $listing->comment_visibility) == 0 ? 'selected' : '' }}>Nonaktifkan</option>
-                    </select>
-                    <small class="text-muted">Pilih apakah pengunjung bisa meninggalkan komentar.</small>
-                </div>
-            </div>
 
 
 
@@ -354,5 +371,37 @@ function setJudul(text) {
     }
     document.getElementById('modalContohJudul').style.display = 'none';
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const districtSelect = document.getElementById('district_id');
+    const subdistrictSelect = document.getElementById('subdistrict_id');
+    const subdistricts = @json($subdistricts);
+    const oldSubdistrictId = "{{ old('subdistrict_id', $listing->subdistrict_id) }}";
+
+    function populateSubdistricts() {
+        const districtId = districtSelect.value;
+        subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+
+        if (districtId) {
+            const filtered = subdistricts.filter(sub => sub.district_id == districtId);
+            filtered.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.name;
+                if (oldSubdistrictId && oldSubdistrictId == sub.id) {
+                    opt.selected = true;
+                }
+                subdistrictSelect.appendChild(opt);
+            });
+        }
+    }
+
+    districtSelect.addEventListener('change', populateSubdistricts);
+
+    // Populate on load if district value exists
+    if (districtSelect.value) {
+        populateSubdistricts();
+    }
+});
 </script>
 @endsection

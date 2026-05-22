@@ -6,8 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 class Listing extends Model
 {
     protected $fillable = [
-        'user_id', 'listing_type_id', 'district_id', 'title', 'slug', 'activation_code', 'description', 
-        'price', 'is_featured', 'is_premium', 'is_active', 'features', 
+        'user_id', 'district_id', 'subdistrict_id', 'title', 'slug', 'activation_code', 'description', 
+        'address', 'price', 'is_featured', 'is_premium', 'is_active', 'features', 
         'whatsapp_visibility', 'comment_visibility', 'expires_at', 'website',
         'listing_rank',
     ];
@@ -30,6 +30,11 @@ class Listing extends Model
         return $this->belongsTo(District::class);
     }
 
+    public function subdistrict()
+    {
+        return $this->belongsTo(Subdistrict::class);
+    }
+
 
     public function tags()
     {
@@ -39,6 +44,11 @@ class Listing extends Model
     public function approvedTags()
     {
         return $this->belongsToMany(Tag::class)->whereRaw('is_approved = true');
+    }
+
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'category_listing');
     }
 
 
@@ -53,11 +63,6 @@ class Listing extends Model
             $q->whereNull('expires_at')
               ->orWhere('expires_at', '>', now());
         });
-    }
-
-    public function listingType()
-    {
-        return $this->belongsTo(ListingType::class);
     }
 
     public function favoritedBy()
@@ -109,10 +114,13 @@ class Listing extends Model
     public function updateSearchableField()
     {
         $tags = $this->tags()->pluck('name')->implode(' ');
+        $categories = $this->categories()->pluck('name')->implode(' ');
         $district = $this->district ? $this->district->name : '';
+        $subdistrict = $this->subdistrict ? $this->subdistrict->name : '';
+        $address = $this->address ?? '';
         
         // Gabungkan semua bidang
-        $text = $this->title . ' ' . $this->description . ' ' . $tags . ' ' . $district;
+        $text = $this->title . ' ' . $this->description . ' ' . $tags . ' ' . $categories . ' ' . $district . ' ' . $subdistrict . ' ' . $address;
         
         // Ganti karakter separator yang sering menyatukan kata agar bisa dicari terpisah
         // Contoh: "Barang/Jasa" menjadi "Barang Jasa"

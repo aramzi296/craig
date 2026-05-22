@@ -4,17 +4,15 @@
 
 @section('content')
 <div class="legal-page">
-    <!-- Compact Hero -->
-    <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
-        <div class="container" style="max-width: 800px; text-align: center;">
-            <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 10px; letter-spacing: -0.02em;">Kebijakan Privasi</h1>
-            <p style="font-size: 0.95rem; color: #64748b; font-weight: 600;">Terakhir Diperbarui: 18 Februari 2026</p>
-        </div>
-    </section>
+    <!-- Header Title -->
+    <div class="container" style="max-width: 900px; padding-top: 40px; margin-bottom: 0;">
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #111827; margin-bottom: 6px;">Kebijakan Privasi</h1>
+        <p style="font-size: 0.9rem; color: #64748b; font-weight: 600; margin-bottom: 0;">Terakhir Diperbarui: 18 Februari 2026</p>
+    </div>
 
     <!-- Content Section -->
     <section class="legal-section" style="padding: 50px 0; background: #ffffff;">
-        <div class="container" style="max-width: 800px;">
+        <div class="container" style="max-width: 900px;">
             <div style="background: white; padding: 0; border-radius: 0;">
                 <div class="prose" style="color: #334155; line-height: 1.6;">
                     <p style="font-size: 1rem; color: #475569; margin-bottom: 30px;">

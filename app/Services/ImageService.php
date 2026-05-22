@@ -34,14 +34,47 @@ class ImageService
     }
 
     /**
-     * Upload profile photo to local public storage.
+     * Upload profile photo directly to public/foto_profil storage.
      */
     public function uploadProfilePhoto(UploadedFile $file, int $userId)
     {
-        $folder = "foto_profil";
-        $fileName = "user_{$userId}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
+        $folder = public_path('foto_profil');
+        if (!file_exists($folder)) {
+            mkdir($folder, 0755, true);
+        }
 
-        $path = $file->storeAs($folder, $fileName, 'public');
+        $fileName = "user_{$userId}_" . bin2hex(random_bytes(4)) . '.' . $file->getClientOriginalExtension();
+        $file->move($folder, $fileName);
+
+        $path = "foto_profil/{$fileName}";
+
+        // Update User
+        $user = \App\Models\User::find($userId);
+        if ($user) {
+            // Delete old profile photo from disk
+            if ($user->profile_photo) {
+                if (str_starts_with($user->profile_photo, 'foto_profil/')) {
+                    $oldPath = public_path($user->profile_photo);
+                    if (file_exists($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                } elseif (str_starts_with($user->profile_photo, 'storage/')) {
+                    $storagePath = str_replace('storage/', '', $user->profile_photo);
+                    if (Storage::disk('public')->exists($storagePath)) {
+                        Storage::disk('public')->delete($storagePath);
+                    }
+                } else {
+                    if (Storage::disk('public')->exists($user->profile_photo)) {
+                        Storage::disk('public')->delete($user->profile_photo);
+                    }
+                }
+            }
+
+            $user->update([
+                'profile_photo' => $path,
+                'ik_file_id' => null
+            ]);
+        }
 
         return [
             'path' => $path,

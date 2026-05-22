@@ -83,9 +83,18 @@
         <form action="{{ route('admin.users.slot.single') }}" method="POST">
             @csrf
             <div style="margin-bottom: 20px;">
-                <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Pengguna</label>
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Cari Pengguna</label>
+                <div style="position: relative; margin-bottom: 12px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.9rem;"></i>
+                    <input type="text" id="user-search-input" placeholder="Ketik nama, WhatsApp, atau email..."
+                        style="width: 100%; padding: 12px 15px 12px 40px; border: 1px solid var(--border); border-radius: 10px; background: #f8fafc; font-size: 0.9rem; font-family: inherit; outline: none; box-sizing: border-box; transition: all 0.2s;"
+                        onfocus="this.style.borderColor='var(--accent)';" onblur="this.style.borderColor='var(--border)';">
+                </div>
+                
+                <label style="display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem;">Pilih Pengguna</label>
                 <select name="user_id" required id="user-select"
-                    style="width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; background: #f8fafc; font-size: 0.9rem; font-family: inherit; outline: none; cursor: pointer;">
+                    style="width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; background: #f8fafc; font-size: 0.9rem; font-family: inherit; outline: none; cursor: pointer; transition: all 0.2s;"
+                    onfocus="this.style.borderColor='var(--accent)';" onblur="this.style.borderColor='var(--border)';">
                     <option value="">-- Pilih Pengguna --</option>
                     @foreach($users as $u)
                         <option value="{{ $u->id }}">
@@ -93,6 +102,9 @@
                         </option>
                     @endforeach
                 </select>
+                <small id="user-search-info" style="color: var(--text-muted); display: block; margin-top: 6px; font-size: 0.75rem;">
+                    * Gunakan kolom pencarian di atas untuk menyaring pengguna dari seluruh database.
+                </small>
             </div>
 
             <div style="margin-bottom: 20px;">
@@ -128,7 +140,7 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 style="font-size: 1.2rem; font-weight: 700; margin: 0;">Daftar Slot per Pengguna</h2>
         <form action="{{ route('admin.users.slot') }}" method="GET" style="display: flex; gap: 10px;">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / WA..."
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama / WA / email..."
                 style="padding: 9px 14px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.875rem; outline: none;">
             <button type="submit" class="btn btn-primary" style="padding: 9px 18px; font-size: 0.875rem;">Cari</button>
             @if(request('search'))
@@ -212,4 +224,72 @@
     </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('user-search-input');
+    const userSelect = document.getElementById('user-select');
+    const searchInfo = document.getElementById('user-search-info');
+    let debounceTimer;
+
+    if (searchInput && userSelect) {
+        const defaultOptionsHtml = userSelect.innerHTML;
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(debounceTimer);
+            
+            if (query.length === 0) {
+                userSelect.innerHTML = defaultOptionsHtml;
+                searchInfo.textContent = '* Gunakan kolom pencarian di atas untuk menyaring pengguna dari seluruh database.';
+                searchInfo.style.color = 'var(--text-muted)';
+                return;
+            }
+
+            if (query.length < 2) {
+                searchInfo.textContent = '* Masukkan minimal 2 karakter untuk memulai pencarian...';
+                searchInfo.style.color = 'var(--accent)';
+                return;
+            }
+
+            searchInfo.textContent = '* Sedang mencari pengguna...';
+            searchInfo.style.color = 'var(--primary)';
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/admin/users/search?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        userSelect.innerHTML = '<option value="">-- Pilih Pengguna --</option>';
+                        if (data.length === 0) {
+                            userSelect.innerHTML = '<option value="">Tidak ada hasil ditemukan</option>';
+                            searchInfo.textContent = '* Tidak menemukan pengguna yang cocok dengan "' + query + '".';
+                            searchInfo.style.color = '#ef4444';
+                        } else {
+                            data.forEach(user => {
+                                const option = document.createElement('option');
+                                option.value = user.id;
+                                option.textContent = user.text;
+                                userSelect.appendChild(option);
+                            });
+                            
+                            if (data.length === 1) {
+                                userSelect.selectedIndex = 1;
+                            }
+                            
+                            searchInfo.textContent = '* Ditemukan ' + data.length + ' pengguna yang cocok.';
+                            searchInfo.style.color = '#22c55e';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching users:', error);
+                        userSelect.innerHTML = '<option value="">Gagal mengambil data</option>';
+                        searchInfo.textContent = '* Terjadi kesalahan saat mencari pengguna.';
+                        searchInfo.style.color = '#ef4444';
+                    });
+            }, 300);
+        });
+    }
+});
+</script>
 @endsection

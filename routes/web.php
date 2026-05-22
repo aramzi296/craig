@@ -13,8 +13,8 @@ use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\WaLoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/listing', [HomeController::class, 'listing'])->name('listings.index');
-Route::get('/hashtag', [HomeController::class, 'categories'])->name('categories.index');
+Route::get('/kategori', [HomeController::class, 'categoriesDirectory'])->name('categories.directory');
+Route::get('/tagar', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
@@ -98,13 +98,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/slot/bulk', [AdminController::class, 'updateBulkSlot'])->name('users.slot.bulk');
 
 
-        // Listing Type Management
-        Route::get('/listing-types', [AdminController::class, 'listingTypes'])->name('listing_types');
-        Route::get('/listing-types/create', [AdminController::class, 'createListingType'])->name('listing_types.create');
-        Route::post('/listing-types', [AdminController::class, 'storeListingType'])->name('listing_types.store');
-        Route::get('/listing-types/{id}/edit', [AdminController::class, 'editListingType'])->name('listing_types.edit');
-        Route::put('/listing-types/{id}', [AdminController::class, 'updateListingType'])->name('listing_types.update');
-        Route::delete('/listing-types/{id}', [AdminController::class, 'destroyListingType'])->name('listing_types.destroy');
 
         // Premium Package Management
         Route::get('/premium-packages', [AdminController::class, 'premiumPackages'])->name('premium_packages');
@@ -146,6 +139,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/wa-templates/{id}/edit', [AdminController::class, 'editWaTemplate'])->name('wa_templates.edit');
         Route::put('/wa-templates/{id}', [AdminController::class, 'updateWaTemplate'])->name('wa_templates.update');
         Route::delete('/wa-templates/{id}', [AdminController::class, 'destroyWaTemplate'])->name('wa_templates.destroy');
+
+        // Listing Reports Management
+        Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+        Route::post('/reports/{id}/resolve', [AdminController::class, 'resolveReport'])->name('reports.resolve');
+        Route::post('/reports/{id}/dismiss', [AdminController::class, 'dismissReport'])->name('reports.dismiss');
+
+        // Contact Messages Management
+        Route::get('/contacts', [AdminController::class, 'contacts'])->name('contacts');
+        Route::post('/contacts/{id}/read', [AdminController::class, 'markContactAsRead'])->name('contacts.read');
+        Route::delete('/contacts/{id}', [AdminController::class, 'destroyContact'])->name('contacts.destroy');
     });
 
     // Member Premium Upgrade
@@ -176,5 +179,6 @@ Route::get('/test-tailwind', function () {
 
 // Wildcard Routes (Must be at the bottom)
 Route::post('/listing/{id}/contact-admin', [ListingController::class, 'contactAdmin'])->name('listing.contact.admin');
+Route::post('/listing/{id}/report', [ListingController::class, 'report'])->name('listings.report');
 Route::get('/pengiklan/{id}', [HomeController::class, 'userListings'])->name('user.listings');
 Route::get('/listing/{slug}', [HomeController::class, 'show'])->name('listings.show');

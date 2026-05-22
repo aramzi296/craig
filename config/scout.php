@@ -141,7 +141,7 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             'sebatam_listings' => [
-                'filterableAttributes'=> ['id', 'district_id', 'listing_type_id', 'category_ids', 'is_active', 'is_premium'],
+                'filterableAttributes'=> ['id', 'district_id', 'category_ids', 'is_active', 'is_premium'],
                 'sortableAttributes' => ['created_at', 'listing_rank', 'is_premium'],
             ],
         ],

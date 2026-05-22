@@ -127,11 +127,7 @@
             @if($listing->getThumbnailUrl())
             <div class="grid-image-wrapper">
                 <img src="{{ $listing->getThumbnailUrl() }}" alt="{{ $listing->title }}">
-                @if($listing->price > 0)
-                    <div class="price-tag">
-                        Rp {{ number_format($listing->price, 0, ',', '.') }}
-                    </div>
-                @endif
+
             </div>
             @endif
 

@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Models\Listing;
 use App\Models\ListingPhoto;
 use App\Models\District;
-use App\Models\ListingType;
+use App\Models\Subdistrict;
 use App\Models\Tag;
 use App\Models\PremiumPackage;
 use App\Models\PremiumRequest;
@@ -77,8 +77,8 @@ class WhatsappBotService
             return;
         }
 
-        // ── Keyword: lapak sebatam ──────────────────────────────────────────
-        if ($lowerText === 'lapak sebatam') {
+        // ── Keyword: daftar ─────────────────────────────────────────────────
+        if ($lowerText === 'daftar') {
             $this->handleAdPostingRequest($phone);
             return;
         }
@@ -87,7 +87,7 @@ class WhatsappBotService
         if (str_starts_with($lowerText, 'aktivasi iklan ') || str_starts_with($lowerText, 'aktivasi ')) {
             $parts = explode(' ', $text);
             $code = end($parts);
-            if (strlen($code) >= 6) { // Basic sanity check for code length
+            if (strlen($code) >= 5) { // Basic sanity check for code length (5 digits)
                 $this->handleActivationRequest($phone, $code);
                 return;
             }
@@ -147,8 +147,8 @@ class WhatsappBotService
             "Berikut adalah perintah yang dapat Anda gunakan:\n\n" .
             "1️⃣ *login* atau *otp*\n" .
             "Untuk mendapatkan kode akses login ke website.\n\n" .
-            "2️⃣ *lapak sebatam*\n" .
-            "Untuk mulai memasang iklan baru secara langsung melalui WhatsApp ini.\n\n" .
+            "2️⃣ *daftar*\n" .
+            "Untuk mulai mendaftarkan profil usaha baru secara langsung melalui WhatsApp ini.\n\n" .
             "3️⃣ *lapak saya*\n" .
             "Untuk melihat daftar iklan yang telah Anda pasang beserta statusnya.\n\n" .
             "4️⃣ *aktivasi iklan*\n" .
@@ -166,7 +166,7 @@ class WhatsappBotService
         $user = User::where('whatsapp', $phone)->first();
 
         if (!$user) {
-            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *lapak sebatam* untuk memulai.");
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *daftar* untuk memulai.");
             return;
         }
 
@@ -185,7 +185,7 @@ class WhatsappBotService
         if ($user->ads_quota <= 0) {
             $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
         } else {
-            $msg .= "\n_Ketik *lapak sebatam* untuk menggunakan slot Anda._";
+            $msg .= "\n_Ketik *daftar* untuk menggunakan slot Anda._";
         }
 
         $this->whatsapp->sendMessage($phone, $msg);
@@ -195,14 +195,14 @@ class WhatsappBotService
     {
         $user = User::where('whatsapp', $phone)->first();
         if (!$user) {
-            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *lapak sebatam* untuk memulai.");
+            $this->whatsapp->sendMessage($phone, "❌ Nomor WhatsApp Anda belum terdaftar. Silakan ketik *daftar* untuk memulai.");
             return;
         }
 
         $perPage = 20;
         $total = $user->listings()->count();
         if ($total === 0) {
-            $this->whatsapp->sendMessage($phone, "ℹ️ Anda belum memiliki iklan di Sebatam. Ketik *lapak sebatam* untuk mulai.");
+            $this->whatsapp->sendMessage($phone, "ℹ️ Anda belum memiliki profil usaha di Sebatam. Ketik *daftar* untuk mulai.");
             return;
         }
 
@@ -305,7 +305,7 @@ class WhatsappBotService
             "🔑 *Nomor WA : {$phone}*\n" .
             "🔑 *OTP      : {$otp}*\n\n" .
             "Kode ini berlaku selama *15 menit*.\n" .
-            "Gunakan nomor WA ini dan kode di atas untuk login atau pasang iklan di lapak sebatam.\n\n" .
+            "Gunakan nomor WA ini dan kode di atas untuk login atau pasang profil usaha di Sebatam.\n\n" .
             "Halaman Login:\n{$loginUrl}\n\n" .
             "_Jangan berikan kode ini kepada siapapun._"
         );
@@ -550,10 +550,10 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone,
-            "📣 *Lapak Sebatam*\n\n" .
-            "Selamat datang! Anda akan memulai proses pemasangan iklan di *LAPAK SEBATAM* (Sebatam.com).\n" .
-            "Kami akan memandu Anda langkah demi langkah untuk mengisi informasi iklan Anda.\n\n" .
-            "Dengan melanjutkan pemasangan iklan di *LAPAK SEBATAM*, maka nomor WA Anda ini akan terdaftar sebagai pemasang iklan, dan Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
+            "📣 *Daftarkan Usaha Sebatam*\n\n" .
+            "Selamat datang! Anda akan memulai proses pendaftaran profil usaha di *SEBATAM* (Sebatam.com).\n" .
+            "Kami akan memandu Anda langkah demi langkah untuk mengisi informasi profil usaha Anda.\n\n" .
+            "Dengan melanjutkan pendaftaran profil usaha di *SEBATAM*, maka nomor WA Anda ini akan terdaftar sebagai pemasang profil usaha, dan Anda menyatakan bersedia untuk mengisi data dengan benar.\n\n" .
             "Apakah Anda ingin melanjutkan? (Ya/Tidak)"
         );
     }
@@ -576,8 +576,9 @@ class WhatsappBotService
             'awaiting_photo_ask'       => $this->handleAdPhotoAsk($phone, $lower, $state),
             'awaiting_photo_upload'    => $this->handleAdPhotoUpload($phone, $payload, $state),
             'awaiting_category'        => $this->handleAdCategory($phone, $text, $state),
+            'awaiting_address'         => $this->handleAdAddress($phone, $text, $state),
             'awaiting_location'        => $this->handleAdLocation($phone, $text, $state),
-            'awaiting_type'            => $this->handleAdType($phone, $text, $state),
+            'awaiting_subdistrict'     => $this->handleAdSubdistrict($phone, $text, $state),
             'awaiting_wa_button'       => $this->handleAdWaButton($phone, $lower, $state),
             'awaiting_comment_section' => $this->handleAdCommentSection($phone, $lower, $state),
             'awaiting_confirmation'    => $this->handleAdConfirmation($phone, $lower, $state),
@@ -625,9 +626,9 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone,
-            "✅ *Iklan Berhasil Diaktifkan!*\n\n" .
-            "Selamat! Iklan Anda *'{$listing->title}'* sekarang sudah aktif dan dapat dilihat oleh semua orang.\n\n" .
-            "🔗 *Link Iklan:* " . route('listings.show', $listing->slug)
+            "✅ *Postingan Sudah Diterbitkan!*\n\n" .
+            "Selamat! Usaha Anda *'{$listing->title}'* telah berhasil diterbitkan dan sekarang aktif di platform Sebatam.\n\n" .
+            "🔗 *Link Usaha:* " . route('listings.show', $listing->slug)
         );
 
         $this->clearState($phone);
@@ -673,9 +674,9 @@ class WhatsappBotService
 
             $this->whatsapp->sendMessage(
                 $phone,
-                "📝 *Langkah 1 — Judul Iklan*\n\n" .
-                "Silakan kirim *Judul Iklan* Anda.\n" .
-                "(Contoh: Jual Honda Vario 2020 Mulus)\n\n" .
+                "📝 *Langkah 1 — Nama Usaha*\n\n" .
+                "Silakan kirim *Nama Usaha* Anda.\n" .
+                "(Contoh: Raja Dingin Service AC)\n\n" .
                 "_Ketik *batal* untuk membatalkan._"
             );
             return;
@@ -683,7 +684,7 @@ class WhatsappBotService
 
         if (in_array($lower, ['tidak', 'n', 'no', 'gak', 'nggak', 'batal'], true)) {
             $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "Baik, pemasangan iklan dibatalkan. Kirim *lapak sebatam* kapan saja untuk mencoba lagi.");
+            $this->whatsapp->sendMessage($phone, "Baik, pendaftaran profil usaha dibatalkan. Kirim *daftar* kapan saja untuk mencoba lagi.");
             return;
         }
 
@@ -701,7 +702,7 @@ class WhatsappBotService
         $state['step'] = 'awaiting_detail';
         $this->setState($phone, $state);
 
-        $this->whatsapp->sendMessage($phone, "📝 Kirimkan *Detail Iklan* (Deskripsi) Anda.");
+        $this->whatsapp->sendMessage($phone, "📝 Kirimkan *Detail Usaha* (Deskripsi) Anda.");
     }
 
     private function handleAdDetail(string $phone, string $text, array $state): void
@@ -712,10 +713,11 @@ class WhatsappBotService
         }
 
         $state['ad_data']['description'] = $text;
-        $state['step'] = 'awaiting_price';
+        $state['ad_data']['price'] = 0;
+        $state['step'] = 'awaiting_photo_ask';
         $this->setState($phone, $state);
 
-        $this->whatsapp->sendMessage($phone, "💰 Masukkan *Harga* (hanya angka). Ketik *0* jika tidak ingin menampilkan harga.");
+        $this->whatsapp->sendMessage($phone, "📸 Apakah Anda ingin mengirim *Foto ke-1*? (Ya/Tidak)");
     }
 
     private function handleAdPrice(string $phone, string $text, array $state): void
@@ -756,7 +758,7 @@ class WhatsappBotService
 
         $tagList = "";
         if ($topTags->isNotEmpty()) {
-            $tagList = "\n\n*Contoh #Hashtag terpopuler:*\n";
+            $tagList = "\n\n*Contoh #Tagar terpopuler:*\n";
             foreach ($topTags as $tag) {
                 $tagList .= "- {$tag->name}\n";
             }
@@ -764,7 +766,7 @@ class WhatsappBotService
 
         $this->whatsapp->sendMessage(
             $phone, 
-            "📂 Apa nama *#Hashtag* untuk iklan Anda ini? (maksimal 30 huruf)." . $tagList
+            "📂 Tuliskan *#Tagar* untuk profil usaha Anda (maksimal 3 tagar, pisahkan dengan koma). Contoh: Kuliner, Cafe, Batam Center." . $tagList
         );
     }
 
@@ -818,7 +820,7 @@ class WhatsappBotService
 
                 $tagList = "";
                 if ($topTags->isNotEmpty()) {
-                    $tagList = "\n\n*Contoh #Hashtag terpopuler:*\n";
+                    $tagList = "\n\n*Contoh #Tagar terpopuler:*\n";
                     foreach ($topTags as $tag) {
                         $tagList .= "- {$tag->name}\n";
                     }
@@ -826,7 +828,7 @@ class WhatsappBotService
 
                 $this->whatsapp->sendMessage(
                     $phone, 
-                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *#Hashtag* untuk iklan Anda ini? (maksimal 30 huruf)." . $tagList
+                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Tuliskan *#Tagar* untuk profil usaha Anda (maksimal 3 tagar, pisahkan dengan koma). Contoh: Kuliner, Cafe, Batam Center." . $tagList
                 );
             } else {
                 $next = $photoCount + 1;
@@ -842,16 +844,49 @@ class WhatsappBotService
 
     private function handleAdCategory(string $phone, string $text, array $state): void
     {
-        if (mb_strlen($text) > 30) {
-            $this->whatsapp->sendMessage($phone, "⚠️ #Hashtag terlalu panjang (maksimal 30 huruf).");
+        $tagsRaw = array_filter(array_map('trim', explode(',', $text)));
+        if (empty($tagsRaw)) {
+            $this->whatsapp->sendMessage($phone, "⚠️ #Tagar tidak boleh kosong. Silakan masukkan 1 sampai 3 tagar.");
             return;
         }
 
-        $state['ad_data']['category_name'] = $text;
+        if (count($tagsRaw) > 3) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Maksimum 3 #Tagar. Silakan masukkan kembali (pisahkan dengan koma).");
+            return;
+        }
+
+        foreach ($tagsRaw as $tag) {
+            if (mb_strlen($tag) > 30) {
+                $this->whatsapp->sendMessage($phone, "⚠️ Tagar '{$tag}' terlalu panjang (maksimal 30 huruf per tagar). Silakan masukkan kembali.");
+                return;
+            }
+        }
+
+        $state['ad_data']['tags'] = array_values($tagsRaw);
         
+        $state['step'] = 'awaiting_address';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, "🏠 Tuliskan *Alamat Lengkap* lokasi usaha Anda.\n\nContoh: Ruko Puri Seleksi Blok A No. 12, Batam Center");
+    }
+
+    private function handleAdAddress(string $phone, string $text, array $state): void
+    {
+        $address = trim($text);
+        if (empty($address)) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Alamat tidak boleh kosong. Silakan masukkan alamat lengkap lokasi usaha Anda.");
+            return;
+        }
+
+        if (mb_strlen($address) > 255) {
+            $this->whatsapp->sendMessage($phone, "⚠️ Alamat terlalu panjang (maksimal 255 karakter). Silakan persingkat alamat Anda.");
+            return;
+        }
+
+        $state['ad_data']['address'] = $address;
+
         // Show districts
         $districts = District::orderBy('name')->pluck('name', 'id')->toArray();
-        $list = "📍 *Pilih Lokasi* (Ketik nomornya):\n\n";
+        $list = "📍 *Pilih Lokasi Kecamatan* (Ketik nomornya):\n\n";
         foreach ($districts as $id => $name) {
             $list .= "{$id}. {$name}\n";
         }
@@ -870,32 +905,66 @@ class WhatsappBotService
         }
 
         $state['ad_data']['district_id'] = $districtId;
-
-        // Show Types
-        $types = ListingType::orderBy('sort_order')->pluck('name', 'id')->toArray();
-        $list = "🏷️ *Pilih Tipe Iklan* (Ketik nomornya):\n\n";
-        foreach ($types as $id => $name) {
-            $list .= "{$id}. {$name}\n";
+        $state['ad_data']['whatsapp_visibility'] = 2; // Default to visible to everyone
+        $state['ad_data']['comment_visibility'] = 1; // Default to enabled/active
+        
+        $subdistricts = Subdistrict::where('district_id', $districtId)->orderBy('name')->get();
+        
+        $list = "🏢 *Pilih Kelurahan* (Ketik nama kelurahannya dengan benar sesuai daftar di bawah):\n\n";
+        foreach ($subdistricts as $sub) {
+            $list .= "- *{$sub->name}*\n";
         }
 
-        $state['step'] = 'awaiting_type';
+        $state['step'] = 'awaiting_subdistrict';
         $this->setState($phone, $state);
         $this->whatsapp->sendMessage($phone, $list);
     }
 
-    private function handleAdType(string $phone, string $text, array $state): void
+    private function handleAdSubdistrict(string $phone, string $text, array $state): void
     {
-        $typeId = (int) $text;
-        if (!ListingType::where('id', $typeId)->exists()) {
-            $this->whatsapp->sendMessage($phone, "⚠️ Tipe tidak valid. Mohon pilih nomor yang tertera.");
+        $districtId = $state['ad_data']['district_id'];
+        $input = trim($text);
+
+        // Find subdistrict under this district (case-insensitive check)
+        $subdistrict = Subdistrict::where('district_id', $districtId)
+            ->whereRaw('LOWER(name) = ?', [strtolower($input)])
+            ->first();
+
+        if (!$subdistrict) {
+            $subdistricts = Subdistrict::where('district_id', $districtId)->orderBy('name')->get();
+            $list = "⚠️ *Kelurahan Tidak Ditemukan/Salah Ketik*\n\n" .
+                    "Maaf, Kelurahan *\"{$input}\"* tidak terdaftar di Kecamatan tersebut. Silakan ketik nama kelurahan yang benar sesuai daftar di bawah ini:\n\n";
+            foreach ($subdistricts as $sub) {
+                $list .= "- *{$sub->name}*\n";
+            }
+            $this->whatsapp->sendMessage($phone, $list);
             return;
         }
 
-        $state['ad_data']['listing_type_id'] = $typeId;
-        $state['step'] = 'awaiting_wa_button';
-        $this->setState($phone, $state);
+        $state['ad_data']['subdistrict_id'] = $subdistrict->id;
 
-        $this->whatsapp->sendMessage($phone, "📲 Tampilkan tombol WhatsApp di iklan? (Ya/Tidak)");
+        // Now compile and send the final confirmation summary block
+        $title = $state['ad_data']['title'];
+        $desc = $state['ad_data']['description'];
+        $address = $state['ad_data']['address'] ?? '-';
+        $districtName = District::find($districtId)->name;
+        $subdistrictName = $subdistrict->name;
+        
+        // Hashtags summary list
+        $tagsList = implode(', ', array_map(fn($t) => "#$t", $state['ad_data']['tags'] ?? []));
+
+        $summary = "🧐 *Konfirmasi Pendaftaran Usaha*\n\n" .
+                  "📌 Judul: {$title}\n" .
+                  "📝 Detail: {$desc}\n" .
+                  "📂 #Tagar: {$tagsList}\n" .
+                  "🏠 Alamat: {$address}\n" .
+                  "📍 Lokasi: {$districtName}, {$subdistrictName}\n" .
+                  "🖼️ Foto: " . count($state['photos']) . " foto\n\n" .
+                  "*Terbitkan iklan ini?* (Ya/Tidak)";
+
+        $state['step'] = 'awaiting_confirmation';
+        $this->setState($phone, $state);
+        $this->whatsapp->sendMessage($phone, $summary);
     }
 
     private function handleAdWaButton(string $phone, string $lower, array $state): void
@@ -913,9 +982,7 @@ class WhatsappBotService
         
         $title = $state['ad_data']['title'];
         $desc = $state['ad_data']['description'];
-        $price = $state['ad_data']['price'] > 0 ? "Rp " . number_format($state['ad_data']['price']) : "Hubungi Kami";
         $loc = District::find($state['ad_data']['district_id'])->name;
-        $type = ListingType::find($state['ad_data']['listing_type_id'])->name;
         $cat = $state['ad_data']['category_name'];
         $wa = $state['ad_data']['whatsapp_visibility'] ? "Aktif" : "Sembunyi";
         $comm = $state['ad_data']['comment_visibility'] ? "Aktif" : "Nonaktif";
@@ -923,10 +990,8 @@ class WhatsappBotService
         $summary = "🧐 *Konfirmasi Iklan*\n\n" .
                   "📌 Judul: {$title}\n" .
                   "📝 Detail: {$desc}\n" .
-                  "💰 Harga: {$price}\n" .
-                  "📂 #Hashtag: {$cat}\n" .
+                  "📂 #Tagar: {$cat}\n" .
                   "📍 Lokasi: {$loc}\n" .
-                  "🏷️ Tipe: {$type}\n" .
                   "📲 Tombol WA: {$wa}\n" .
                   "💬 Komentar: {$comm}\n" .
                   "🖼️ Foto: " . count($state['photos']) . " foto\n\n" .
@@ -944,8 +1009,9 @@ class WhatsappBotService
                 $ad = $state['ad_data'];
                 $listing = Listing::create([
                     'user_id' => $state['user_id'],
-                    'listing_type_id' => $ad['listing_type_id'],
                     'district_id' => $ad['district_id'],
+                    'subdistrict_id' => $ad['subdistrict_id'] ?? null,
+                    'address' => $ad['address'] ?? null,
                     'title' => $ad['title'],
                     'slug' => Str::slug($ad['title']) . '-' . Str::random(5),
                     'description' => $ad['description'],
@@ -956,25 +1022,36 @@ class WhatsappBotService
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                 ]);
 
-                // Handle Tag
-                $tagName = trim($ad['category_name']);
-                $slug = Str::slug($tagName);
-                
-                // Cari berdasarkan nama (case-insensitive) atau slug
-                $tag = Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
+                // Handle Tags (maximum of 3 tags)
+                $tagNames = $ad['tags'] ?? [];
+                $tagIds = [];
 
-                if (!$tag) {
-                    $tag = Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'is_approved' => \DB::raw('false'), // Tag baru harus disetujui admin
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)Tag::max('sort_order') + 1,
-                    ]);
+                foreach ($tagNames as $tagName) {
+                    $tagName = trim($tagName);
+                    if (empty($tagName)) continue;
+                    
+                    $slug = Str::slug($tagName);
+                    
+                    // Cari berdasarkan nama (case-insensitive) atau slug
+                    $tag = Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
+                        ->orWhere('slug', $slug)
+                        ->first();
+
+                    if (!$tag) {
+                        $tag = Tag::create([
+                            'name' => $tagName,
+                            'slug' => $slug,
+                            'is_approved' => \DB::raw('false'), // Tag baru harus disetujui admin
+                            'icon' => 'fa-solid fa-tag',
+                            'sort_order' => (int)Tag::max('sort_order') + 1,
+                        ]);
+                    }
+                    $tagIds[] = $tag->id;
                 }
-                $listing->tags()->attach($tag->id);
+
+                if (!empty($tagIds)) {
+                    $listing->tags()->attach($tagIds);
+                }
 
                 // Handle Photos
                 foreach ($state['photos'] as $idx => $base64) {
@@ -989,7 +1066,7 @@ class WhatsappBotService
                     $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
                     file_put_contents($fullPath, $imageData);
                     
-                    ProcessListingImageUpload::dispatch(
+                    ProcessListingImageUpload::dispatchSync(
                         $fullPath, 
                         $listing->id, 
                         $idx === 0 ? 'foto_fitur' : 'gallery',

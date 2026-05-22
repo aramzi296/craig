@@ -15,7 +15,7 @@ class AdminController extends Controller
     {
         $stats = [
             'users' => \App\Models\User::count(),
-            'categories' => \App\Models\Tag::count(),
+            'categories' => \App\Models\Category::count(),
             'listings' => \App\Models\Listing::count(),
             'featured' => \App\Models\Listing::whereRaw('is_featured = true')->count(),
         ];
@@ -27,50 +27,52 @@ class AdminController extends Controller
 
     public function categories()
     {
-        $categories = \App\Models\Tag::withCount('listings')->orderBy('sort_order')->get();
+        $categories = \App\Models\Category::with('parent')->withCount('listings')->orderBy('sort_order')->get();
         return view('admin.categories.index', compact('categories'));
     }
 
     public function createCategory()
     {
-        return view('admin.categories.create');
+        $parentCategories = \App\Models\Category::whereNull('parent_id')->orderBy('sort_order')->get();
+        return view('admin.categories.create', compact('parentCategories'));
     }
 
     public function storeCategory(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:tags',
+            'name' => 'required|string|max:255|unique:categories',
             'icon' => 'required|string|max:50',
             'sort_order' => 'nullable|integer|min:0',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
 
-        \App\Models\Tag::create($data);
+        \App\Models\Category::create($data);
 
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil ditambahkan.');
     }
 
     public function editCategory($id)
     {
-        $category = \App\Models\Tag::findOrFail($id);
-        return view('admin.categories.edit', compact('category'));
+        $category = \App\Models\Category::findOrFail($id);
+        $parentCategories = \App\Models\Category::whereNull('parent_id')->where('id', '!=', $id)->orderBy('sort_order')->get();
+        return view('admin.categories.edit', compact('category', 'parentCategories'));
     }
 
     public function updateCategory(\Illuminate\Http\Request $request, $id)
     {
-        $category = \App\Models\Tag::findOrFail($id);
+        $category = \App\Models\Category::findOrFail($id);
 
         $data = $request->validate([
-            'name' => 'required|string|max:255|unique:tags,name,'.$id,
+            'name' => 'required|string|max:255|unique:categories,name,'.$id,
             'icon' => 'required|string|max:50',
             'sort_order' => 'nullable|integer|min:0',
             'is_approved' => 'nullable|boolean',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         $data['is_approved'] = $request->has('is_approved') ? \DB::raw('true') : \DB::raw('false');
-
-
         $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
 
         $category->update($data);
@@ -80,7 +82,7 @@ class AdminController extends Controller
 
     public function destroyCategory($id)
     {
-        $category = \App\Models\Tag::findOrFail($id);
+        $category = \App\Models\Category::findOrFail($id);
         
         if ($category->listings()->count() > 0) {
             return back()->with('error', 'Kategori tidak dapat dihapus karena masih memiliki listing.');
@@ -88,15 +90,15 @@ class AdminController extends Controller
 
         $category->delete();
 
-        return redirect()->route('admin.categories')->with('success', '#Hashtag berhasil dihapus.');
+        return redirect()->route('admin.categories')->with('success', 'Kategori berhasil dihapus.');
     }
 
     public function toggleCategoryApproval($id)
     {
-        $category = \App\Models\Tag::findOrFail($id);
+        $category = \App\Models\Category::findOrFail($id);
         $newStatusSql = $category->is_approved ? 'false' : 'true';
         
-        \DB::update("UPDATE tags SET is_approved = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
+        \DB::update("UPDATE categories SET is_approved = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status persetujuan kategori berhasil diubah.');
     }
@@ -105,14 +107,10 @@ class AdminController extends Controller
 
     public function listings(Request $request)
     {
-        $query = \App\Models\Listing::query()->with(['tags', 'user', 'listingType']);
+        $query = \App\Models\Listing::query()->with(['tags', 'user']);
 
         if ($request->filled('search')) {
             $query->search($request->search);
-        }
-
-        if ($request->filled('listing_type_id')) {
-            $query->where('listing_type_id', $request->listing_type_id);
         }
 
         if ($request->filled('status')) {
@@ -121,9 +119,8 @@ class AdminController extends Controller
         }
 
         $listings = $query->latest()->paginate(20)->withQueryString();
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
 
-        return view('admin.listings.index', compact('listings', 'listingTypes'));
+        return view('admin.listings.index', compact('listings'));
     }
 
     public function searchUsers(Request $request)
@@ -146,9 +143,17 @@ class AdminController extends Controller
 
     public function createListing(Request $request)
     {
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->whereRaw('is_approved = true')->orderBy('sort_order');
+            }])
+            ->whereRaw('is_approved = true')
+            ->orderBy('sort_order')
+            ->get();
+
         $tags = \App\Models\Tag::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
+        $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
         
         $selectedUserId = $request->query('user_id');
         if ($selectedUserId) {
@@ -158,24 +163,25 @@ class AdminController extends Controller
             $users = \App\Models\User::latest()->take(20)->get();
         }
         
-        return view('admin.listings.create', compact('tags', 'listingTypes', 'districts', 'users'));
+        return view('admin.listings.create', compact('categories', 'tags', 'districts', 'subdistricts', 'users'));
     }
 
     public function storeListing(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'tags' => 'nullable|string',
-            'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'subdistrict_id' => 'required|exists:subdistricts,id',
+            'address' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
             'website' => 'nullable|url|max:255',
             'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
-            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
         ]);
 
@@ -188,6 +194,7 @@ class AdminController extends Controller
         $data['is_active'] = \DB::raw('false');
         $data['expires_at'] = now()->addDays(10);
         $data['activation_code'] = (string) random_int(100000, 999999);
+        $data['whatsapp_visibility'] = 2;
 
         $listing = \App\Models\Listing::create($data);
 
@@ -217,6 +224,10 @@ class AdminController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        
+        if ($request->filled('category_id')) {
+            $listing->categories()->sync([$request->category_id]);
+        }
         $listing->updateSearchableField();
 
         // Upload Foto Fitur
@@ -227,7 +238,7 @@ class AdminController extends Controller
             $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move($tempDir, $fileName);
             $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-            ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+            ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
         }
 
         // Upload Galeri
@@ -238,7 +249,7 @@ class AdminController extends Controller
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move($tempDir, $fileName);
                 $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'galeri', $fileName);
+                ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'galeri', $fileName);
             }
         }
 
@@ -254,10 +265,19 @@ class AdminController extends Controller
     public function editListing($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);
+        
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->whereRaw('is_approved = true')->orderBy('sort_order');
+            }])
+            ->whereRaw('is_approved = true')
+            ->orderBy('sort_order')
+            ->get();
+
         $tags = \App\Models\Tag::orderBy('sort_order')->get();
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
         $districts = \App\Models\District::orderBy('name')->get();
-        return view('admin.listings.edit', compact('listing', 'tags', 'listingTypes', 'districts'));
+        $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
+        return view('admin.listings.edit', compact('listing', 'categories', 'tags', 'districts', 'subdistricts'));
     }
 
     public function updateListing(\Illuminate\Http\Request $request, $id)
@@ -265,17 +285,18 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::findOrFail($id);
 
         $data = $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'tags' => 'nullable|string',
-            'listing_type_id' => 'required|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'subdistrict_id' => 'required|exists:subdistricts,id',
+            'address' => 'required|string|max:255',
             'website' => 'nullable|url|max:255',
             'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
-            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
         ]);
 
@@ -314,6 +335,10 @@ class AdminController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        
+        if ($request->filled('category_id')) {
+            $listing->categories()->sync([$request->category_id]);
+        }
         $listing->updateSearchableField();
 
         // Upload Foto Fitur
@@ -324,7 +349,7 @@ class AdminController extends Controller
             $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
             $file->move($tempDir, $fileName);
             $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-            ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'foto_fitur', $fileName);
+            ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'foto_fitur', $fileName);
         }
 
         // Upload Galeri
@@ -335,7 +360,7 @@ class AdminController extends Controller
                 $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->move($tempDir, $fileName);
                 $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-                ProcessListingImageUpload::dispatch($fullPath, $listing->id, 'galeri', $fileName);
+                ProcessListingImageUpload::dispatchSync($fullPath, $listing->id, 'galeri', $fileName);
             }
         }
 
@@ -563,60 +588,6 @@ class AdminController extends Controller
     }
 
 
-    // Listing Types Management
-    public function listingTypes()
-    {
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->orderBy('name')->get();
-        return view('admin.listing_types.index', compact('listingTypes'));
-    }
-
-    public function createListingType()
-    {
-        return view('admin.listing_types.create');
-    }
-
-    public function storeListingType(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'color' => 'required|string|max:7',
-            'sort_order' => 'nullable|integer|min:0',
-            'keterangan' => 'nullable|string',
-        ]);
-        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
-        \App\Models\ListingType::create($data);
-        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil ditambahkan.');
-    }
-
-    public function editListingType($id)
-    {
-        $listingType = \App\Models\ListingType::findOrFail($id);
-        return view('admin.listing_types.edit', compact('listingType'));
-    }
-
-    public function updateListingType(Request $request, $id)
-    {
-        $listingType = \App\Models\ListingType::findOrFail($id);
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'color' => 'required|string|max:7',
-            'sort_order' => 'nullable|integer|min:0',
-            'keterangan' => 'nullable|string',
-        ]);
-        $data['slug'] = \Illuminate\Support\Str::slug($data['name']);
-        $listingType->update($data);
-        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil diperbarui.');
-    }
-
-    public function destroyListingType($id)
-    {
-        $listingType = \App\Models\ListingType::findOrFail($id);
-        if ($listingType->listings()->count() > 0) {
-            return back()->with('error', 'Tipe listing tidak dapat dihapus karena masih digunakan oleh listing.');
-        }
-        $listingType->delete();
-        return redirect()->route('admin.listing_types')->with('success', 'Tipe listing berhasil dihapus.');
-    }
 
     // Premium Packages
     public function premiumPackages()
@@ -935,4 +906,88 @@ class AdminController extends Controller
 
         return back()->with('success', 'Catatan WhatsApp berhasil dihapus.');
     }
+
+    public function reports(Request $request)
+    {
+        $query = \App\Models\ListingReport::with(['listing', 'user']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('reason', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('reporter_whatsapp', 'like', "%{$search}%")
+                  ->orWhereHas('listing', function($lQuery) use ($search) {
+                      $lQuery->where('title', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('user', function($uQuery) use ($search) {
+                      $uQuery->where('name', 'like', "%{$search}%")
+                             ->orWhere('whatsapp', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $reports = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.reports.index', compact('reports'));
+    }
+
+    public function resolveReport($id)
+    {
+        $report = \App\Models\ListingReport::findOrFail($id);
+        $report->update(['status' => 'resolved']);
+
+        return back()->with('success', 'Laporan berhasil diselesaikan.');
+    }
+
+    public function dismissReport($id)
+    {
+        $report = \App\Models\ListingReport::findOrFail($id);
+        $report->update(['status' => 'dismissed']);
+
+        return back()->with('success', 'Laporan berhasil diabaikan.');
+    }
+
+    public function contacts(Request $request)
+    {
+        $query = \App\Models\ContactMessage::query();
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('whatsapp', 'like', "%{$search}%")
+                  ->orWhere('message', 'like', "%{$search}%");
+            });
+        }
+
+        $messages = $query->latest()->paginate(20)->withQueryString();
+
+        return view('admin.contacts.index', compact('messages'));
+    }
+
+    public function markContactAsRead($id)
+    {
+        $message = \App\Models\ContactMessage::findOrFail($id);
+        $message->update(['status' => 'read']);
+
+        return back()->with('success', 'Pesan kontak berhasil ditandai sebagai dibaca.');
+    }
+
+    public function destroyContact($id)
+    {
+        $message = \App\Models\ContactMessage::findOrFail($id);
+        $message->delete();
+
+        return back()->with('success', 'Pesan kontak berhasil dihapus.');
+    }
 }
+

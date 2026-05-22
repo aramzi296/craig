@@ -115,6 +115,12 @@ class User extends Authenticatable
     public function getProfilePhoto()
     {
         if ($this->profile_photo) {
+            if (filter_var($this->profile_photo, FILTER_VALIDATE_URL)) {
+                return $this->profile_photo;
+            }
+            if (str_starts_with($this->profile_photo, 'foto_profil/')) {
+                return asset($this->profile_photo);
+            }
             return asset('storage/' . ltrim($this->profile_photo, '/'));
         }
 

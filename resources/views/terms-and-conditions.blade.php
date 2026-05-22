@@ -4,17 +4,15 @@
 
 @section('content')
 <div class="legal-page">
-    <!-- Compact Hero -->
-    <section class="hero" style="background: linear-gradient(rgba(219, 234, 254, 0.7), rgba(219, 234, 254, 0.7)), url('{{ asset('batam-hero.jpg') }}') no-repeat center center; background-size: cover; border-bottom: 1px solid #e5e7eb; padding: 60px 0;">
-        <div class="container" style="max-width: 800px; text-align: center;">
-            <h1 style="font-size: 2.5rem; font-weight: 800; color: #111827; margin-bottom: 10px; letter-spacing: -0.02em;">Syarat & Ketentuan</h1>
-            <p style="font-size: 0.95rem; color: #64748b; font-weight: 600;">Terakhir Diperbarui: 30 Maret 2026</p>
-        </div>
-    </section>
+    <!-- Header Title -->
+    <div class="container" style="max-width: 900px; padding-top: 40px; margin-bottom: 0;">
+        <h1 style="font-size: 2.2rem; font-weight: 800; color: #111827; margin-bottom: 6px;">Syarat & Ketentuan</h1>
+        <p style="font-size: 0.9rem; color: #64748b; font-weight: 600; margin-bottom: 0;">Terakhir Diperbarui: 30 Maret 2026</p>
+    </div>
 
     <!-- Content Section -->
     <section class="legal-section" style="padding: 50px 0; background: #ffffff;">
-        <div class="container" style="max-width: 800px;">
+        <div class="container" style="max-width: 900px;">
             <div style="background: white; padding: 0;">
                 <div class="prose" style="color: #334155; line-height: 1.6;">
                     <p style="font-size: 1rem; color: #475569; margin-bottom: 30px;">
@@ -67,6 +65,19 @@
                         </div>
                     </div>
 
+                    <div style="margin-bottom: 35px;">
+                        <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: var(--primary); color: white; width: 25px; height: 25px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">4</span>
+                            Informasi Publik & Privasi
+                        </h2>
+                        <p style="font-size: 0.95rem; margin-bottom: 10px;">
+                            Harap diperhatikan bahwa seluruh informasi yang Anda berikan saat memasang iklan, baik berupa <strong>nomor telepon/WhatsApp, email, deskripsi/keterangan, tautan (link), maupun foto-foto</strong>, merupakan informasi yang memang Anda inginkan agar diketahui oleh publik.
+                        </p>
+                        <p style="font-size: 0.95rem; color: #e53e3e; font-weight: 700;">
+                            Jika Anda tidak ingin informasi pribadi atau data tertentu dilihat dan diakses oleh publik, maka jangan memasukkan, mendaftarkan, atau mempublikasikannya ke dalam website ini.
+                        </p>
+                    </div>
+
                     <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 40px 0;">
 
                     <div style="text-align: center; background: #f8fafc; padding: 35px; border-radius: 12px; border: 1px solid #f1f5f9;">
@@ -81,4 +92,3 @@
     </section>
 </div>
 @endsection
-

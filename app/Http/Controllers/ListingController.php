@@ -18,10 +18,17 @@ class ListingController extends Controller
 
     public function create()
     {
-        $categories = \App\Models\Tag::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->whereRaw('is_approved = true')->orderBy('sort_order');
+            }])
+            ->whereRaw('is_approved = true')
+            ->orderBy('sort_order')
+            ->get();
 
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
+        $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
+        $tags = \App\Models\Tag::orderBy('sort_order')->get();
         
         $layout = auth()->check() ? 'layouts.dashboard' : 'layouts.app';
         $section = auth()->check() ? 'dashboard_content' : 'content';
@@ -34,7 +41,7 @@ class ListingController extends Controller
                 ->first();
         }
 
-        return view('listings.create', compact('categories', 'listingTypes', 'districts', 'layout', 'section', 'premiumRequest'));
+        return view('listings.create', compact('categories', 'districts', 'subdistricts', 'tags', 'layout', 'section', 'premiumRequest'));
     }
 
     public function store(\Illuminate\Http\Request $request)
@@ -43,25 +50,25 @@ class ListingController extends Controller
         $descLimit = $isPremium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100);
 
         $rules = [
+            'category_id' => 'required|exists:categories,id',
             'tags' => 'nullable|string',
-            'listing_type_id' => 'nullable|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => "required|string|max:{$descLimit}",
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'subdistrict_id' => 'required|exists:subdistricts,id',
+            'address' => 'required|string|max:255',
             'foto_fitur' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
-            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
             'ad_package' => 'required|in:standard,premium',
         ];
 
-        // ADD OTP and WhatsApp validation ONLY for guests
+        // ADD WhatsApp validation ONLY for guests
         if (!auth()->check()) {
             $rules['whatsapp_number'] = 'required|string';
-            $rules['otp'] = 'required|digits:6';
         }
 
         $data = $request->validate($rules, [
@@ -73,46 +80,38 @@ class ListingController extends Controller
             'galeri.*.max' => 'Ukuran setiap foto galeri tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
         ]);
 
-        if (!$request->filled('listing_type_id')) {
-            $defaultType = \App\Models\ListingType::where('slug', 'lainnya')->first() ?: \App\Models\ListingType::first();
-            $data['listing_type_id'] = $defaultType?->id;
-        }
-
+        $isGuest = false;
         if (!auth()->check()) {
-            // ── Verify OTP ──────────────────────────────────────────────────────
             $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['whatsapp_number']);
-            $otp = $data['otp'];
-            $lookup = hash('sha256', $otp);
-
-            $user = \App\Models\User::where('whatsapp', $whatsapp)
-                ->where('wa_otp1_lookup', $lookup)
-                ->first();
-
-            if (!$user || ! \Illuminate\Support\Facades\Hash::check($otp, $user->wa_otp1)) {
-                return back()->withErrors(['otp' => 'Kode OTP tidak valid.'])->withInput();
+            if (!$whatsapp) {
+                return back()->withErrors(['whatsapp_number' => 'Nomor WhatsApp tidak valid.'])->withInput();
             }
 
-            if ($user->wa_otp1_expires_at->isPast()) {
-                return back()->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa.'])->withInput();
+            $user = \App\Models\User::where('whatsapp', $whatsapp)->first();
+
+            if (!$user) {
+                // Register new user automatically
+                $randomSuffix = rand(100, 999);
+                $email = $whatsapp . '+' . $randomSuffix . '@sebatam.com';
+                $password = \Illuminate\Support\Str::random(10);
+                
+                $user = \App\Models\User::create([
+                    'name'      => 'user-' . rand(100000, 999999),
+                    'whatsapp'  => $whatsapp,
+                    'email'     => $email,
+                    'password'  => \Illuminate\Support\Facades\Hash::make($password),
+                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+                ]);
             }
 
-            // OTP is valid! Associate listing with this user.
+            // Associate listing with this user.
             $data['user_id'] = $user->id;
-            
-            // Login user
-            auth()->login($user, true);
-
-            // Clear OTP
-            $user->update([
-                'wa_otp1' => null,
-                'wa_otp1_lookup' => null,
-                'wa_otp1_expires_at' => null,
-            ]);
+            $isGuest = true;
         } else {
-            $data['user_id'] = auth()->id();
+            $user = auth()->user();
+            $data['user_id'] = $user->id;
         }
 
-        $user = auth()->user();
         $isPremiumPackage = false; // Premium dinonaktifkan sementara — semua iklan adalah standar gratis
         
         // Cek kuota slot iklan gratis
@@ -121,8 +120,16 @@ class ListingController extends Controller
         }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
-        $data['is_active'] = \DB::raw('true');
+        
+        if ($isGuest) {
+            $data['is_active'] = \DB::raw('false');
+            $data['activation_code'] = (string) random_int(10000, 99999);
+        } else {
+            $data['is_active'] = \DB::raw('true');
+        }
+
         $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
+        $data['whatsapp_visibility'] = 2;
         if ($isPremiumPackage) {
             $data['is_premium'] = \DB::raw('true');
         }
@@ -184,6 +191,9 @@ class ListingController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        if ($request->filled('category_id')) {
+            $listing->categories()->sync([$request->category_id]);
+        }
         $listing->updateSearchableField();
 
         // Link to existing premium request if provided
@@ -210,18 +220,34 @@ class ListingController extends Controller
             }
         }
 
+        if ($isGuest) {
+            $layout = 'layouts.app';
+            $section = 'content';
+            $otp = $listing->activation_code;
+            $whatsapp = $user->whatsapp;
+            $botNumber = config('services.whatsapp.bot_number', '6282172292230');
+            return view('listings.activation', compact('listing', 'otp', 'whatsapp', 'botNumber', 'layout', 'section'));
+        }
+
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil dikirim dan ditayangkan.');
     }
 
     public function edit($id)
     {
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
-        $categories = \App\Models\Tag::whereRaw('is_approved = true')->orderBy('sort_order')->get();
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->whereRaw('is_approved = true')->orderBy('sort_order');
+            }])
+            ->whereRaw('is_approved = true')
+            ->orderBy('sort_order')
+            ->get();
 
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
+        $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
+        $tags = \App\Models\Tag::orderBy('sort_order')->get();
 
-        return view('listings.edit', compact('listing', 'categories', 'listingTypes', 'districts'));
+        return view('listings.edit', compact('listing', 'categories', 'districts', 'subdistricts', 'tags'));
     }
 
     public function update(\Illuminate\Http\Request $request, $id)
@@ -229,16 +255,17 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
 
         $data = $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'tags' => 'nullable|string',
-            'listing_type_id' => 'nullable|exists:listing_types,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . ($listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100)),
             'price' => 'nullable|numeric',
             'district_id' => 'required|exists:districts,id',
+            'subdistrict_id' => 'required|exists:subdistricts,id',
+            'address' => 'required|string|max:255',
             'foto_fitur' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
-            'whatsapp_visibility' => 'nullable|integer|in:0,1,2',
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
         ], [
@@ -337,6 +364,9 @@ class ListingController extends Controller
         }
 
         $listing->tags()->sync($tagIds);
+        if ($request->filled('category_id')) {
+            $listing->categories()->sync([$request->category_id]);
+        }
         $listing->updateSearchableField();
 
         return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil diperbarui.');
@@ -421,5 +451,47 @@ class ListingController extends Controller
         $url = "https://wa.me/{$adminWa}?text=" . urlencode($message);
 
         return redirect()->away($url);
+    }
+
+    public function report(\Illuminate\Http\Request $request, $id)
+    {
+        $listing = \App\Models\Listing::findOrFail($id);
+
+        $rules = [
+            'reason' => 'required|string|in:Penipuan,Spam / Duplikat,Konten Tidak Layak,Usaha Sudah Tutup,Lainnya',
+            'description' => 'nullable|string|max:1000',
+        ];
+
+        if (!auth()->check()) {
+            $rules['reporter_whatsapp'] = 'required|string|max:20';
+        }
+
+        $data = $request->validate($rules, [
+            'reason.required' => 'Alasan wajib dipilih.',
+            'reason.in' => 'Alasan tidak valid.',
+            'reporter_whatsapp.required' => 'Nomor WhatsApp wajib diisi.',
+        ]);
+
+        $reportData = [
+            'listing_id' => $listing->id,
+            'user_id' => auth()->id(),
+            'reason' => $data['reason'],
+            'description' => $data['description'] ?? null,
+            'status' => 'pending',
+        ];
+
+        if (!auth()->check()) {
+            $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['reporter_whatsapp']);
+            if (!$whatsapp) {
+                return back()->withErrors(['reporter_whatsapp' => 'Nomor WhatsApp tidak valid.'])->withInput();
+            }
+            $reportData['reporter_whatsapp'] = $whatsapp;
+        } else {
+            $reportData['reporter_whatsapp'] = auth()->user()->whatsapp;
+        }
+
+        \App\Models\ListingReport::create($reportData);
+
+        return back()->with('success', 'Laporan Anda berhasil dikirim dan akan segera ditinjau oleh Admin. Terima kasih!');
     }
 }

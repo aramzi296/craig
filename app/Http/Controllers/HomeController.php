@@ -16,11 +16,20 @@ class HomeController extends Controller
         }
 
         if ($request->filled('category')) {
-            $tag = \App\Models\Tag::where('slug', $request->category)->first();
-            if ($tag) {
-                $query->whereHas('tags', function($q) use ($tag) {
-                    $q->where('tags.id', $tag->id);
-                });
+            $category = \App\Models\Category::where('slug', $request->category)->first();
+            if ($category) {
+                if ($category->parent_id === null) {
+                    // Kategori Utama: ambil semua sub kategori di bawahnya
+                    $subCategoryIds = $category->children()->pluck('id')->push($category->id);
+                    $query->whereHas('categories', function($q) use ($subCategoryIds) {
+                        $q->whereIn('categories.id', $subCategoryIds);
+                    });
+                } else {
+                    // Sub Kategori spesifik
+                    $query->whereHas('categories', function($q) use ($category) {
+                        $q->where('categories.id', $category->id);
+                    });
+                }
             }
         }
 
@@ -43,30 +52,6 @@ class HomeController extends Controller
         return view('home', compact('recentListings'));
     }
 
-
-    public function listing(Request $request)
-    {
-        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
-
-        if ($request->filled('q')) {
-            $query->search($request->q);
-        }
-
-        $selectedType = null;
-        if ($request->filled('type')) {
-            $selectedType = \App\Models\ListingType::find($request->type);
-            if ($selectedType) {
-                $query->where('listing_type_id', $selectedType->id);
-            }
-        }
-
-        $listings = $query->with('district')
-            ->withCount('photos')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-
-        return view('listings.listing', compact('listings', 'selectedType'));
-    }
 
     public function show($slug)
     {
@@ -96,7 +81,7 @@ class HomeController extends Controller
 
         $code = request()->query('code');
 
-        $query = \App\Models\Listing::with(['tags', 'listingType', 'photos', 'user', 'comments.user', 'district'])
+        $query = \App\Models\Listing::with(['categories.parent', 'tags', 'photos', 'user', 'comments.user', 'district'])
             ->withCount('views')
             ->where('slug', $slug);
 
@@ -108,9 +93,9 @@ class HomeController extends Controller
 
         $listing = $query->firstOrFail();
 
-        $relatedListings = \App\Models\Listing::with(['tags', 'listingType'])
-            ->whereHas('tags', function($q) use ($listing) {
-                $q->whereIn('tags.id', $listing->tags->pluck('id'));
+        $relatedListings = \App\Models\Listing::with(['categories', 'tags'])
+            ->whereHas('categories', function($q) use ($listing) {
+                $q->whereIn('categories.id', $listing->categories->pluck('id'));
             })
             ->where('id', '!=', $listing->id)
             ->whereRaw('is_active = true')
@@ -119,7 +104,7 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
-        $sidebarPremiumListings = \App\Models\Listing::with(['tags', 'listingType'])
+        $sidebarPremiumListings = \App\Models\Listing::with(['categories', 'tags'])
             ->whereRaw('is_premium = true')
             ->whereRaw('is_active = true')
             ->notExpired()
@@ -131,9 +116,31 @@ class HomeController extends Controller
         return view('listings.show', compact('listing', 'relatedListings', 'sidebarPremiumListings'));
     }
 
+    public function categoriesDirectory()
+    {
+        $categories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->whereRaw('is_approved = true')
+                  ->withCount(['listings' => function($query) {
+                      $query->whereRaw('is_active = true')->notExpired();
+                  }])
+                  ->orderBy('sort_order');
+            }])
+            ->whereRaw('is_approved = true')
+            ->orderBy('sort_order')
+            ->get();
+
+        return view('categories.directory', compact('categories'));
+    }
+
     public function categories()
     {
-        $categories = \App\Models\Tag::whereRaw('is_approved = true')->orderBy('name')->get();
+        $categories = \App\Models\Tag::whereRaw('is_approved = true')
+            ->whereHas('listings', function($q) {
+                $q->whereRaw('is_active = true')->notExpired();
+            })
+            ->orderBy('name')
+            ->get();
         return view('categories.index', compact('categories'));
     }
 
@@ -150,18 +157,17 @@ class HomeController extends Controller
             ->orderBy('listing_rank', 'asc')
             ->paginate(24);
             
-        $categories = \App\Models\Tag::whereRaw('is_approved = true')
+        $categories = \App\Models\Category::whereRaw('is_approved = true')
+            ->whereNotNull('parent_id')
             ->whereHas('listings', function($q) use ($id) {
                 $q->where('user_id', $id)->whereRaw('is_active = true')->notExpired();
             })->orderBy('name')->get();
             
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
         $districts = \App\Models\District::orderBy('name')->get();
 
         return view('listings.search', [
             'listings' => $listings,
             'categories' => $categories,
-            'listingTypes' => $listingTypes,
             'districts' => $districts,
             'user' => $user,
             'isUserPage' => true
@@ -170,8 +176,7 @@ class HomeController extends Controller
 
     public function tentang()
     {
-        $listingTypes = \App\Models\ListingType::orderBy('sort_order')->get();
-        return view('tentang', compact('listingTypes'));
+        return view('tentang');
     }
 
     public function submitContact(Request $request, \App\Services\WhatsappService $whatsappService)
@@ -182,19 +187,26 @@ class HomeController extends Controller
             'message' => 'required|string',
         ]);
 
+        $whatsapp = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']) ?? $data['whatsapp'];
+
+        // Save to database
+        \App\Models\ContactMessage::create([
+            'name' => $data['name'],
+            'whatsapp' => $whatsapp,
+            'message' => $data['message'],
+            'status' => 'unread',
+        ]);
+
         $adminNumber2 = config('services.whatsapp.admin_number_2');
         
         $text = "*PESAN KONTAK BARU*\n\n";
         $text .= "*Nama:* " . $data['name'] . "\n";
-        $text .= "*WA:* " . $data['whatsapp'] . "\n";
+        $text .= "*WA:* " . $whatsapp . "\n";
         $text .= "*Pesan:* " . $data['message'];
 
-        $response = $whatsappService->sendMessage($adminNumber2, $text);
+        // Send WhatsApp notification as a best-effort background action
+        $whatsappService->sendMessage($adminNumber2, $text);
 
-        if ($response) {
-            return back()->with('success', 'Pesan Anda berhasil dikirim ke Admin. Kami akan segera menghubungi Anda.');
-        }
-
-        return back()->with('error', 'Gagal mengirim pesan. Silakan coba hubungi kami langsung via WhatsApp.');
+        return back()->with('success', 'Pesan Anda berhasil dikirim dan disimpan. Terima kasih telah menghubungi kami!');
     }
 }

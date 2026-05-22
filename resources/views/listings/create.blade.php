@@ -2,11 +2,36 @@
 
 @section($section)
     <div style="margin-bottom: 40px; text-align: center;">
-        <h1 style="font-size: 2.5rem; font-weight: 700;">Pasang Iklan Baru</h1>
-        <p style="color: var(--text-muted);">Bagikan apa yang Anda tawarkan/umumkan ke seluruh komunitas di Batam.</p>
+        <h1 style="font-size: 2.5rem; font-weight: 700;">Formulir Pendaftaran Usaha Sebatam</h1>
+        <p style="color: var(--text-muted);">Daftarkan usaha Anda di platform Sebatam.com untuk menjangkau seluruh komunitas di Batam.</p>
     </div>
 
     <div class="form-card" style="margin: 0 auto;">
+        @if ($errors->any())
+            <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 20px; border-radius: 12px; margin-bottom: 30px; display: flex; gap: 15px; align-items: flex-start; animation: slideUp 0.4s ease-out;">
+                <div style="font-size: 1.5rem; line-height: 1; color: #ef4444;"><i class="fa-solid fa-circle-exclamation"></i></div>
+                <div>
+                    <p style="font-weight: 700; margin: 0 0 8px 0; font-size: 1.05rem;">Pendaftaran Gagal Disimpan:</p>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9rem; line-height: 1.6; color: #7f1d1d;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+        @guest
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 18px; border-radius: 12px; margin-bottom: 30px; display: flex; gap: 15px; align-items: flex-start; line-height: 1.5;">
+            <div style="font-size: 1.4rem; color: #3b82f6; line-height: 1;"><i class="fa-solid fa-circle-info"></i></div>
+            <div>
+                <p style="font-weight: 700; margin: 0 0 4px 0; font-size: 0.95rem;">Informasi Aktivasi Usaha</p>
+                <p style="margin: 0; font-size: 0.88rem; color: #1e3a8a;">
+                    Setelah selesai menyimpan data, Anda akan langsung diberikan <strong>Kode Aktivasi (nomor unik)</strong> untuk menerbitkan iklan usaha Anda. <strong>Mohon jangan lupakan nomor tersebut</strong> agar iklan Anda dapat diaktifkan melalui WhatsApp Bot kami.
+                </p>
+            </div>
+        </div>
+        @endguest
+
         <form action="{{ route('listings.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
@@ -121,69 +146,89 @@
             </script>
 
             <div class="form-group-horizontal">
-                <label for="listing_type_id">Tipe Iklan</label>
+                <label for="parent_category_id">Kategori Utama</label>
                 <div class="form-input-side">
-                    <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
-                        <option value="">Pilih Tipe Iklan</option>
-                        @foreach($listingTypes as $type)
-                            <option value="{{ $type->id }}" {{ old('listing_type_id') == $type->id ? 'selected' : '' }} data-description="{{ $type->keterangan }}">
-                                {{ $type->name }}
-                            </option>
+                    <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;" required>
+                        <option value="">Pilih Kategori Utama</option>
+                        @foreach($categories as $cat)
+                            <option value="{{ $cat->id }}" {{ old('parent_category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                         @endforeach
                     </select>
-                    <div id="listing_type_description" style="margin-top: 8px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; display: none; background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 3px solid var(--primary);">
-                        {{-- Akan diisi via JS --}}
-                    </div>
-                    @error('listing_type_id')
-                        <div class="invalid-feedback">{{ $message }}</div>
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label for="category_id">Sub Kategori</label>
+                <div class="form-input-side">
+                    <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" required disabled>
+                        <option value="">Pilih Sub Kategori</option>
+                    </select>
+                    <small style="color: var(--text-muted); display: block; margin-top: 5px;">Pilih Kategori Utama terlebih dahulu untuk memunculkan Sub Kategori.</small>
+                    @error('category_id')
+                        <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const typeSelect = document.getElementById('listing_type_id');
-                    const typeDesc = document.getElementById('listing_type_description');
+                    const parentSelect = document.getElementById('parent_category_id');
+                    const childSelect = document.getElementById('category_id');
+                    const categoryTree = @json($categories);
 
-                    function updateTypeDescription() {
-                        if (!typeSelect || !typeDesc) return;
-                        const selectedOption = typeSelect.options[typeSelect.selectedIndex];
-                        const description = selectedOption ? selectedOption.getAttribute('data-description') : '';
-                        
-                        if (description && description.trim() !== '') {
-                            typeDesc.innerHTML = description;
-                            typeDesc.style.display = 'block';
+                    function updateChildCategories(selectedParentId, selectedChildId = null) {
+                        childSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+                        if (!selectedParentId) {
+                            childSelect.disabled = true;
+                            return;
+                        }
+
+                        const parentCat = categoryTree.find(c => c.id == selectedParentId);
+                        if (parentCat && parentCat.children && parentCat.children.length > 0) {
+                            parentCat.children.forEach(child => {
+                                const opt = document.createElement('option');
+                                opt.value = child.id;
+                                opt.textContent = child.name;
+                                if (selectedChildId && child.id == selectedChildId) {
+                                    opt.selected = true;
+                                }
+                                childSelect.appendChild(opt);
+                            });
+                            childSelect.disabled = false;
                         } else {
-                            typeDesc.style.display = 'none';
+                            childSelect.disabled = true;
                         }
                     }
 
-                    if (typeSelect) {
-                        typeSelect.addEventListener('change', updateTypeDescription);
-                        updateTypeDescription(); // Initial call
+                    if (parentSelect && childSelect) {
+                        parentSelect.addEventListener('change', function() {
+                            updateChildCategories(this.value);
+                        });
+
+                        // Populate on old/initial value if present
+                        const oldParentId = "{{ old('parent_category_id') }}";
+                        const oldChildId = "{{ old('category_id') }}";
+                        if (oldParentId) {
+                            updateChildCategories(oldParentId, oldChildId);
+                        }
                     }
                 });
             </script>
 
             <div class="form-group-horizontal" style="margin-top: 25px;">
-                <label for="title">Judul</label>
+                <label for="title">Nama Usaha (boleh nama pribadi)</label>
                 <div class="form-input-side">
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Honda Vario 2022 Mulus" required>
+                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Bengkel Motor Berkah Jaya" required>
                     @error('title')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
-                    <div style="margin-top: 8px;">
-                        <a href="#" onclick="document.getElementById('modalContohJudul').style.display='flex'; return false;" style="font-size: 0.82rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
-                            <i class="fa-solid fa-lightbulb"></i> Lihat contoh judul iklan
-                        </a>
-                    </div>
                 </div>
             </div>
 
             <div class="form-group-horizontal">
-                <label for="description">Konten</label>
+                <label for="description">Keterangan Usaha</label>
                 <div class="form-input-side">
-                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Isikan detail dari apa yang Anda iklankan/umumkan." required maxlength="{{ get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
+                    <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan mengenai usaha Anda, produk/jasa yang ditawarkan, jam operasional, dll." required maxlength="{{ get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description') }}</textarea>
                     <small class="text-muted">Maksimal {{ get_setting('huruf_deskripsi_iklan', 100) }} huruf.</small>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
@@ -191,16 +236,7 @@
                 </div>
             </div>
 
-            <div class="form-group-horizontal">
-                <label for="price">Harga (Opsional)</label>
-                <div class="form-input-side">
-                    <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price') }}" placeholder="Contoh: 500000 (kosongkan jika tidak ada)">
-                    <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
-                    @error('price')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
+
 
             <div class="form-group-horizontal">
                 <label for="foto_fitur">Foto Fitur</label>
@@ -233,10 +269,10 @@
 
 
             <div class="form-group-horizontal">
-                <label for="district_id">Lokasi di Batam</label>
+                <label for="district_id">Kecamatan</label>
                 <div class="form-input-side">
                     <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
-                        <option value="">Pilih Lokasi</option>
+                        <option value="">Pilih Kecamatan</option>
                         @foreach($districts as $dist)
                             <option value="{{ $dist->id }}" {{ old('district_id') == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                         @endforeach
@@ -248,21 +284,29 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
+                <label for="subdistrict_id">Kelurahan</label>
                 <div class="form-input-side">
-                    <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control @error('whatsapp_visibility') is-invalid @enderror">
-                        <option value="2" {{ old('whatsapp_visibility', 2) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
-                        <option value="1" {{ old('whatsapp_visibility') == '1' ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
-                        <option value="0" {{ old('whatsapp_visibility') == '0' ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
+                    <select name="subdistrict_id" id="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror" required>
+                        <option value="">Pilih Kelurahan</option>
                     </select>
-                    @error('whatsapp_visibility')
+                    @error('subdistrict_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
             </div>
 
             <div class="form-group-horizontal">
-                <label>#Hashtag</label>
+                <label for="address">Alamat Lengkap</label>
+                <div class="form-input-side">
+                    <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="Contoh: Jl. Sudirman No. 12, Ruko Citra Mas" value="{{ old('address') }}" required>
+                    @error('address')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
+                <label>#Tagar</label>
                 <div class="form-input-side">
                     <!-- Added Tagify CSS -->
                     <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
@@ -312,7 +356,7 @@
                     <script>
                         document.addEventListener('DOMContentLoaded', function() {
                             const input = document.querySelector('#tags-tagify');
-                            const whitelist = @json($categories->pluck('name'));
+                            const whitelist = @json($tags->pluck('name'));
                             
                             window.tagifyInstance = new Tagify(input, {
                                 whitelist: whitelist,
@@ -341,9 +385,9 @@
 
             @guest
             <div style="background: var(--primary-light, #f0f9ff); padding: 25px; border-radius: 12px; border: 1px solid var(--primary); margin: 30px 0;">
-                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Nomor WA dan Verifikasi</h3>
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 10px; color: var(--primary-dark);"><i class="fa-solid fa-shield-check"></i> Nomor WA untuk Aktivasi</h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
-                    Anda bisa mengedit postingan ini nantinya dengan login ke dasbor member menggunakan nomor WA Anda.
+                    Nomor WhatsApp ini digunakan untuk mengirimkan kode aktivasi dan login ke dasbor member di masa depan.
                 </p>
 
                 <div class="form-group-horizontal">
@@ -351,23 +395,6 @@
                     <div class="form-input-side">
                         <input type="text" name="whatsapp_number" id="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" value="{{ old('whatsapp_number') }}" placeholder="Contoh: 0812xxxx (tanpa spasi)" required>
                         @error('whatsapp_number')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-
-                <div class="form-group-horizontal">
-                    <label for="otp">Kode OTP</label>
-                    <div class="form-input-side">
-                        <input type="text" name="otp" id="otp" class="form-control @error('otp') is-invalid @enderror" placeholder="6 digit kode OTP" required>
-                        <small style="color: var(--text-muted); display: block; margin-top: 8px; line-height: 1.5;">
-                            Kirim pesan <strong style="color: var(--primary);">OTP</strong> ke nomor WhatsApp bot admin kami untuk mendapatkan kode.
-                            <br>
-                            <a href="https://wa.me/{{ config('services.whatsapp.bot_number') }}?text=OTP" target="_blank" style="color: var(--primary); font-weight: 600; text-decoration: none;">
-                                <i class="fa-brands fa-whatsapp"></i> Chat Bot: {{ config('services.whatsapp.bot_number') }} (ketik OTP)
-                            </a>
-                        </small>
-                        @error('otp')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
@@ -381,79 +408,39 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const districtSelect = document.getElementById('district_id');
+            const subdistrictSelect = document.getElementById('subdistrict_id');
+            const subdistricts = @json($subdistricts);
+            const oldSubdistrictId = "{{ old('subdistrict_id') }}";
+
+            function populateSubdistricts() {
+                const districtId = districtSelect.value;
+                subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+
+                if (districtId) {
+                    const filtered = subdistricts.filter(sub => sub.district_id == districtId);
+                    filtered.forEach(sub => {
+                        const opt = document.createElement('option');
+                        opt.value = sub.id;
+                        opt.textContent = sub.name;
+                        if (oldSubdistrictId && oldSubdistrictId == sub.id) {
+                            opt.selected = true;
+                        }
+                        subdistrictSelect.appendChild(opt);
+                    });
+                }
+            }
+
+            districtSelect.addEventListener('change', populateSubdistricts);
+
+            // Populate on load if old value exists
+            if (districtSelect.value) {
+                populateSubdistricts();
+            }
+        });
+    </script>
 @endsection
 
-@section('scripts')
-
-<style>
-@keyframes modalIn {
-    from { opacity:0; transform:translateY(-16px) scale(.97); }
-    to   { opacity:1; transform:translateY(0) scale(1); }
-}
-</style>
-
-<script>
-
-function setJudul(text) {
-    const titleInput = document.getElementById('title');
-    if (titleInput) {
-        titleInput.value = text;
-        titleInput.focus();
-    }
-    document.getElementById('modalContohJudul').style.display = 'none';
-}
-</script>
-
-{{-- ===== Modal Contoh Judul ===== --}}
-<div id="modalContohJudul" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this) this.style.display='none'">
-    <div style="background:var(--surface, #fff); border-radius:16px; max-width:600px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: modalIn .2s ease;">
-        <!-- Header -->
-        <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:10;">
-            <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-lightbulb" style="color:#f59e0b; margin-right:8px;"></i>Contoh Judul Iklan</h3>
-            <button onclick="document.getElementById('modalContohJudul').style.display='none'" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.5rem;">&times;</button>
-        </div>
-        <!-- Body -->
-        <div style="padding:20px 24px;">
-            <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">Klik pada contoh untuk menggunakan judul tersebut.</p>
-            
-            <div style="display:flex; flex-direction:column; gap:24px;">
-                <!-- Kategori Kendaraan -->
-                <section>
-                    <h4 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:12px; border-bottom:2px solid var(--primary)22; padding-bottom:5px;">Kendaraan</h4>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div onclick="setJudul('Honda Vario 150 2022 Mulus Pajak Hidup')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Honda Vario 150 2022 Mulus Pajak Hidup</div>
-                        <div onclick="setJudul('Toyota Avanza G 2018 Manual Putih Batam Kota')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Toyota Avanza G 2018 Manual Putih Batam Kota</div>
-                    </div>
-                </section>
-
-                <!-- Kategori Elektronik -->
-                <section>
-                    <h4 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:12px; border-bottom:2px solid var(--primary)22; padding-bottom:5px;">Elektronik</h4>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div onclick="setJudul('iPhone 13 Pro 256GB Graphite Fullset iBox')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">iPhone 13 Pro 256GB Graphite Fullset iBox</div>
-                        <div onclick="setJudul('MacBook Air M1 2020 Space Gray Like New')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">MacBook Air M1 2020 Space Gray Like New</div>
-                    </div>
-                </section>
-
-                <!-- Kategori Properti -->
-                <section>
-                    <h4 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:12px; border-bottom:2px solid var(--primary)22; padding-bottom:5px;">Properti</h4>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div onclick="setJudul('Disewakan Rumah 3KT di Orchid Park Batam Centre')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Disewakan Rumah 3KT di Orchid Park Batam Centre</div>
-                        <div onclick="setJudul('Dijual Tanah Kavling 200m2 Hook Baloi View')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Dijual Tanah Kavling 200m2 Hook Baloi View</div>
-                    </div>
-                </section>
-
-                <!-- Lowongan Kerja -->
-                <section>
-                    <h4 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.05em; color:var(--primary); margin-bottom:12px; border-bottom:2px solid var(--primary)22; padding-bottom:5px;">Lowongan / Jasa</h4>
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <div onclick="setJudul('Lowongan Admin Toko Wanita Berpengalaman - Nagoya')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Lowongan Admin Toko Wanita Berpengalaman - Nagoya</div>
-                        <div onclick="setJudul('Jasa Service AC Panggilan Bergaransi Batam')" style="padding:10px 15px; background:#f8fafc; border-radius:8px; font-size:0.9rem; cursor:pointer; border:1px solid transparent; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#fff';" onmouseout="this.style.borderColor='transparent'; this.style.background='#f8fafc';">Jasa Service AC Panggilan Bergaransi Batam</div>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
-</div>
-@endsection

@@ -19,7 +19,7 @@
             </li>
             <li class="sidebar-item">
                 <a href="{{ route('admin.categories') }}" class="sidebar-link {{ request()->routeIs('admin.categories') ? 'active' : '' }}">
-                    <i class="fa-solid fa-tags"></i> #Hashtag
+                    <i class="fa-solid fa-tags"></i> Kelola Kategori
                 </a>
             </li>
             <li class="sidebar-item">
@@ -28,10 +28,16 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a href="{{ route('admin.listing_types') }}" class="sidebar-link {{ request()->routeIs('admin.listing_types') ? 'active' : '' }}">
-                    <i class="fa-solid fa-layer-group"></i> Tipe Listing
+                <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Laporan Iklan
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.contacts') }}" class="sidebar-link {{ request()->routeIs('admin.contacts*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-envelope-open-text"></i> Pesan Masuk
+                </a>
+            </li>
+
             <hr style="border: none; border-top: 1px solid var(--border); margin: 10px 0;">
             <li class="sidebar-item">
                 <a href="{{ route('admin.premium_packages') }}" class="sidebar-link {{ request()->routeIs('admin.premium_packages*') ? 'active' : '' }}">

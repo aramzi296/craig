@@ -22,18 +22,6 @@
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul, deskripsi, atau lokasi..." class="form-control" style="padding: 10px 15px;">
         </div>
         
-        <div style="width: 200px;">
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Tipe Listing</label>
-            <select name="listing_type_id" class="form-control" style="padding: 10px 15px;">
-                <option value="">Semua Tipe</option>
-                @foreach($listingTypes as $type)
-                    <option value="{{ $type->id }}" {{ request('listing_type_id') == $type->id ? 'selected' : '' }}>
-                        {{ $type->name }}
-                    </option>
-                @endforeach
-            </select>
-        </div>
-
         <div style="width: 150px;">
             <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Status</label>
             <select name="status" class="form-control" style="padding: 10px 15px;">
@@ -56,8 +44,7 @@
             <tr>
                 <th>Iklan</th>
                 <th>Pemilik</th>
-                <th>Tipe / Kategori</th>
-                <th>Harga</th>
+                <th>Kategori</th>
                 <th style="text-align:center;">Rank</th>
                 <th style="text-align:center;">Expire</th>
                 <th>Status</th>
@@ -78,18 +65,19 @@
                 </td>
                 <td>{{ $listing->user->name }}</td>
                 <td>
-                    <div style="font-weight: 600;">{{ $listing->listingType->name ?? '-' }}</div>
-                    <div style="font-size: 0.75rem; color: var(--text-muted);">
-                        {{ $listing->tags->pluck('name')->join(', ') }}
-                    </div>
-                </td>
-                <td>
-                    @if($listing->price && $listing->price > 0)
-                        Rp {{ number_format($listing->price, 0, ',', '.') }}
-                    @else
-                        -
+                    @php
+                        $cat = $listing->categories->first();
+                        $parentCatName = $cat ? ($cat->parent ? $cat->parent->name : $cat->name) : '-';
+                        $subCatName = ($cat && $cat->parent) ? $cat->name : null;
+                    @endphp
+                    <div style="font-weight: 600;">{{ $parentCatName }}</div>
+                    @if($subCatName)
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            {{ $subCatName }}
+                        </div>
                     @endif
                 </td>
+
                 <td style="text-align:center;">
                     @php
                         $rank = $listing->listing_rank ?? 0;

@@ -364,8 +364,8 @@
         <div class="container">
             <div class="wa-alert-content" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; line-height: 1.4;">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem;"></i>
-                <span class="wa-text">Kirim pesan <strong>"lapak sebatam"</strong> ke <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 4px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a></span>
-                untuk pasang iklan di <strong>Sebatam.com</strong>.
+                <span class="wa-text">Kirim pesan <strong>"daftar"</strong> ke <a href="https://wa.me/{{ config('services.whatsapp.bot_number', '6282172292230') }}" style="color: white; text-decoration: underline; font-weight: 700; background: rgba(0,0,0,0.1); padding: 1px 6px; border-radius: 4px;">{{ config('services.whatsapp.bot_number', '6282172292230') }}</a></span>
+                untuk pasang profil usaha di <strong>Sebatam.com</strong>.
             </div>
         </div>
     </div>
@@ -379,57 +379,24 @@
                 </a>
             </div>
 
-            <!-- Desktop Navigation -->
+            <!-- Desktop Navigation: Kategori, Tagar, Usaha Saya, Masuk/Keluar -->
             <nav class="nav-desktop">
-                <a href="{{ route('listings.index') }}" class="{{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Lapak</a>
-                
-                <div class="nav-dropdown">
-                    <a href="#" class="nav-trigger {{ request('type') ? 'active' : '' }}">
-                        Tipe Lapak <i class="fa-solid fa-chevron-down"></i>
-                    </a>
-                    <div class="nav-menu">
-                        @foreach($globalListingTypes as $type)
-                            <a href="{{ route('listings.index', ['type' => $type->id]) }}" class="menu-item {{ request('type') == $type->id ? 'active' : '' }}">
-                                {{ $type->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-
-                <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
-                <a href="{{ route('contact') }}" class="{{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
-                <a href="{{ route('tentang') }}" class="{{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
+                <a href="{{ route('categories.directory') }}" class="{{ request()->routeIs('categories.directory') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Tagar</a>
+                <a href="{{ route('listings.create') }}" class="{{ request()->routeIs('listings.create') ? 'active' : '' }}">Daftarkan Usaha</a>
+                @guest
+                    <a href="{{ route('login') }}" class="{{ request()->routeIs('login') ? 'active' : '' }}">Masuk</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">Dasbor</a>
+                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Keluar</a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                @endguest
             </nav>
 
-            <!-- Actions / User Menu -->
+            <!-- Actions / User Menu (Mobile Toggle Only) -->
             <div class="nav-actions">
-                @guest
-                    <a href="{{ route('listings.create') }}" class="btn-post-desktop">Pasang Iklan</a>
-                    <a href="{{ route('login') }}" class="btn-login">Masuk</a>
-                @else
-                    <div class="user-dropdown">
-                        <div class="user-trigger">
-                            <img src="{{ auth()->user()->getProfilePhoto() }}" class="user-avatar">
-                            <span class="user-name">{{ auth()->user()->name }}</span>
-                            <i class="fa-solid fa-chevron-down"></i>
-                        </div>
-                        <div class="user-menu">
-                            <a href="{{ route('listings.create') }}" class="menu-item primary"><i class="fa-solid fa-plus-circle"></i> Pasang Iklan</a>
-                            <hr>
-                            <a href="{{ route('dashboard') }}" class="menu-item"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-                            <a href="{{ route('profile.edit') }}" class="menu-item"><i class="fa-solid fa-user-gear"></i> Profil Saya</a>
-                            @if(auth()->user()->is_admin)
-                                <a href="{{ route('admin.dashboard') }}" class="menu-item admin"><i class="fa-solid fa-user-shield"></i> Admin Site</a>
-                            @endif
-                            <hr>
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="menu-item logout"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
-                            </form>
-                        </div>
-                    </div>
-                @endguest
-
                 <!-- Mobile Toggle -->
                 <button class="mobile-toggle" id="mobileToggle">
                     <i class="fa-solid fa-bars"></i>
@@ -446,40 +413,18 @@
                 </button>
             </div>
             <div class="mobile-menu-body">
-                <a href="{{ route('listings.index') }}" class="mobile-link {{ (request()->routeIs('listings.index') && !request('type')) ? 'active' : '' }}">Lapak</a>
-                
-                <div class="mobile-section" style="padding: 10px 0;">
-                    <span class="section-label" style="margin-bottom: 5px;">Tipe Lapak</span>
-                    <div class="mobile-submenu">
-                        @foreach($globalListingTypes as $type)
-                            <a href="{{ route('listings.index', ['type' => $type->id]) }}" class="mobile-submenu-link {{ request('type') == $type->id ? 'active' : '' }}">
-                                <i class="fa-solid fa-angle-right" style="font-size: 0.7rem; margin-right: 5px;"></i> {{ $type->name }}
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-
-                <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">#Hashtag</a>
-                <a href="{{ route('contact') }}" class="mobile-link {{ request()->routeIs('contact') ? 'active' : '' }}">Kontak</a>
-                <a href="{{ route('tentang') }}" class="mobile-link {{ request()->routeIs('tentang') ? 'active' : '' }}">Tentang</a>
-                <hr>
-                @auth
-                    <div class="mobile-account-section">
-                        <span class="section-label">Akun Saya</span>
-                        <a href="{{ route('dashboard') }}" class="mobile-link"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-                        <a href="{{ route('profile.edit') }}" class="mobile-link"><i class="fa-solid fa-user-gear"></i> Profil</a>
-                        @if(auth()->user()->is_admin)
-                            <a href="{{ route('admin.dashboard') }}" class="mobile-link admin"><i class="fa-solid fa-user-shield"></i> Admin Site</a>
-                        @endif
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="mobile-link logout"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
-                        </form>
-                    </div>
-                @endauth
-                <div class="mobile-footer-actions">
-                    <a href="{{ route('listings.create') }}" class="btn btn-primary" style="width: 100%;">Pasang Iklan Baru</a>
-                </div>
+                <a href="{{ route('categories.directory') }}" class="mobile-link {{ request()->routeIs('categories.directory') ? 'active' : '' }}">Kategori</a>
+                <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">Tagar</a>
+                <a href="{{ route('listings.create') }}" class="mobile-link {{ request()->routeIs('listings.create') ? 'active' : '' }}">Daftarkan Usaha</a>
+                @guest
+                    <a href="{{ route('login') }}" class="mobile-link {{ request()->routeIs('login') ? 'active' : '' }}">Masuk</a>
+                @else
+                    <a href="{{ route('dashboard') }}" class="mobile-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dasbor</a>
+                    <a href="#" class="mobile-link" onclick="event.preventDefault(); document.getElementById('mobile-logout-form').submit();">Keluar</a>
+                    <form id="mobile-logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                        @csrf
+                    </form>
+                @endguest
             </div>
         </div>
     </header>
@@ -509,21 +454,21 @@
 
     <main>
         <div class="container" style="margin-top: 20px;">
-            @if(session('success'))
+            @if(session('success') && !View::hasSection('dashboard_content') && !View::hasSection('admin_content'))
                 <div class="alert alert-success" style="background: #dcfce7; color: #166534; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 12px;">
                     <i class="fa-solid fa-circle-check" style="font-size: 1.2rem;"></i>
                     <div>{{ session('success') }}</div>
                 </div>
             @endif
 
-            @if(session('error'))
+            @if(session('error') && !View::hasSection('dashboard_content') && !View::hasSection('admin_content'))
                 <div class="alert alert-error" style="background: #fee2e2; color: #991b1b; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #fecaca; display: flex; align-items: center; gap: 12px;">
                     <i class="fa-solid fa-circle-xmark" style="font-size: 1.2rem;"></i>
                     <div>{{ session('error') }}</div>
                 </div>
             @endif
 
-            @if(session('warning'))
+            @if(session('warning') && !View::hasSection('dashboard_content') && !View::hasSection('admin_content'))
                 <div class="alert alert-warning" style="background: #fef9c3; color: #854d0e; padding: 15px; border-radius: 12px; margin-bottom: 25px; border: 1px solid #fef08a; display: flex; align-items: center; gap: 12px;">
                     <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.2rem;"></i>
                     <div>{{ session('warning') }}</div>
@@ -536,7 +481,7 @@
     <footer style="padding: 60px 0; background: #0f172a; color: white; text-align: center; margin-top: 80px;">
         <div class="container">
             <div class="logo" style="font-size: 1.8rem; margin-bottom: 20px; color: white; justify-content: center; text-transform: none;">Sebatam<span style="color: #94a3b8;">.com</span></div>
-            <p style="color: #94a3b8; margin-bottom: 30px;">Platform Penawaran dan Pengumuman No.1 di Batam, Kepulauan Riau.</p>
+            <p style="color: #94a3b8; margin-bottom: 30px;">Pusat Rujukan Digital, Direktori Usaha, & Papan Profil Usaha UMKM Maupun Usaha Perorangan Batam.</p>
             <div style="display: flex; justify-content: center; gap: 20px; font-size: 1.2rem;">
                 <a href="{{ config('services.social.facebook') }}"><i class="fab fa-facebook"></i></a>
                 <a href="{{ config('services.social.instagram') }}"><i class="fab fa-instagram"></i></a>
@@ -546,7 +491,6 @@
             <hr style="border: none; border-top: 1px solid #1e293b; margin: 40px 0;">
             <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 5px;">&copy; {{ date('Y') }} sebatam.com. All rights reserved.</p>
             <nav class="footer-nav" style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                <a href="{{ route('categories.index') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">#Hashtag</a>
                 <a href="{{ route('contact') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">Kontak</a>
                 <a href="{{ route('tentang') }}" style="color: #94a3b8; text-decoration: none; font-weight: 600;">Tentang</a>
             </nav>

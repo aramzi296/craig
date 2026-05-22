@@ -37,7 +37,7 @@
             <p>
                 Kirim pesan <code>otp</code> ke nomor bot kami 
                 (<a href="https://wa.me/{{ config('services.whatsapp.bot_number') }}?text=otp" target="_blank" style="color: inherit; font-weight: 700; text-decoration: underline;">{{ config('services.whatsapp.bot_number') }}</a>).
-                Sistem akan membuatkan akun secara otomatis untuk Anda.
+                Jika nomor Anda belum terdaftar, maka sistem akan mendaftarkannya secara otomatis untuk Anda.
             </p>
         </div>
 

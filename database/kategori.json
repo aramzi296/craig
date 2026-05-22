@@ -1,0 +1,98 @@
+[
+  {
+    "category": "Kuliner & Jajanan",
+    "subcategories": [
+      "Cafe & Tempat Nongkrong",
+      "Rumah Makan & Warung Kuliner",
+      "Pujasera & Food Court",
+      "Jajanan Kaki Lima & Gerobakan",
+      "Katering & Kue Rumahan"
+    ]
+  },
+  {
+    "category": "Bengkel Las, Bangunan & Service",
+    "subcategories": [
+      "Bengkel Las, Kanopi & Teralis",
+      "Tukang Bangunan & Renovasi",
+      "Service AC & Elektronik Rumah",
+      "Bengkel Motor & Mobil",
+      "Laundry & Jasa Bersih Rumah"
+    ]
+  },
+  {
+    "category": "Jasa Bisnis & Legalitas",
+    "subcategories": [
+      "Pengurusan PT / CV / OSS",
+      "Desain Grafis & Undangan Digital",
+      "Pembuatan Website & IT Support",
+      "Agensi Iklan & Sosial Media",
+      "Akuntansi & Pembukuan UMKM"
+    ]
+  },
+  {
+    "category": "Rental & Transportasi Lokal",
+    "subcategories": [
+      "Rental Mobil",
+      "Rental Motor",
+      "Jasa Lori & Pindahan Rumah",
+      "Antar Jemput Anak Sekolah",
+      "Travel & Tour Guide Lokal"
+    ]
+  },
+  {
+    "category": "Lapak Belanja & Toko Lokal",
+    "subcategories": [
+      "Toko Kelontong & Sembako",
+      "Butik & Fashion Lokal",
+      "Konter HP, Pulsa & Aksesoris",
+      "Toko Mainan & Hobi",
+      "Supplier & Agen Grosir UMKM"
+    ]
+  },
+  {
+    "category": "Penginapan & Properti",
+    "subcategories": [
+      "Info Kos-Kosan",
+      "Kontrakan & Sewa Rumah",
+      "Guest House & Homestay",
+      "Agen Properti Perorangan"
+    ]
+  },
+  {
+    "category": "Lowongan Kerja & Karir",
+    "subcategories": [
+      "Loker Toko / Cafe / Resto",
+      "Loker Admin & Operasional",
+      "Loker ART & Sopir",
+      "Jasa Penyalur Tenaga Kerja"
+    ]
+  },
+  {
+    "category": "Salon, Seni & Kecantikan",
+    "subcategories": [
+      "Barbershop & Salon",
+      "Jasa MUA & Wedding",
+      "Fotografi & Videografi",
+      "Studio Tato & Henna Art"
+    ]
+  },
+  {
+    "category": "Kesehatan, Kursus & Komunitas",
+    "subcategories": [
+      "Klinik & Praktik Dokter/Bidan",
+      "Pijat Tradisional & Refleksi",
+      "Les Privat & Bimbel Sekolah",
+      "Kursus Menyetir & Keterampilan",
+      "Komunitas & Layanan Publik"
+    ]
+  },
+  {
+    "category": "Usaha Lainnya & Serba-Serbi",
+    "subcategories": [
+      "Agribisnis, Hewan & Tanaman",
+      "Kerajinan Tangan & Barang Unik",
+      "Jasa Kustom / Langka",
+      "Lain-Lain"
+    ]
+  }
+]

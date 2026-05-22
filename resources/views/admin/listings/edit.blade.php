@@ -11,19 +11,81 @@
         @csrf
         @method('PUT')
         
+        @php
+            $currentCategory = $listing->categories->first();
+            $currentParentId = $currentCategory ? ($currentCategory->parent_id ?: $currentCategory->id) : null;
+            $currentChildId = $currentCategory ? ($currentCategory->parent_id ? $currentCategory->id : null) : null;
+        @endphp
+
         <div class="form-group-horizontal">
-            <label for="listing_type_id">Tipe Iklan</label>
+            <label for="parent_category_id">Kategori Utama</label>
             <div class="form-input-side">
-                <select name="listing_type_id" id="listing_type_id" class="form-control @error('listing_type_id') is-invalid @enderror" required>
-                    @foreach($listingTypes as $type)
-                        <option value="{{ $type->id }}" {{ old('listing_type_id', $listing->listing_type_id) == $type->id ? 'selected' : '' }}>{{ $type->name }}</option>
+                <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;" required>
+                    <option value="">Pilih Kategori Utama</option>
+                    @foreach($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ old('parent_category_id', $currentParentId) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                     @endforeach
                 </select>
-                @error('listing_type_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="category_id">Sub Kategori</label>
+            <div class="form-input-side">
+                <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" required disabled>
+                    <option value="">Pilih Sub Kategori</option>
+                </select>
+                <small style="color: var(--text-muted); display: block; margin-top: 5px;">Pilih Kategori Utama terlebih dahulu untuk memunculkan Sub Kategori.</small>
+                @error('category_id')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                 @enderror
             </div>
         </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const parentSelect = document.getElementById('parent_category_id');
+                const childSelect = document.getElementById('category_id');
+                const categoryTree = @json($categories);
+
+                function updateChildCategories(selectedParentId, selectedChildId = null) {
+                    childSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
+                    if (!selectedParentId) {
+                        childSelect.disabled = true;
+                        return;
+                    }
+
+                    const parentCat = categoryTree.find(c => c.id == selectedParentId);
+                    if (parentCat && parentCat.children && parentCat.children.length > 0) {
+                        parentCat.children.forEach(child => {
+                            const opt = document.createElement('option');
+                            opt.value = child.id;
+                            opt.textContent = child.name;
+                            if (selectedChildId && child.id == selectedChildId) {
+                                opt.selected = true;
+                            }
+                            childSelect.appendChild(opt);
+                        });
+                        childSelect.disabled = false;
+                    } else {
+                        childSelect.disabled = true;
+                    }
+                }
+
+                if (parentSelect && childSelect) {
+                    parentSelect.addEventListener('change', function() {
+                        updateChildCategories(this.value);
+                    });
+
+                    // Populate initial values
+                    const initialParentId = "{{ old('parent_category_id', $currentParentId) }}";
+                    const initialChildId = "{{ old('category_id', $currentChildId) }}";
+                    if (initialParentId) {
+                        updateChildCategories(initialParentId, initialChildId);
+                    }
+                }
+            });
+        </script>
 
         <div class="form-group-horizontal">
             <label for="title">Judul Iklan</label>
@@ -45,16 +107,7 @@
             </div>
         </div>
 
-        <div class="form-group-horizontal">
-            <label for="price">Harga (Rp)</label>
-            <div class="form-input-side">
-                <input type="number" name="price" id="price" class="form-control @error('price') is-invalid @enderror" value="{{ old('price', $listing->price) }}" placeholder="kosongkan jika tidak ada">
-                <small class="text-muted">Kosongkan jika iklan berupa pengumuman atau informasi tanpa harga.</small>
-                @error('price')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
-            </div>
-        </div>
+
 
         <div class="form-group-horizontal">
             <label for="website">Link Website (Opsional)</label>
@@ -122,9 +175,10 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="district_id">Lokasi di Batam</label>
+            <label for="district_id">Kecamatan</label>
             <div class="form-input-side">
                 <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                    <option value="">Pilih Kecamatan</option>
                     @foreach($districts as $dist)
                         <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
                     @endforeach
@@ -136,14 +190,24 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="whatsapp_visibility">Bagaimana pengunjung menghubungi Anda dengan WA?</label>
+            <label for="subdistrict_id">Kelurahan</label>
             <div class="form-input-side">
-                <select name="whatsapp_visibility" id="whatsapp_visibility" class="form-control">
-                    <option value="2" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 2 ? 'selected' : '' }}>Semua orang bisa kirim WA ke saya</option>
-                    <option value="1" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 1 ? 'selected' : '' }}>Hanya yang sudah login yang bisa kirim WA ke saya</option>
-                    <option value="0" {{ old('whatsapp_visibility', $listing->whatsapp_visibility) == 0 ? 'selected' : '' }}>Kirim WA melalui admin saja</option>
+                <select name="subdistrict_id" id="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror" required>
+                    <option value="">Pilih Kelurahan</option>
                 </select>
-                <small class="text-muted">Pilih preferensi bagaimana pengunjung dapat menghubungi Anda melalui WhatsApp.</small>
+                @error('subdistrict_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+
+        <div class="form-group-horizontal">
+            <label for="address">Alamat Lengkap</label>
+            <div class="form-input-side">
+                <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="Contoh: Jl. Sudirman No. 12, Ruko Citra Mas" value="{{ old('address', $listing->address) }}" required>
+                @error('address')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
             </div>
         </div>
 
@@ -159,7 +223,7 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label>#Hashtag</label>
+            <label>#Tagar</label>
             <div class="form-input-side">
                 <!-- Added Tagify CSS -->
                 <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
@@ -200,11 +264,11 @@
                     $currentTags = $listing->tags->pluck('name')->toArray();
                     $initialValue = old('tags', implode(',', $currentTags));
                 @endphp
-                <input name="tags" id="tags-tagify" class="form-control" placeholder="Pilih atau ketik #Hashtag..." value="{{ $initialValue }}">
+                <input name="tags" id="tags-tagify" class="form-control" placeholder="Pilih atau ketik #Tagar..." value="{{ $initialValue }}">
                 
                 <small id="tag-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
-                    Ketik dan pilih #Hashtag yang sesuai. Maksimal <strong>10</strong> #Hashtag. 
-                    Jika #Hashtag tidak ada di daftar, ketik saja nama #Hashtag baru lalu tekan <strong>Enter</strong>.
+                    Ketik dan pilih #Tagar yang sesuai. Maksimal <strong>10</strong> #Tagar. 
+                    Jika #Tagar tidak ada di daftar, ketik saja nama #Tagar baru lalu tekan <strong>Enter</strong>.
                 </small>
                 @error('tags')
                     <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
@@ -226,6 +290,39 @@
                                 closeOnSelect: true
                             }
                         });
+
+                        // Subdistrict filter logic
+                        const districtSelect = document.getElementById('district_id');
+                        const subdistrictSelect = document.getElementById('subdistrict_id');
+                        const subdistricts = @json($subdistricts);
+                        const oldSubdistrictId = "{{ old('subdistrict_id', $listing->subdistrict_id) }}";
+
+                        function populateSubdistricts() {
+                            const districtId = districtSelect.value;
+                            subdistrictSelect.innerHTML = '<option value="">Pilih Kelurahan</option>';
+
+                            if (districtId) {
+                                const filtered = subdistricts.filter(sub => sub.district_id == districtId);
+                                filtered.forEach(sub => {
+                                    const opt = document.createElement('option');
+                                    opt.value = sub.id;
+                                    opt.textContent = sub.name;
+                                    if (oldSubdistrictId && oldSubdistrictId == sub.id) {
+                                        opt.selected = true;
+                                    }
+                                    subdistrictSelect.appendChild(opt);
+                                });
+                            }
+                        }
+
+                        if (districtSelect && subdistrictSelect) {
+                            districtSelect.addEventListener('change', populateSubdistricts);
+
+                            // Populate on load if district value exists
+                            if (districtSelect.value) {
+                                populateSubdistricts();
+                            }
+                        }
                     });
                 </script>
             </div>

@@ -3,10 +3,10 @@
 @section('admin_content')
 <div class="dashboard-header">
     <div>
-        <h1>Kelola #Hashtag</h1>
-        <p style="color: var(--text-muted);">Daftar #Hashtag listing di {{ config('app.name') }}.</p>
+        <h1>Kelola Kategori</h1>
+        <p style="color: var(--text-muted);">Daftar Kategori / #Tagar listing di {{ config('app.name') }}.</p>
     </div>
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">+ #Hashtag Baru</a>
+    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary">+ Kategori Baru</a>
 </div>
 
 @if(session('success'))
@@ -27,12 +27,13 @@
             <tr>
                 <th>Ikon</th>
                 <th>Nama</th>
+                <th>Tipe</th>
+                <th>Kategori Induk</th>
                 <th>Slug</th>
                 <th>Status</th>
                 <th>Urutan</th>
                 <th>Total Listing</th>
                 <th>Aksi</th>
-
             </tr>
         </thead>
         <tbody>
@@ -43,6 +44,20 @@
                     {{ $category->name }}
                     @if(!$category->is_approved)
                         <span style="background: #fee2e2; color: #991b1b; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; margin-left: 5px;">PENDING</span>
+                    @endif
+                </td>
+                <td>
+                    @if($category->parent_id)
+                        <span class="badge" style="background: #e0f2fe; color: #0369a1; font-size: 0.7rem;">Sub Kategori</span>
+                    @else
+                        <span class="badge" style="background: #f0fdf4; color: #15803d; font-size: 0.7rem;">Kategori Utama</span>
+                    @endif
+                </td>
+                <td>
+                    @if($category->parent)
+                        <span style="font-weight: 500; color: var(--text);">{{ $category->parent->name }}</span>
+                    @else
+                        <span style="color: var(--text-muted); font-style: italic;">-</span>
                     @endif
                 </td>
                 <td>{{ $category->slug }}</td>
@@ -63,7 +78,7 @@
                 <td>
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <a href="{{ route('admin.categories.edit', $category->id) }}" style="color: var(--primary);"><i class="fa-solid fa-pen"></i></a>
-                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus #Hashtag ini?')">
+                        <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0;">

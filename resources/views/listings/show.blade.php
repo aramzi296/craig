@@ -4,10 +4,29 @@
 <div class="container listing-detail-container" style="padding-top: 20px;">
     <div style="max-width: 800px; margin-left: 0;">
         <!-- Breadcrumbs -->
+        @php
+            $category = $listing->categories->first();
+            $parentCategory = null;
+            $childCategory = null;
+            if ($category) {
+                if ($category->parent_id) {
+                    $parentCategory = $category->parent;
+                    $childCategory = $category;
+                } else {
+                    $parentCategory = $category;
+                }
+            }
+        @endphp
         <nav style="margin-bottom: 20px; color: #64748b; font-size: 0.85rem; font-weight: 500;">
             <a href="{{ route('home') }}" style="color: #64748b; text-decoration: none;">Beranda</a> 
-            <span style="margin: 0 8px; opacity: 0.5;">/</span>
-            <a href="{{ route('home', ['category' => $listing->approvedTags->first()->slug ?? 'lainnya']) }}" style="color: #64748b; text-decoration: none;">{{ $listing->approvedTags->first()->name ?? '#Lainnya' }}</a> 
+            @if($parentCategory)
+                <span style="margin: 0 8px; opacity: 0.5;">/</span>
+                <a href="{{ route('home', ['category' => $parentCategory->slug]) }}" style="color: #64748b; text-decoration: none;">{{ $parentCategory->name }}</a>
+            @endif
+            @if($childCategory)
+                <span style="margin: 0 8px; opacity: 0.5;">/</span>
+                <a href="{{ route('home', ['category' => $childCategory->slug]) }}" style="color: #64748b; text-decoration: none;">{{ $childCategory->name }}</a>
+            @endif
             <span style="margin: 0 8px; opacity: 0.5;">/</span>
             <span style="color: #1e293b; font-weight: 700;">{{ $listing->title }}</span>
         </nav>
@@ -16,11 +35,6 @@
         <div>
             <!-- 1. Judul (Title - Aligned Version) -->
             <div style="padding: 10px 0; margin-bottom: 5px;">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;">
-                    @if($listing->is_premium)
-                        <span style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 2px 10px; border-radius: 6px; font-size: 0.65rem; font-weight: 800;">PREMIUM</span>
-                    @endif
-                </div>
                 <h1 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; line-height: 1.2; margin: 0;">{{ $listing->title }}</h1>
                 <div style="text-align: left; color: #94a3b8; font-size: 0.85rem; font-weight: 600; margin-top: 8px;">
                     Update {{ $listing->updated_at->diffForHumans() }}
@@ -86,30 +100,41 @@
 
             <!-- 3. Atribut Penting (Compact List Version) -->
             <div style="padding: 10px 0; margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px;">
+
+
+                @if($listing->address)
                 <div style="font-size: 1rem; color: #334155;">
-                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Harga</span>
-                    <span style="font-weight: 800; color: var(--primary); font-size: 1.2rem;">
-                        @if($listing->price && $listing->price > 0)
-                            Rp {{ number_format($listing->price, 0, ',', '.') }}
-                        @else
-                            Hubungi Kami
-                        @endif
+                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Alamat</span>
+                    <span style="font-weight: 700;">
+                        {{ $listing->address }}
                     </span>
                 </div>
-                
+                @endif
+
+                @if($listing->subdistrict)
                 <div style="font-size: 1rem; color: #334155;">
-                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Lokasi</span>
+                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Kelurahan</span>
+                    <span style="font-weight: 700;">
+                        {{ $listing->subdistrict->name }}
+                    </span>
+                </div>
+                @endif
+
+                <div style="font-size: 1rem; color: #334155;">
+                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Kecamatan</span>
                     <span style="font-weight: 700;">
                         {{ $listing->district?->name ?? 'Batam' }}
                     </span>
                 </div>
 
+                @if($listing->tags->isNotEmpty())
                 <div style="font-size: 1rem; color: #334155;">
-                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Hashtag</span>
+                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Tagar</span>
                     <span style="font-weight: 700;">
-                        {{ $listing->approvedTags->pluck('name')->map(fn($n) => "#$n")->join(', ') }}
+                        {{ $listing->tags->pluck('name')->map(fn($n) => "#$n")->join(', ') }}
                     </span>
                 </div>
+                @endif
             </div>
 
             <!-- 4. Kontak & User (Interaction - Aligned Version) -->
@@ -120,7 +145,6 @@
                         <div>
                             <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">
                                 <a href="{{ route('user.listings', $listing->user_id) }}" style="color: inherit; text-decoration: none;">{{ $listing->user->name }}</a>
-                                @if($listing->user->is_verified) <span style="color: #3b82f6; font-size: 0.75rem; vertical-align: middle;">(Terverifikasi)</span> @endif
                             </div>
                             <div style="font-size: 0.8rem; color: #64748b;">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
                         </div>
@@ -128,7 +152,7 @@
                     </div>
                 </div>
 
-                <div class="listing-footer-buttons" style="display: flex; gap: 24px; align-items: center;">
+                <div class="listing-footer-buttons">
                     @php
                         $canSeeContact = false;
                         if ($listing->whatsapp_visibility == 2) { $canSeeContact = true; } 
@@ -136,54 +160,51 @@
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" style="color: #25D366; font-weight: 800; text-decoration: none; font-size: 1rem;">
-                            Hubungi WhatsApp
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" class="btn-detail btn-detail-whatsapp">
+                            <i class="fa-brands fa-whatsapp"></i> Hubungi WhatsApp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)
-                        <a href="{{ route('login') }}" style="color: #0ea5e9; font-weight: 800; text-decoration: none; font-size: 1rem;">
-                            Login untuk Chat
+                        <a href="{{ route('login') }}" class="btn-detail btn-detail-sky">
+                            <i class="fa-solid fa-right-to-bracket"></i> Login untuk Chat
                         </a>
                     @else
-                        <a href="#contact-form" style="color: #64748b; font-weight: 800; text-decoration: none; font-size: 1rem;">
-                            Hubungi via Form
+                        <a href="#contact-form" class="btn-detail btn-detail-slate">
+                            <i class="fa-regular fa-envelope"></i> Hubungi via Form
                         </a>
                     @endif
                     
                     @auth
                         <form action="{{ route('listings.favorite', $listing->id) }}" method="POST" style="display: inline;">
                             @csrf
-                            <button type="submit" style="background: none; border: none; padding: 0; color: {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? '#ef4444' : '#64748b' }}; font-weight: 800; cursor: pointer; font-size: 1rem;">
-                                {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'Hapus dari Favorit' : 'Tambah ke Favorit' }}
+                            <button type="submit" class="btn-detail {{ auth()->user()->favorites()->where('listing_id', $listing->id)->exists() ? 'btn-detail-favorited' : 'btn-detail-favorite' }}">
+                                @if(auth()->user()->favorites()->where('listing_id', $listing->id)->exists())
+                                    <i class="fa-solid fa-heart"></i> Hapus dari Favorit
+                                @else
+                                    <i class="fa-regular fa-heart"></i> Tambah ke Favorit
+                                @endif
                             </button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" style="color: #64748b; font-weight: 800; text-decoration: none; font-size: 1rem;">
-                            Tambah ke Favorit
+                        <a href="{{ route('login') }}" class="btn-detail btn-detail-favorite">
+                            <i class="fa-regular fa-heart"></i> Tambah ke Favorit
                         </a>
                     @endauth
 
-                    <a href="https://wa.me/{{ config('services.whatsapp.admin_number_2') }}?text=Halo Admin, saya ingin melaporkan iklan ini karena (sebutkan alasan): {{ route('listings.show', $listing->slug) }}" target="_blank" style="color: #ef4444; font-weight: 800; text-decoration: none; font-size: 1rem;">
-                        Laporkan Iklan
-                    </a>
+                    <button type="button" onclick="openReportModal()" class="btn-detail btn-detail-report">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Laporkan Iklan
+                    </button>
+
+                    @auth
+                        @if($listing->user_id == auth()->id())
+                            <a href="{{ route('listings.edit', $listing->id) }}" class="btn-detail btn-detail-sky" style="width: 100%; box-sizing: border-box;">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
+                            </a>
+                        @endif
+                    @endauth
                 </div>
 
 
             </div>
-
-            <!-- Owner Actions -->
-            @auth
-                @if($listing->user_id == auth()->id())
-                <div class="glass" style="padding: 25px; border-radius: var(--radius); margin-bottom: 40px; text-align: left; border: 1px dashed var(--accent); background: rgba(0, 163, 255, 0.03);">
-                    <h3 style="font-size: 1.1rem; color: var(--text); margin-bottom: 15px; font-weight: 700;">Menu Pemilik Iklan</h3>
-                    <div style="display: flex; gap: 15px; justify-content: flex-start; flex-wrap: wrap;">
-                        <a href="{{ route('listings.edit', $listing->id) }}" style="color: #0ea5e9; font-weight: 800; text-decoration: none;">
-                            Edit Postingan
-                        </a>
-                        {{-- Upgrade ke Premium dinonaktifkan sementara --}}
-                    </div>
-                </div>
-                @endif
-            @endauth
         </div> <!-- End listing-main-column -->
     </div> <!-- End listing-details-grid -->
 
@@ -209,30 +230,7 @@
             </div>
         @endif
 
-        <!-- Premium Listings Section -->
-        @if($sidebarPremiumListings->count() > 0)
-            <div style="margin-bottom: 50px;">
-                <h2 style="font-size: 1.5rem; font-weight: 800; color: #b45309; margin-bottom: 25px;">Postingan Premium</h2>
-                <div class="listing-grid-related">
-                    @foreach($sidebarPremiumListings as $premium)
-                    <a href="{{ route('listings.show', $premium->slug) }}" class="listing-card-grid">
-                        <div class="grid-image-wrapper">
-                            <img src="{{ $premium->getThumbnailUrl() }}" alt="{{ $premium->title }}">
-                            @if($premium->price > 0)
-                                <div class="price-tag">
-                                    Rp {{ number_format($premium->price, 0, ',', '.') }}
-                                </div>
-                            @endif
-                        </div>
 
-                        <div class="grid-content">
-                            <h3 class="grid-title">{{ $premium->title }}</h3>
-                        </div>
-                    </a>
-                    @endforeach
-                </div>
-            </div>
-        @endif
 
         <!-- Related Listings Section -->
         @if($relatedListings->count() > 0)
@@ -243,11 +241,7 @@
                     <a href="{{ route('listings.show', $related->slug) }}" class="listing-card-grid">
                         <div class="grid-image-wrapper">
                             <img src="{{ $related->getThumbnailUrl() }}" alt="{{ $related->title }}">
-                            @if($related->price > 0)
-                                <div class="price-tag">
-                                    Rp {{ number_format($related->price, 0, ',', '.') }}
-                                </div>
-                            @endif
+
                         </div>
 
                         <div class="grid-content">
@@ -260,7 +254,7 @@
         @endif
         
             <div style="text-align: left; margin-bottom: 40px;">
-                <a href="{{ route('home') }}" style="display: inline-block; padding: 12px 30px; border-radius: 12px; border: 2px solid #e2e8f0; color: #64748b; font-weight: 700; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='transparent'">Lihat Semua Iklan</a>
+                <a href="{{ route('home') }}" style="display: inline-block; padding: 12px 30px; border-radius: 12px; border: 2px solid #e2e8f0; color: #64748b; font-weight: 700; text-decoration: none; transition: all 0.2s;" onmouseover="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc'" onmouseout="this.style.borderColor='#e2e8f0'; this.style.background='transparent'">Lihat Semua Usaha</a>
             </div>
         </div>
     </div>
@@ -287,16 +281,114 @@
     }
 
     .listing-footer-buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .btn-detail {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-detail:hover {
+        transform: translateY(-2px);
+    }
+
+    .btn-detail-whatsapp {
+        background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+    }
+
+    .btn-detail-whatsapp:hover {
+        box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3);
+    }
+
+    .btn-detail-sky {
+        background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+
+    .btn-detail-sky:hover {
+        box-shadow: 0 6px 16px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-detail-slate {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.2);
+    }
+
+    .btn-detail-slate:hover {
+        box-shadow: 0 6px 16px rgba(100, 116, 139, 0.3);
+    }
+
+    .btn-detail-favorite {
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+    }
+
+    .btn-detail-favorite:hover {
+        background: #f1f5f9;
+    }
+
+    .btn-detail-favorited {
+        background: #fee2e2;
+        color: #ef4444;
+        border: 1px solid #fca5a5;
+    }
+
+    .btn-detail-favorited:hover {
+        background: #fecaca;
+    }
+
+    .btn-detail-report {
+        background: #fff5f5;
+        color: #e53e3e;
+        border: 1px solid #fed7d7;
+    }
+
+    .btn-detail-report:hover {
+        background: #ffebeb;
     }
 
     @media (max-width: 640px) {
-        .listing-footer-row,
-        .listing-footer-buttons {
+        .listing-footer-row {
             grid-template-columns: 1fr;
             gap: 20px;
+        }
+
+        .listing-footer-buttons {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
+        }
+
+        .listing-footer-buttons form {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .listing-footer-buttons form button {
+            width: 100% !important;
+        }
+
+        .listing-footer-buttons .btn-detail {
+            width: 100% !important;
         }
 
         .listing-footer-row {
@@ -396,5 +488,251 @@
             gap: 10px;
         }
     }
+
+    /* Report Modal Styles */
+    .report-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(8px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .report-modal-overlay.show {
+        opacity: 1;
+    }
+
+    .report-modal-card {
+        background: #ffffff;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 500px;
+        margin: 20px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        overflow: hidden;
+        transform: scale(0.9);
+        transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    
+    .report-modal-overlay.show .report-modal-card {
+        transform: scale(1);
+    }
+
+    .report-modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #fff;
+    }
+
+    .report-modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #e53e3e;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .report-modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 1.75rem;
+        color: #94a3b8;
+        cursor: pointer;
+        transition: color 0.2s;
+        line-height: 1;
+        padding: 0;
+    }
+
+    .report-modal-close-btn:hover {
+        color: #475569;
+    }
+
+    .report-modal-body {
+        padding: 24px;
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .report-form-group {
+        margin-bottom: 20px;
+    }
+
+    .report-form-group label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        margin-bottom: 8px;
+    }
+
+    .report-form-control {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1.5px solid #e2e8f0;
+        font-size: 0.95rem;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        font-family: inherit;
+    }
+
+    .report-form-control:focus {
+        outline: none;
+        border-color: #ef4444;
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    }
+
+    select.report-form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+        padding-right: 40px;
+    }
+
+    .report-form-help {
+        display: block;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 6px;
+        font-weight: 500;
+    }
+
+    .report-modal-footer {
+        padding: 16px 24px;
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+
+    .report-btn-secondary {
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        background: #fff;
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .report-btn-secondary:hover {
+        background: #f1f5f9;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .report-btn-primary {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+        transition: all 0.2s;
+    }
+
+    .report-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.3);
+    }
 </style>
+
+<!-- Report Listing Modal -->
+<div id="reportModal" class="report-modal-overlay" style="display: none;">
+    <div class="report-modal-card">
+        <div class="report-modal-header">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Laporkan Iklan</h3>
+            <button type="button" onclick="closeReportModal()" class="report-modal-close-btn">&times;</button>
+        </div>
+        <form action="{{ route('listings.report', $listing->id) }}" method="POST">
+            @csrf
+            <div class="report-modal-body">
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
+                    Bantu kami menjaga kenyamanan komunitas Sebatam. Silakan pilih alasan laporan Anda untuk iklan: <strong style="color: #1e293b;">"{{ $listing->title }}"</strong>.
+                </p>
+
+                <div class="report-form-group">
+                    <label>Pilih Alasan Laporan <span style="color: #ef4444;">*</span></label>
+                    <select name="reason" required class="report-form-control">
+                        <option value="" disabled selected>-- Pilih Alasan --</option>
+                        <option value="Penipuan">Penipuan (Indikasi penipuan/kriminal)</option>
+                        <option value="Spam / Duplikat">Spam / Duplikat (Iklan sampah/berulang-ulang)</option>
+                        <option value="Konten Tidak Layak">Konten Tidak Layak (Melanggar norma/hukum)</option>
+                        <option value="Usaha Sudah Tutup">Usaha Sudah Tutup (Informasi tidak lagi aktif)</option>
+                        <option value="Lainnya">Lainnya (Tulis detail di kolom keterangan)</option>
+                    </select>
+                </div>
+
+                @guest
+                    <div class="report-form-group">
+                        <label>Nomor WhatsApp Anda <span style="color: #ef4444;">*</span></label>
+                        <input type="text" name="reporter_whatsapp" required placeholder="Contoh: 0812xxxx" class="report-form-control">
+                        <span class="report-form-help">Digunakan oleh admin untuk verifikasi atau tindak lanjut laporan.</span>
+                    </div>
+                @endguest
+
+                <div class="report-form-group">
+                    <label>Keterangan Tambahan / Bukti (Opsional)</label>
+                    <textarea name="description" rows="4" placeholder="Berikan rincian penjelasan singkat mengenai laporan Anda..." class="report-form-control"></textarea>
+                </div>
+            </div>
+            <div class="report-modal-footer">
+                <button type="button" onclick="closeReportModal()" class="report-btn-secondary">Batal</button>
+                <button type="submit" class="report-btn-primary">Kirim Laporan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openReportModal() {
+        const modal = document.getElementById('reportModal');
+        modal.style.display = 'flex';
+        // Trigger reflow for transition
+        void modal.offsetWidth;
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeReportModal() {
+        const modal = document.getElementById('reportModal');
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }, 300);
+    }
+
+    // Close on overlay click
+    document.getElementById('reportModal').onclick = function(e) {
+        if (e.target.id === 'reportModal') {
+            closeReportModal();
+        }
+    };
+</script>
 @endsection

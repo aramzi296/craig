@@ -60,8 +60,7 @@
                 <thead>
                     <tr>
                         <th>Iklan</th>
-                        <th>#Hashtag</th>
-                        <th>Harga</th>
+                        <th>#Tagar</th>
                         <th>Komentar</th>
                         <th>Dilihat</th>
                         <th>Status</th>
@@ -90,13 +89,7 @@
                         </td>
                         <td>{{ $listing->tags->first()->name ?? '-' }}</td>
 
-                        <td>
-                            @if($listing->price && $listing->price > 0)
-                                Rp {{ number_format($listing->price, 0, ',', '.') }}
-                            @else
-                                <span style="color: var(--text-muted); font-style: italic;">Hubungi Kami</span>
-                            @endif
-                        </td>
+
                         <td>
                             <a href="{{ route('listings.show', $listing->slug) }}#comments-section" style="display: flex; align-items: center; gap: 6px; color: {{ $listing->comments_count > 0 ? 'var(--primary)' : 'var(--text-muted)' }}; font-weight: {{ $listing->comments_count > 0 ? '700' : '400' }};">
                                 <i class="fa-{{ $listing->comments_count > 0 ? 'solid' : 'regular' }} fa-comment"></i>

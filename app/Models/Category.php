@@ -6,15 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    protected $fillable = ['name', 'slug', 'icon', 'sort_order', 'is_approved'];
+    protected $fillable = ['name', 'slug', 'icon', 'sort_order', 'is_approved', 'parent_id'];
 
     protected $casts = [
         'is_approved' => 'boolean',
+        'parent_id' => 'integer',
     ];
 
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id')->orderBy('sort_order');
+    }
 
     public function listings()
     {
-        return $this->belongsToMany(Listing::class);
+        return $this->belongsToMany(Listing::class, 'category_listing');
     }
 }
