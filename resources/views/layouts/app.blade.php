@@ -360,6 +360,7 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T9KN6PDM"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+    {{-- 
     <div id="waAlert" class="whatsapp-bot-alert" style="background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; padding: 12px 0; text-align: center; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; z-index: 1001;">
         <div class="container">
             <div class="wa-alert-content" style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; font-size: 0.85rem; line-height: 1.4;">
@@ -369,6 +370,7 @@
             </div>
         </div>
     </div>
+    --}}
     <header class="main-header">
         <div class="container nav-content">
             <!-- Logo -->

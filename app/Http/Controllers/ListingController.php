@@ -50,7 +50,7 @@ class ListingController extends Controller
         $descLimit = $isPremium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100);
 
         $rules = [
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|string',
             'title' => 'required|string|max:255',
             'description' => "required|string|max:{$descLimit}",
@@ -58,7 +58,7 @@ class ListingController extends Controller
             'district_id' => 'nullable|exists:districts,id',
             'subdistrict_id' => 'nullable|exists:subdistricts,id',
             'address' => 'required|string|max:255',
-            'foto_fitur' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
+            'foto_fitur' => 'required|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'comment_visibility' => 'nullable|integer|in:0,1,2',
@@ -72,6 +72,7 @@ class ListingController extends Controller
         }
 
         $data = $request->validate($rules, [
+            'foto_fitur.required' => 'Foto fitur wajib diunggah.',
             'foto_fitur.image' => 'File harus berupa gambar.',
             'foto_fitur.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
             'foto_fitur.max' => 'Ukuran foto fitur tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',
@@ -255,7 +256,7 @@ class ListingController extends Controller
         $listing = \App\Models\Listing::where('user_id', auth()->id())->findOrFail($id);
 
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|string',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:' . ($listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100)),

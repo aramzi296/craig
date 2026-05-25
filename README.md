@@ -1,59 +1,83 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Craig Web Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web berbasis **Laravel (PHP)** yang menggunakan **Vite** dan **Tailwind CSS v4** untuk frontend, serta menggunakan **Laravel Sail** (lingkungan berbasis Docker) yang dikonfigurasi lengkap dengan PostgreSQL, Redis, Meilisearch, dan Mailpit.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Cara Menjalankan Aplikasi
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Berikut adalah panduan lengkap cara menjalankan aplikasi ini menggunakan metode yang direkomendasikan (Docker/Sail) maupun metode alternatif (lokal tanpa Docker).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### Metode 1: Menggunakan Laravel Sail (Sangat Direkomendasikan 🐋)
 
-## Learning Laravel
+Karena seluruh konfigurasi database PostgreSQL, Redis, dan layanan lainnya sudah disiapkan di file `compose.yaml`, menggunakan Docker adalah cara termudah dan paling aman agar tidak terjadi konflik konfigurasi di komputer lokal Anda.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+#### 1. Jalankan Docker Container
+Pastikan aplikasi Docker Desktop (atau daemon Docker) sudah aktif di komputer Anda. Kemudian, buka terminal di folder project dan jalankan perintah:
+```bash
+./vendor/bin/sail up
+```
+*Tip: Tambahkan opsi `-d` di akhir (`./vendor/bin/sail up -d`) jika Anda ingin menjalankan kontainer di latar belakang (background) agar terminal tetap bisa digunakan.*
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+#### 2. Jalankan Migrasi dan Seed Database (Inisialisasi)
+Buka terminal baru di direktori project yang sama, lalu jalankan perintah di bawah ini untuk membuat tabel database PostgreSQL dan mengisi data awal (dummy data):
+```bash
+./vendor/bin/sail artisan migrate --seed
+```
 
-## Laravel Sponsors
+#### 3. Jalankan Vite untuk Frontend Development
+Jalankan server kompilasi aset frontend (CSS/JS) secara real-time dengan perintah:
+```bash
+./vendor/bin/sail npm run dev
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+#### 4. Akses Aplikasi
+- **Aplikasi Utama**: Buka browser dan akses [http://localhost](http://localhost)
+- **Mailpit Dashboard (Penerima Email Testing)**: Buka [http://localhost:8025](http://localhost:8025) untuk melihat email keluar dari sistem (seperti notifikasi atau email registrasi).
 
-### Premium Partners
+#### 5. Menghentikan Layanan
+Jika sudah selesai digunakan, Anda bisa mematikan kontainer Docker dengan perintah:
+```bash
+./vendor/bin/sail down
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+### Metode 2: Menjalankan Secara Lokal (Tanpa Docker / Manual 💻)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Jika Anda tidak ingin menggunakan Docker, Anda harus menyiapkan PHP, PostgreSQL/SQLite, dan Node.js sendiri di sistem Anda.
 
-## Code of Conduct
+#### 1. Sesuaikan Konfigurasi `.env`
+Buka file `.env` dan sesuaikan pengaturan database agar mengarah ke database lokal Anda. 
+- *Contoh jika menggunakan SQLite:*
+  ```env
+  DB_CONNECTION=sqlite
+  ```
+- *Contoh jika menggunakan PostgreSQL lokal:*
+  Sesuaikan `DB_HOST=127.0.0.1` dan sesuaikan port, nama database, username, serta password-nya.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+#### 2. Jalankan Migrasi dan Seed Database
+```bash
+php artisan migrate --seed
+```
 
-## Security Vulnerabilities
+#### 3. Jalankan Server Development PHP
+```bash
+php artisan serve
+```
+Secara default, aplikasi akan berjalan dan dapat diakses di [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#### 4. Jalankan Vite Development Server
+Di terminal terpisah, jalankan:
+```bash
+npm run dev
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 🔑 Informasi Akun Administrator & Tips Berguna
+
+- **Akun Admin Default**: Sistem memiliki akun administrator bawaan dengan email **`admin@sebatam.com`**.
+- **Reset Password Admin**: Jika Anda perlu mengatur ulang password admin tersebut ke default (`password`), Anda dapat menjalankan skrip reset dengan perintah berikut:
+  - Jika menggunakan Sail: `yes | ./vendor/bin/sail php reset_admin.php`
+  - Jika menggunakan Lokal: `php reset_admin.php`

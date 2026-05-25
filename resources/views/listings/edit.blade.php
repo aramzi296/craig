@@ -33,7 +33,7 @@
             <div class="form-group-horizontal">
                 <label for="parent_category_id">Kategori Utama</label>
                 <div class="form-input-side">
-                    <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;" required>
+                    <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;">
                         <option value="">Pilih Kategori Utama</option>
                         @foreach($categories as $cat)
                             <option value="{{ $cat->id }}" {{ old('parent_category_id', $currentParentId) == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
@@ -45,7 +45,7 @@
             <div class="form-group-horizontal">
                 <label for="category_id">Sub Kategori</label>
                 <div class="form-input-side">
-                    <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" required disabled>
+                    <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" disabled>
                         <option value="">Pilih Sub Kategori</option>
                     </select>
                     <small style="color: var(--text-muted); display: block; margin-top: 5px;">Pilih Kategori Utama terlebih dahulu untuk memunculkan Sub Kategori.</small>
@@ -111,10 +111,13 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="description">Keterangan Usaha</label>
+                <label for="description">Keterangan Usaha <span style="color: #ef4444;">*</span></label>
                 <div class="form-input-side">
                     <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Isikan detail dari apa yang Anda iklankan/umumkan." required maxlength="{{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description) }}</textarea>
-                    <small class="text-muted" style="display: block; margin-top: 5px;">Maksimal {{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }} huruf.@if(!$listing->is_premium) Upgrade ke premium untuk tambahan hingga {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }} huruf.@endif</small>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <small class="text-muted" style="margin: 0;">Jelaskan detail produk/jasa, jam operasional, dll.</small>
+                        <small class="text-muted" id="description-char-count" style="font-weight: 600; font-size: 0.85rem; margin: 0;">0/{{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}</small>
+                    </div>
                     @error('description')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
@@ -204,7 +207,7 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="address">Alamat Lengkap</label>
+                <label for="address">Alamat </label>
                 <div class="form-input-side">
                     <input type="text" name="address" id="address" class="form-control @error('address') is-invalid @enderror" placeholder="Contoh: Jl. Sudirman No. 12, Ruko Citra Mas" value="{{ old('address', $listing->address) }}" required>
                     @error('address')
@@ -373,6 +376,31 @@ function setJudul(text) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Description Live Character Counter
+    const descriptionTextarea = document.getElementById('description');
+    const charCounter = document.getElementById('description-char-count');
+
+    function updateCharCount() {
+        if (descriptionTextarea && charCounter) {
+            const currentVal = descriptionTextarea.value.length;
+            const currentLimit = descriptionTextarea.maxLength || 100;
+            charCounter.textContent = `${currentVal}/${currentLimit}`;
+            
+            if (currentVal >= currentLimit) {
+                charCounter.style.color = '#ef4444';
+            } else if (currentVal >= currentLimit * 0.9) {
+                charCounter.style.color = '#f97316';
+            } else {
+                charCounter.style.color = 'var(--text-muted)';
+            }
+        }
+    }
+
+    if (descriptionTextarea) {
+        descriptionTextarea.addEventListener('input', updateCharCount);
+        updateCharCount(); // initial load update
+    }
+
     const districtSelect = document.getElementById('district_id');
     const subdistrictSelect = document.getElementById('subdistrict_id');
     const subdistricts = @json($subdistricts);
