@@ -120,12 +120,14 @@
                 </div>
                 @endif
 
+                @if($listing->district)
                 <div style="font-size: 1rem; color: #334155;">
                     <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Kecamatan</span>
                     <span style="font-weight: 700;">
-                        {{ $listing->district?->name ?? 'Batam' }}
+                        {{ $listing->district->name }}
                     </span>
                 </div>
+                @endif
 
                 @if($listing->tags->isNotEmpty())
                 <div style="font-size: 1rem; color: #334155;">

@@ -87,7 +87,9 @@
                                             <span class="badge badge-premium" style="font-size: 0.65rem; margin-left: 5px;">PREMIUM</span>
                                         @endif
                                     </div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $listing->district->name ?? 'Batam' }}</div>
+                                    @if($listing->district)
+                                        <div style="font-size: 0.75rem; color: var(--text-muted);">{{ $listing->district->name }}</div>
+                                    @endif
                                 </div>
                             </div>
                         </td>
