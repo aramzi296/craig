@@ -175,9 +175,9 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="district_id">Kecamatan</label>
+            <label for="district_id">Kecamatan (Opsional)</label>
             <div class="form-input-side">
-                <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror" required>
+                <select name="district_id" id="district_id" class="form-control @error('district_id') is-invalid @enderror">
                     <option value="">Pilih Kecamatan</option>
                     @foreach($districts as $dist)
                         <option value="{{ $dist->id }}" {{ old('district_id', $listing->district_id) == $dist->id ? 'selected' : '' }}>{{ $dist->name }}</option>
@@ -190,9 +190,9 @@
         </div>
 
         <div class="form-group-horizontal">
-            <label for="subdistrict_id">Kelurahan</label>
+            <label for="subdistrict_id">Kelurahan (Opsional)</label>
             <div class="form-input-side">
-                <select name="subdistrict_id" id="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror" required>
+                <select name="subdistrict_id" id="subdistrict_id" class="form-control @error('subdistrict_id') is-invalid @enderror">
                     <option value="">Pilih Kelurahan</option>
                 </select>
                 @error('subdistrict_id')
