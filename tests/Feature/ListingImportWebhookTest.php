@@ -87,6 +87,26 @@ class ListingImportWebhookTest extends TestCase
             ->assertJsonPath('data.user_created', false);
     }
 
+    public function test_accepts_flat_json_object_from_n8n(): void
+    {
+        config(['services.webhook_import.secret' => null]);
+
+        $payload = [
+            'nama' => 'Samuel Sitanggang',
+            'alamat' => 'Batam',
+            'keterangan_usaha' => 'Menyediakan pasir plester.',
+            'nomor_wa' => '6282222222222',
+            'uploaded_files' => [
+                'https://direktori-sebatam.sebatam.com/upload/2026/05/26/photo1.jpg',
+            ],
+            'total' => 1,
+        ];
+
+        $this->postJson(route('webhook.listing-import'), $payload)
+            ->assertCreated()
+            ->assertJsonPath('data.photos_count', 1);
+    }
+
     public function test_rejects_request_without_secret_when_configured(): void
     {
         config(['services.webhook_import.secret' => 'test-secret']);

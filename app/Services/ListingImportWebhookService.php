@@ -14,12 +14,12 @@ use InvalidArgumentException;
 class ListingImportWebhookService
 {
     /**
-     * @param  array<int, array<string, mixed>>  $payload
+     * @param  array<string, mixed>|list<mixed>  $payload
      * @return array{user_id: int, user_created: bool, listing_id: int, listing_slug: string, photos_count: int}
      */
     public function process(array $payload): array
     {
-        $data = $this->parsePayload($payload);
+        $data = $this->normalizeIncomingPayload($payload);
 
         $whatsapp = User::normalizeWhatsappNumber($data['nomor_wa']);
         if (!$whatsapp) {
@@ -54,39 +54,114 @@ class ListingImportWebhookService
     }
 
     /**
-     * @param  array<int, array<string, mixed>>  $payload
+     * Normalizes n8n / HTTP client payload shapes into one flat record.
+     *
+     * @param  array<string, mixed>|list<mixed>  $payload
      * @return array<string, mixed>
      */
-    protected function parsePayload(array $payload): array
+    protected function normalizeIncomingPayload(array $payload): array
+    {
+        if (isset($payload['data']) && is_array($payload['data'])) {
+            $payload = $payload['data'];
+        } elseif (isset($payload['body'])) {
+            $body = $payload['body'];
+            $payload = is_string($body) ? (json_decode($body, true) ?? []) : (is_array($body) ? $body : []);
+        }
+
+        // Satu objek datar: { nama, alamat, ..., uploaded_files: [...] }
+        if ($this->isListingRecord($payload)) {
+            return $this->finalizeRecord($payload);
+        }
+
+        if (!array_is_list($payload)) {
+            throw new InvalidArgumentException('Format payload tidak dikenali. Kirim array JSON atau satu objek dengan field nama & uploaded_files.');
+        }
+
+        // Satu elemen berisi array penuh: [ [{...}, {...}] ]
+        if (count($payload) === 1 && is_array($payload[0]) && array_is_list($payload[0])) {
+            $payload = $payload[0];
+        }
+
+        return $this->finalizeRecord($this->mergePayloadParts($payload));
+    }
+
+    /**
+     * @param  list<mixed>  $parts
+     * @return array<string, mixed>
+     */
+    protected function mergePayloadParts(array $parts): array
     {
         $merged = [];
         $files = [];
 
-        foreach ($payload as $item) {
+        foreach ($parts as $item) {
             if (!is_array($item)) {
                 continue;
             }
 
             if (isset($item['uploaded_files']) && is_array($item['uploaded_files'])) {
-                $files = array_values(array_filter(
-                    $item['uploaded_files'],
-                    fn ($url) => is_string($url) && filter_var($url, FILTER_VALIDATE_URL)
-                ));
+                $files = $this->filterFileUrls($item['uploaded_files']);
                 continue;
             }
 
-            $merged = array_merge($merged, $item);
+            if ($this->isListingRecord($item) || $this->isPartialListingRecord($item)) {
+                $merged = array_merge($merged, $item);
+            }
         }
 
-        $merged['uploaded_files'] = $files;
+        if ($files !== []) {
+            $merged['uploaded_files'] = $files;
+        }
+
+        return $merged;
+    }
+
+    /**
+     * @param  array<string, mixed>  $record
+     * @return array<string, mixed>
+     */
+    protected function finalizeRecord(array $record): array
+    {
+        if (isset($record['uploaded_files']) && is_array($record['uploaded_files'])) {
+            $record['uploaded_files'] = $this->filterFileUrls($record['uploaded_files']);
+        }
 
         foreach (['nama', 'alamat', 'keterangan_usaha', 'nomor_wa'] as $field) {
-            if (empty($merged[$field]) || !is_string($merged[$field])) {
+            if (empty($record[$field]) || !is_string($record[$field])) {
                 throw new InvalidArgumentException("Field {$field} wajib diisi.");
             }
         }
 
-        return $merged;
+        return $record;
+    }
+
+    /**
+     * @param  list<mixed>  $urls
+     * @return list<string>
+     */
+    protected function filterFileUrls(array $urls): array
+    {
+        return array_values(array_filter(
+            $urls,
+            fn ($url) => is_string($url) && filter_var($url, FILTER_VALIDATE_URL)
+        ));
+    }
+
+    /**
+     * @param  array<mixed>  $data
+     */
+    protected function isListingRecord(array $data): bool
+    {
+        return isset($data['nama'], $data['uploaded_files'])
+            && is_array($data['uploaded_files']);
+    }
+
+    /**
+     * @param  array<mixed>  $data
+     */
+    protected function isPartialListingRecord(array $data): bool
+    {
+        return isset($data['nama']) || isset($data['nomor_wa']) || isset($data['uploaded_files']);
     }
 
     /**
