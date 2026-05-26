@@ -10,14 +10,16 @@ use App\Http\Controllers\ListingController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\WebhookController;
+use App\Http\Controllers\ListingImportWebhookController;
 use App\Http\Controllers\WaLoginController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kategori', [HomeController::class, 'categoriesDirectory'])->name('categories.directory');
 Route::get('/tagar', [HomeController::class, 'categories'])->name('categories.index');
 
-// ─── WhatsApp Webhook (CSRF exempt via bootstrap/app.php) ────────────────────
+// ─── Webhooks (CSRF exempt via bootstrap/app.php) ─────────────────────────────
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
+Route::post('webhook/listing-import', [ListingImportWebhookController::class, 'handle'])->name('webhook.listing-import');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {

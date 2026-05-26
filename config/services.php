@@ -65,4 +65,8 @@ return [
         'youtube'   => env('SOCIAL_YOUTUBE', 'https://www.youtube.com/@SemuaSebatam'),
     ],
 
+    'webhook_import' => [
+        'secret' => env('WEBHOOK_IMPORT_SECRET'),
+    ],
+
 ];
