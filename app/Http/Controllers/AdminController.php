@@ -455,7 +455,7 @@ class AdminController extends Controller
             'whatsapp' => $normalizedWa,
             'email' => $autoEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
-            'is_verified' => \DB::raw('true'),
+            'is_verified' => true,
             'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
         ]);
 

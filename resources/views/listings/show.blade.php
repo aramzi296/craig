@@ -148,7 +148,9 @@
                             <div style="font-weight: 700; font-size: 1rem; color: #1e293b;">
                                 <a href="{{ route('user.listings', $listing->user_id) }}" style="color: inherit; text-decoration: none;">{{ $listing->user->name }}</a>
                             </div>
+                            @if($listing->user->created_at)
                             <div style="font-size: 0.8rem; color: #64748b;">Member sejak {{ $listing->user->created_at->format('M Y') }}</div>
+                            @endif
                         </div>
                     </div>
                     </div>

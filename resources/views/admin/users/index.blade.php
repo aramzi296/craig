@@ -110,7 +110,7 @@
                         {{ $user->is_admin ? 'Admin' : 'User' }}
                     </span>
                 </td>
-                <td>{{ $user->created_at->format('d M Y') }}</td>
+                <td>{{ $user->created_at?->format('d M Y') ?? '-' }}</td>
                 <td style="text-align: right;">
                     <div class="dropdown" style="display: inline-block;">
                         <button onclick="toggleDropdown(event, 'dropdown-{{ $user->id }}')" class="btn btn-secondary" style="padding: 8px 15px; font-size: 0.85rem; border-radius: 8px; background: white; border: 1px solid #e2e8f0; display: flex; align-items: center; gap: 8px;">
