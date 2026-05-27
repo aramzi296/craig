@@ -6,11 +6,24 @@ use App\Models\Listing;
 use App\Models\ListingPhoto;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class ListingImportWebhookTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Http::fake(function () {
+            return Http::response('fake-image-bytes', 200, [
+                'Content-Type' => 'image/jpeg',
+                'Content-Length' => '17',
+            ]);
+        });
+    }
 
     public function test_creates_user_listing_and_photos_from_webhook_payload(): void
     {

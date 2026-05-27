@@ -8,6 +8,7 @@ use App\Models\ListingPhoto;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -141,10 +142,74 @@ class ListingImportWebhookService
      */
     protected function filterFileUrls(array $urls): array
     {
-        return array_values(array_filter(
+        $candidates = array_values(array_filter(
             $urls,
             fn ($url) => is_string($url) && filter_var($url, FILTER_VALIDATE_URL)
         ));
+
+        $valid = [];
+        $rejected = [];
+
+        foreach ($candidates as $url) {
+            if ($reason = $this->rejectReasonForImageUrl($url)) {
+                $rejected[] = "{$url} ({$reason})";
+                continue;
+            }
+            $valid[] = $url;
+        }
+
+        if ($valid === [] && $candidates !== []) {
+            throw new InvalidArgumentException(
+                'Semua URL gambar tidak valid (bukan file gambar atau file kosong/HTML error). Detail: ' . implode('; ', $rejected)
+            );
+        }
+
+        return $valid;
+    }
+
+    /**
+     * Returns rejection reason, or null if URL points to a real image.
+     */
+    protected function rejectReasonForImageUrl(string $url): ?string
+    {
+        try {
+            $response = Http::timeout(15)
+                ->withOptions(['allow_redirects' => true])
+                ->head($url);
+
+            if (!$response->successful()) {
+                $response = Http::timeout(20)
+                    ->withOptions(['allow_redirects' => true])
+                    ->get($url);
+            }
+
+            if (!$response->successful()) {
+                return 'HTTP ' . $response->status();
+            }
+
+            $contentType = strtolower(trim(explode(';', (string) $response->header('Content-Type'))[0]));
+
+            if ($contentType === 'text/html' || $contentType === 'text/plain') {
+                return 'bukan gambar (' . ($contentType ?: 'unknown') . ') — kemungkinan halaman error 404';
+            }
+
+            if (!str_starts_with($contentType, 'image/')) {
+                return 'Content-Type bukan image/* (' . ($contentType ?: 'kosong') . ')';
+            }
+
+            $length = (int) $response->header('Content-Length');
+            if ($length === 0 && $response->body() !== '') {
+                $length = strlen($response->body());
+            }
+
+            if ($length === 0) {
+                return 'ukuran file 0 byte';
+            }
+
+            return null;
+        } catch (\Throwable $e) {
+            return 'gagal diakses: ' . $e->getMessage();
+        }
     }
 
     /**
