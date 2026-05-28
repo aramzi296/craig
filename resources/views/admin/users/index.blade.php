@@ -47,15 +47,23 @@
             </button>
         </div>
         
-        <form action="{{ route('admin.users.store') }}" method="POST" style="display: flex; gap: 15px; align-items: flex-end; max-width: 600px;">
+        <form action="{{ route('admin.users.store') }}" method="POST" style="display: flex; flex-direction: column; gap: 15px; max-width: 600px;">
             @csrf
-            <div class="form-group" style="margin: 0; flex-grow: 1;">
-                <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Nomor WhatsApp</label>
-                <input type="text" name="whatsapp" required autofocus style="width: 100%; padding: 12px 18px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; font-size: 1rem; transition: border-color 0.2s;" placeholder="Contoh: 08123456789" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+            <div style="display: flex; gap: 15px; width: 100%;">
+                <div class="form-group" style="margin: 0; flex: 1;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Nama Lengkap (Opsional)</label>
+                    <input type="text" name="name" autofocus style="width: 100%; padding: 12px 18px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; font-size: 1rem; transition: border-color 0.2s;" placeholder="Contoh: Budi Santoso" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
+                <div class="form-group" style="margin: 0; flex: 1;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: 800; color: #475569; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Nomor WhatsApp <span style="color: #ef4444;">*</span></label>
+                    <input type="text" name="whatsapp" required style="width: 100%; padding: 12px 18px; border: 2px solid #e2e8f0; border-radius: 12px; outline: none; font-size: 1rem; transition: border-color 0.2s;" placeholder="Contoh: 08123456789" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#e2e8f0'">
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="padding: 13px 30px; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);">
-                Simpan User
-            </button>
+            <div style="display: flex; justify-content: flex-end;">
+                <button type="submit" class="btn btn-primary" style="padding: 13px 30px; font-weight: 800; border-radius: 12px; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);">
+                    Simpan User
+                </button>
+            </div>
         </form>
     </div>
 </div>

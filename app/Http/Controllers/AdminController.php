@@ -434,6 +434,7 @@ class AdminController extends Controller
     {
         $data = $request->validate([
             'whatsapp' => 'required|string|max:20',
+            'name' => 'nullable|string|max:255',
         ]);
 
         $normalizedWa = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']);
@@ -444,14 +445,14 @@ class AdminController extends Controller
         }
 
         // Generate automatic name and email (Match WhatsappBotService logic)
-        $randomName = 'user-' . rand(100000, 999999);
+        $userName = $request->filled('name') ? trim($request->name) : ('user-' . rand(100000, 999999));
         $randomSuffix = rand(100, 999);
         $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
         
         $randomPassword = \Illuminate\Support\Str::random(16);
 
         \App\Models\User::create([
-            'name' => $randomName,
+            'name' => $userName,
             'whatsapp' => $normalizedWa,
             'email' => $autoEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
@@ -459,7 +460,7 @@ class AdminController extends Controller
             'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
         ]);
 
-        return redirect()->route('admin.users')->with('success', "Pengguna baru ({$normalizedWa}) berhasil ditambahkan sebagai {$randomName}.");
+        return redirect()->route('admin.users')->with('success', "Pengguna baru ({$normalizedWa}) berhasil ditambahkan sebagai {$userName}.");
     }
 
     public function editUser($id)
