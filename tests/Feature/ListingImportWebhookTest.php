@@ -129,13 +129,13 @@ class ListingImportWebhookTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_creates_listing_from_form_post_with_nama_usaha_and_referensi(): void
+    public function test_creates_listing_from_form_post_with_judul_and_referensi(): void
     {
         config(['services.webhook_import.secret' => null]);
 
         $payload = [
             'nama' => 'John Doe',
-            'nama_usaha' => 'Toko Elektronik Makmur',
+            'judul' => 'Toko Elektronik Makmur',
             'alamat' => 'Batam',
             'keterangan_usaha' => 'Jual laptop dan HP murah.',
             'nomor_wa' => '081234567890',
@@ -160,8 +160,9 @@ class ListingImportWebhookTest extends TestCase
         $this->assertSame('Toko Elektronik Makmur', $listing->title);
         $this->assertSame('Jual laptop dan HP murah.', $listing->description);
         
-        // Assert the features contains referensi and nama_usaha
+        // Assert the features contains referensi and judul
         $this->assertIsArray($listing->features);
+        $this->assertSame('Toko Elektronik Makmur', $listing->features['judul']);
         $this->assertSame('Toko Elektronik Makmur', $listing->features['nama_usaha']);
         $this->assertSame('Rekomendasi Teman', $listing->features['referensi']);
 

@@ -136,12 +136,16 @@ class ListingImportWebhookService
             }
         }
 
-        // Auto fallback for nama_usaha if missing or empty
-        if (empty($record['nama_usaha']) && !empty($record['nama'])) {
-            $record['nama_usaha'] = $record['nama'];
+        // Auto fallback for judul
+        if (empty($record['judul'])) {
+            if (!empty($record['nama_usaha'])) {
+                $record['judul'] = $record['nama_usaha'];
+            } elseif (!empty($record['nama'])) {
+                $record['judul'] = $record['nama'];
+            }
         }
 
-        foreach (['nama', 'nama_usaha', 'alamat', 'keterangan_usaha', 'nomor_wa'] as $field) {
+        foreach (['nama', 'judul', 'alamat', 'keterangan_usaha', 'nomor_wa'] as $field) {
             if (empty($record[$field]) || !is_string($record[$field])) {
                 throw new InvalidArgumentException("Field {$field} wajib diisi.");
             }
@@ -239,7 +243,7 @@ class ListingImportWebhookService
      */
     protected function isPartialListingRecord(array $data): bool
     {
-        return isset($data['nama']) || isset($data['nomor_wa']) || isset($data['uploaded_files']) || isset($data['nama_usaha']);
+        return isset($data['nama']) || isset($data['nomor_wa']) || isset($data['uploaded_files']) || isset($data['judul']) || isset($data['nama_usaha']);
     }
 
     /**
@@ -273,7 +277,7 @@ class ListingImportWebhookService
     protected function createListing(User $user, array $data): Listing
     {
         $districtId = $this->resolveDistrictId($data['alamat']);
-        $title = trim($data['nama_usaha'] ?? $data['nama']);
+        $title = trim($data['judul'] ?? $data['nama']);
 
         return Listing::create([
             'user_id' => $user->id,
@@ -288,7 +292,8 @@ class ListingImportWebhookService
             'whatsapp_visibility' => 2,
             'comment_visibility' => 0,
             'features' => [
-                'nama_usaha' => trim($data['nama_usaha'] ?? ''),
+                'nama_usaha' => trim($data['nama_usaha'] ?? $data['judul'] ?? ''),
+                'judul' => trim($data['judul'] ?? ''),
                 'referensi' => trim($data['referensi'] ?? ''),
             ],
         ]);
