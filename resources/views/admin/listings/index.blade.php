@@ -65,7 +65,17 @@
                         </div>
                     @endif
                 </td>
-                <td>{{ $listing->user->name }}</td>
+                <td>
+                    <div style="font-weight: 600;">{{ $listing->user->name }}</div>
+                    @if($listing->user->whatsapp)
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}" target="_blank" rel="noopener noreferrer"
+                           style="font-size: 0.78rem; color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;"
+                           title="Chat WhatsApp {{ $listing->user->name }}">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            {{ $listing->user->whatsapp }}
+                        </a>
+                    @endif
+                </td>
                 <td>
                     @php
                         $cat = $listing->categories->first();

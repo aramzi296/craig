@@ -149,12 +149,24 @@
         </div>
     </div>
 
-    <div class="form-group-horizontal">
+    <div class="form-group-horizontal" style="align-items: flex-start;">
         <label for="foto_fitur">Foto Fitur <span style="color: #ef4444;">*</span></label>
         <div class="form-input-side">
+            @if(isset($existingFeaturedPhoto) && $existingFeaturedPhoto)
+                <div style="margin-bottom: 15px;">
+                    <div style="position: relative; width: 150px; height: 150px; border: 2px solid var(--primary); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <img src="{{ $existingFeaturedPhoto->getThumbnailUrl() }}" alt="Featured" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: var(--primary); color: white; font-size: 0.7rem; text-align: center; padding: 2px 0; font-weight: 700;">FOTO FITUR</div>
+                    </div>
+                </div>
+            @endif
             <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*" {{ isset($listing) && $listing ? '' : 'required' }}>
             <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                Pilih foto fitur utama (akan muncul di daftar pencarian). <strong style="color: #ef4444;">Wajib diunggah.</strong>
+                @if(isset($existingFeaturedPhoto) && $existingFeaturedPhoto)
+                    Ganti foto fitur utama (opsional).
+                @else
+                    Pilih foto fitur utama (akan muncul di daftar pencarian). <strong style="color: #ef4444;">Wajib diunggah.</strong>
+                @endif
             </small>
             @error('foto_fitur')
                 <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
@@ -334,9 +346,25 @@
         });
     </script>
 
-    <div class="form-group-horizontal">
+    <div class="form-group-horizontal" style="align-items: flex-start;">
         <label for="galeri">Galeri Foto</label>
         <div class="form-input-side">
+            @if(isset($existingGalleryPhotos) && $existingGalleryPhotos && $existingGalleryPhotos->count() > 0)
+                <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 15px;">
+                    @foreach($existingGalleryPhotos as $photo)
+                        <div style="position: relative; width: 100px; height: 100px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #f8fafc;">
+                            <img src="{{ $photo->getThumbnailUrl() }}" alt="Gallery" style="width: 100%; height: 100%; object-fit: cover;">
+                            @if(isset($deletePhotoRoute))
+                                <button type="button"
+                                        onclick="if(confirm('Hapus foto dari galeri?')) { document.getElementById('delete-photo-{{ $photo->id }}').submit(); }"
+                                        style="position: absolute; top: 5px; right: 5px; background: rgba(239,68,68,0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </button>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
             <input type="file" name="galeri[]" id="galeri" class="form-control @error('galeri') is-invalid @enderror" multiple accept="image/*">
             <small id="galeri-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
                 Maksimal <strong>{{ optional($listing)->is_premium ? get_setting('max_foto_iklan_premium', 12) : get_setting('max_foto_iklan', 4) }}</strong> foto. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
@@ -349,6 +377,34 @@
             @enderror
         </div>
     </div>
+
+    {{-- Website field (opsional) --}}
+    @if(isset($showWebsite) && $showWebsite)
+    <div class="form-group-horizontal">
+        <label for="website">Link Website</label>
+        <div class="form-input-side">
+            <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->website ?? '') }}" placeholder="https://example.com">
+            <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
+            @error('website')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+    @endif
+
+    {{-- Comment visibility (opsional, biasanya untuk admin) --}}
+    @if(isset($showCommentVisibility) && $showCommentVisibility)
+    <div class="form-group-horizontal">
+        <label for="comment_visibility">Kolom Komentar</label>
+        <div class="form-input-side">
+            <select name="comment_visibility" id="comment_visibility" class="form-control">
+                <option value="1" {{ old('comment_visibility', $listing->comment_visibility ?? 1) == 1 ? 'selected' : '' }}>Aktifkan</option>
+                <option value="0" {{ old('comment_visibility', $listing->comment_visibility ?? 1) == 0 ? 'selected' : '' }}>Nonaktifkan</option>
+            </select>
+            <small class="text-muted">Pilih apakah pengunjung bisa meninggalkan komentar.</small>
+        </div>
+    </div>
+    @endif
 
     <div class="form-group-horizontal">
         <label for="district_id">Kecamatan</label>
@@ -411,11 +467,14 @@
         }
     });
 </script>
-    <div style="max-width: 720px; margin: 20px auto 0;">
-        @if(auth()->check() && auth()->user()->ads_quota <= 0)
-            <button type="button" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight:700;" disabled>Jatah Slot Habis</button>
+    <div style="max-width: 720px; margin: 20px auto 0; display: flex; gap: 15px;">
+        @if(isset($cancelUrl))
+            <a href="{{ $cancelUrl }}" class="btn btn-secondary" style="padding: 15px 30px; font-weight:700;">Batal</a>
+        @endif
+        @if(!isset($isAdminForm) && auth()->check() && auth()->user()->ads_quota <= 0)
+            <button type="button" class="btn btn-primary" style="flex: 1; padding: 15px; font-weight:700;" disabled>Jatah Slot Habis</button>
         @else
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight:700;">{{ $submit_label ?? 'Simpan' }}</button>
+            <button type="submit" class="btn btn-primary" style="flex: 1; padding: 15px; font-weight:700;">{{ $submit_label ?? 'Simpan' }}</button>
         @endif
     </div>
 

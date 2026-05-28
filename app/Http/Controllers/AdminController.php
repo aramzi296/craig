@@ -264,7 +264,7 @@ class AdminController extends Controller
 
     public function editListing($id)
     {
-        $listing = \App\Models\Listing::findOrFail($id);
+        $listing = \App\Models\Listing::with(['photos', 'categories', 'tags'])->findOrFail($id);
         
         $categories = \App\Models\Category::whereNull('parent_id')
             ->with(['children' => function($q) {
@@ -455,7 +455,7 @@ class AdminController extends Controller
             'whatsapp' => $normalizedWa,
             'email' => $autoEmail,
             'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
-            'is_verified' => true,
+            'is_verified' => \DB::raw('true'),
             'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
         ]);
 
