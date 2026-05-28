@@ -3,7 +3,7 @@
 @section('admin_content')
 <div style="margin-bottom: 40px;">
     <h1 style="font-size: 2rem; font-weight: 700;">Permintaan Premium</h1>
-    <p style="color: var(--text-muted);">Verifikasi pembayaran QRIS dan aktifkan status premium iklan.</p>
+    <p style="color: var(--text-muted);">Verifikasi pembayaran QRIS dan aktifkan status premium usaha.</p>
 </div>
 
 <div class="glass" style="padding: 0; overflow: hidden; border-radius: var(--radius);">
@@ -11,7 +11,7 @@
         <thead>
             <tr>
                 <th>Pengguna</th>
-                <th>Iklan</th>
+                <th>Usaha</th>
                 <th>Paket</th>
                 <th>Status</th>
                 <th>Aksi</th>
@@ -73,7 +73,7 @@
                     @else
                         <form action="{{ route('admin.premium_requests.reset', $req->id) }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="return confirm('Kembalikan status ke pending? Fitur premium di iklan akan dinonaktifkan.')">
+                                <button type="submit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" onclick="return confirm('Kembalikan status ke pending? Fitur premium di usaha akan dinonaktifkan.')">
                                 <i class="fa-solid fa-rotate-left"></i> Reset ke Pending
                             </button>
                         </form>

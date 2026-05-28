@@ -20,7 +20,7 @@
         <div class="stat-value">{{ $stats['listings'] }}</div>
     </div>
     <div class="stat-card">
-        <div class="stat-label">Iklan Premium</div>
+        <div class="stat-label">Usaha Premium</div>
         <div class="stat-value">{{ $stats['featured'] }}</div>
     </div>
 </div>

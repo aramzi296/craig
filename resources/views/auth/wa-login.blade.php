@@ -118,7 +118,7 @@
         </form>
 
         <div class="wa-footer">
-            Belum punya akun? <a href="{{ route('listings.create') }}">Pasang Iklan Sekarang</a>
+            Belum punya akun? <a href="{{ route('listings.create') }}">Daftarkan Usaha Sekarang</a>
         </div>
 
     </div>

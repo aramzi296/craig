@@ -1,7 +1,7 @@
 @if ($paginator->hasPages())
     <div class="pagination-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px; margin-top: 30px; padding: 20px 0;">
         <div class="pagination-info" style="font-size: 0.85rem; color: #64748b; font-weight: 500; background: #f8fafc; padding: 6px 16px; border-radius: 50px; border: 1px solid #f1f5f9;">
-            Menampilkan <span style="font-weight: 700; color: var(--primary);">{{ $paginator->firstItem() }}</span>-{{ $paginator->lastItem() }} dari <span style="font-weight: 700; color: #1e293b;">{{ $paginator->total() }}</span> iklan
+            Menampilkan <span style="font-weight: 700; color: var(--primary);">{{ $paginator->firstItem() }}</span>-{{ $paginator->lastItem() }} dari <span style="font-weight: 700; color: #1e293b;">{{ $paginator->total() }}</span> usaha
         </div>
 
         <nav role="navigation" aria-label="Pagination" style="display: flex; gap: 8px; align-items: center;">

@@ -31,8 +31,8 @@
                     <div style="margin-bottom: 35px;">
                         <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">2. Penggunaan Informasi</h2>
                         <ul style="list-style: none; padding: 0; font-size: 0.95rem;">
-                            <li style="display: flex; gap: 10px; margin-bottom: 8px;"><i class="fas fa-arrow-right" style="color: #64748b; margin-top: 4px; font-size: 0.8rem;"></i> <span>Menampilkan profil iklan Anda di website.</span></li>
-                            <li style="display: flex; gap: 10px; margin-bottom: 8px;"><i class="fas fa-arrow-right" style="color: #64748b; margin-top: 4px; font-size: 0.8rem;"></i> <span>Menghubungi Anda terkait iklan yang diterbitkan.</span></li>
+                            <li style="display: flex; gap: 10px; margin-bottom: 8px;"><i class="fas fa-arrow-right" style="color: #64748b; margin-top: 4px; font-size: 0.8rem;"></i> <span>Menampilkan profil usaha Anda di website.</span></li>
+                            <li style="display: flex; gap: 10px; margin-bottom: 8px;"><i class="fas fa-arrow-right" style="color: #64748b; margin-top: 4px; font-size: 0.8rem;"></i> <span>Menghubungi Anda terkait usaha yang diterbitkan.</span></li>
                             <li style="display: flex; gap: 10px;"><i class="fas fa-arrow-right" style="color: #64748b; margin-top: 4px; font-size: 0.8rem;"></i> <span>Meningkatkan keamanan situs kami.</span></li>
                         </ul>
                     </div>

@@ -2,8 +2,8 @@
 
 @section('dashboard_content')
     <div style="margin-bottom: 40px;">
-        <h1 style="font-size: 2.5rem; font-weight: 700;">Edit Iklan Saya</h1>
-        <p style="color: var(--text-muted);">Ubah informasi iklan Anda: {{ $listing->title }}</p>
+        <h1 style="font-size: 2.5rem; font-weight: 700;">Edit Profil Usaha Saya</h1>
+        <p style="color: var(--text-muted);">Ubah informasi profil usaha Anda: {{ $listing->title }}</p>
     </div>
 
     @if ($errors->any())
@@ -55,7 +55,7 @@
 <div id="modalContohJudul" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.55); align-items:center; justify-content:center; padding:20px;" onclick="if(event.target===this) this.style.display='none'">
     <div style="background:var(--surface, #fff); border-radius:16px; max-width:600px; width:100%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3); animation: modalIn .2s ease;">
         <div style="padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:#fff; z-index:10;">
-            <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-lightbulb" style="color:#f59e0b; margin-right:8px;"></i>Contoh Judul Iklan</h3>
+                    <h3 style="margin:0; font-size:1.1rem;"><i class="fa-solid fa-lightbulb" style="color:#f59e0b; margin-right:8px;"></i>Contoh Judul Usaha</h3>
             <button onclick="document.getElementById('modalContohJudul').style.display='none'" style="background:none; border:none; cursor:pointer; color:var(--text-muted); font-size:1.5rem;">&times;</button>
         </div>
         <div style="padding:20px 24px;">

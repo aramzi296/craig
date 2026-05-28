@@ -3,7 +3,7 @@
 @section('admin_content')
 <div style="margin-bottom: 40px;">
     <h1 style="font-size: 2rem; font-weight: 700;">Edit Listing</h1>
-    <p style="color: var(--text-muted);">Ubah informasi iklan: {{ $listing->title }}</p>
+    <p style="color: var(--text-muted);">Ubah informasi usaha: {{ $listing->title }}</p>
 </div>
 
 <div class="form-card">
@@ -88,7 +88,7 @@
         </script>
 
         <div class="form-group-horizontal">
-            <label for="title">Judul Iklan</label>
+            <label for="title">Judul Usaha</label>
             <div class="form-input-side">
                 <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title', $listing->title) }}" required>
                 @error('title')
@@ -331,7 +331,7 @@
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
             <a href="{{ route('admin.listings') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
-            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Iklan</button>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Perbarui Usaha</button>
         </div>
     </form>
 </div>

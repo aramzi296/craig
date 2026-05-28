@@ -3,7 +3,7 @@
 @section('admin_content')
 <div style="margin-bottom: 40px;">
     <h1 style="font-size: 2rem; font-weight: 700;">Tambah Listing Baru</h1>
-    <p style="color: var(--text-muted);">Buat iklan baru di BatamCraig sebagai admin.</p>
+    <p style="color: var(--text-muted);">Buat usaha baru di BatamCraig sebagai admin.</p>
 </div>
 
 <div class="form-card">
@@ -11,7 +11,7 @@
         @csrf
         
         <div class="form-group-horizontal">
-            <label for="user_id">Nama Pengguna (Pemilik Iklan)</label>
+            <label for="user_id">Nama Pengguna (Pemilik Usaha)</label>
             <div class="form-input-side">
                 <select name="user_id" id="user_id" class="form-control @error('user_id') is-invalid @enderror" required>
                     <option value="">Pilih Pengguna</option>
@@ -98,7 +98,7 @@
         </script>
 
         <div class="form-group-horizontal">
-            <label for="title">Judul Iklan</label>
+            <label for="title">Judul Usaha</label>
             <div class="form-input-side">
                 <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Rumah Minimalis di Batam Centre" required>
                 @error('title')
@@ -283,7 +283,7 @@
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end;">
             <a href="{{ route('admin.listings') }}" class="btn btn-outline" style="padding: 12px 30px;">Batal</a>
-            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Terbitkan Iklan</button>
+            <button type="submit" class="btn btn-primary" style="padding: 12px 30px;">Terbitkan Usaha</button>
         </div>
     </form>
 </div>

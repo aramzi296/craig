@@ -23,7 +23,7 @@
         @include('listings._form', [
     'form_action' => route('listings.store'),
     'form_method' => 'POST',
-    'submit_label' => 'Terbitkan Iklan',
+    'submit_label' => 'Terbitkan Profil Usaha',
     'listing' => null,
     'categories' => $categories,
     'tags' => $tags,

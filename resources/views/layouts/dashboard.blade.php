@@ -26,7 +26,7 @@
             @endif
             <li class="sidebar-item">
                 <a href="{{ route('dashboard', ['tab' => 'my-listings']) }}" class="sidebar-link {{ request('tab') == 'my-listings' ? 'active' : '' }}">
-                    <i class="fa-solid fa-list"></i> Iklan Saya
+                    <i class="fa-solid fa-list"></i> Usaha Saya
                 </a>
             </li>
             <li class="sidebar-item">

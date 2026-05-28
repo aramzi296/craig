@@ -21,14 +21,14 @@ class DashboardController extends Controller
         // Listing display based on tab
         if ($tab == 'favorites') {
             $listings = $user->favorites()->with('tags')->withCount('comments')->latest()->paginate(10)->withQueryString();
-            $tableTitle = 'Iklan Favorit Saya';
+            $tableTitle = 'Usaha Favorit Saya';
         } elseif ($tab == 'my-listings') {
             $listings = \App\Models\Listing::where('user_id', $user->id)->with('tags')->withCount('comments')->latest()->paginate(10)->withQueryString();
-            $tableTitle = 'Kelola Iklan Saya';
+            $tableTitle = 'Kelola Usaha Saya';
         } else {
             // Overview (Home)
             $listings = \App\Models\Listing::where('user_id', $user->id)->with('tags')->withCount('comments')->latest()->paginate(5)->withQueryString();
-            $tableTitle = 'Iklan Terbaru Saya';
+            $tableTitle = 'Usaha Terbaru Saya';
         }
 
         // Unused Premium Packages
@@ -62,11 +62,11 @@ class DashboardController extends Controller
                 ->exists();
 
             if ($hasActivePremium) {
-                return redirect()->route('dashboard')->with('error', 'Iklan ini sudah memiliki paket Premium yang aktif.');
+                return redirect()->route('dashboard')->with('error', 'Usaha ini sudah memiliki paket Premium yang aktif.');
             }
 
             if ($listing->hasPendingPremiumRequest()) {
-                return redirect()->route('dashboard')->with('error', 'Iklan ini sedang dalam proses verifikasi Premium oleh admin.');
+                return redirect()->route('dashboard')->with('error', 'Usaha ini sedang dalam proses verifikasi Premium oleh admin.');
             }
         }
 
@@ -92,7 +92,7 @@ class DashboardController extends Controller
                 ->exists();
 
             if ($hasExistingRequest) {
-                return redirect()->route('dashboard')->with('error', 'Permintaan premium untuk iklan ini sudah ada atau sedang diproses.');
+                return redirect()->route('dashboard')->with('error', 'Permintaan premium untuk usaha ini sudah ada atau sedang diproses.');
             }
         }
 
@@ -126,8 +126,8 @@ class DashboardController extends Controller
             ->firstOrFail();
 
         // Check if listing already has active/pending premium
-        if ($listing->is_premium || $listing->hasPendingPremiumRequest()) {
-            return redirect()->route('dashboard')->with('error', 'Iklan ini sudah premium atau sedang dalam proses.');
+            if ($listing->is_premium || $listing->hasPendingPremiumRequest()) {
+            return redirect()->route('dashboard')->with('error', 'Usaha ini sudah premium atau sedang dalam proses.');
         }
 
         $premiumRequest->update([
@@ -137,6 +137,6 @@ class DashboardController extends Controller
 
         $listing->update(['is_premium' => \DB::raw('true')]);
 
-        return redirect()->route('dashboard')->with('success', 'Paket Premium berhasil diterapkan pada iklan Anda.');
+        return redirect()->route('dashboard')->with('success', 'Paket Premium berhasil diterapkan pada usaha Anda.');
     }
 }

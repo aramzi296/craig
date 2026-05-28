@@ -26,7 +26,7 @@
         <div style="font-size: 1.5rem;"><i class="fa-solid fa-crown"></i></div>
         <div>
             <p style="font-weight: 700; margin-bottom: 4px;">Menggunakan Paket Premium</p>
-            <p style="font-size: 0.9rem; margin: 0;">Anda sedang menggunakan paket <strong>{{ $premiumRequest->package->name }}</strong> yang sudah Anda miliki. Iklan ini akan otomatis mendapatkan fitur premium.</p>
+            <p style="font-size: 0.9rem; margin: 0;">Anda sedang menggunakan paket <strong>{{ $premiumRequest->package->name }}</strong> yang sudah Anda miliki. Usaha ini akan otomatis mendapatkan fitur premium.</p>
         </div>
     </div>
 @endif
@@ -35,8 +35,8 @@
     <div style="background: #fef2f2; border: 1px solid #fee2e2; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; color: #991b1b;">
         <div style="font-size: 1.5rem;"><i class="fa-solid fa-circle-exclamation"></i></div>
         <div>
-            <p style="font-weight: 700; margin-bottom: 4px;">Jatah Slot Iklan Gratis Habis</p>
-            <p style="font-size: 0.9rem; margin: 0;">Jatah slot iklan gratis Anda sudah habis. Silakan hubungi admin untuk menambah slot iklan.</p>
+            <p style="font-weight: 700; margin-bottom: 4px;">Jatah Slot Usaha Gratis Habis</p>
+            <p style="font-size: 0.9rem; margin: 0;">Jatah slot usaha gratis Anda sudah habis. Silakan hubungi admin untuk menambah slot usaha.</p>
         </div>
     </div>
 @endif
@@ -138,10 +138,10 @@
     <div class="form-group-horizontal">
         <label for="description">Keterangan Usaha <span style="color: #ef4444;">*</span></label>
         <div class="form-input-side">
-            <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan mengenai usaha Anda, produk/jasa yang ditawarkan, jam operasional, dll." required maxlength="{{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description ?? '') }}</textarea>
+            <textarea name="description" id="description" rows="6" class="form-control @error('description') is-invalid @enderror" placeholder="Jelaskan mengenai usaha Anda, produk/jasa yang ditawarkan, jam operasional, dll." required maxlength="{{ optional($listing)->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}">{{ old('description', $listing->description ?? '') }}</textarea>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
                 <small class="text-muted" style="margin: 0;">Jelaskan detail produk/jasa, jam operasional, dll.</small>
-                <small class="text-muted" id="description-char-count" style="font-weight: 600; font-size: 0.85rem; margin: 0;">0/{{ $listing->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}</small>
+                <small class="text-muted" id="description-char-count" style="font-weight: 600; font-size: 0.85rem; margin: 0;">0/{{ optional($listing)->is_premium ? get_setting('huruf_deskripsi_iklan_premium', 2000) : get_setting('huruf_deskripsi_iklan', 100) }}</small>
             </div>
             @error('description')
                 <div class="invalid-feedback">{{ $message }}</div>
@@ -233,7 +233,7 @@
                 }
             </style>
 
-            <input name="tags" id="tags-tagify" class="form-control" placeholder="isikan tag tanpa tanda #...." value="{{ old('tags', $listing->tags->pluck('name')->implode(',') ?? '') }}">
+            <input name="tags" id="tags-tagify" class="form-control" placeholder="isikan tag tanpa tanda #...." value="{{ old('tags', isset($listing) ? $listing->tags->pluck('name')->implode(',') : '') }}">
             
             <small id="tag-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
                 Masukkan tag sesuai yang Anda butuhkan, pisahkan setiap tag dengan tanda koma.
@@ -250,7 +250,7 @@
                     
                     window.tagifyInstance = new Tagify(input, {
                         whitelist: whitelist,
-                        maxTags: {{ $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3) }},
+                        maxTags: {{ optional($listing)->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3) }},
                         dropdown: {
                             maxItems: 20,
                             classname: "tags-look",
@@ -269,7 +269,7 @@
             <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;">
                 <option value="">Pilih Kategori Utama</option>
                 @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ old('parent_category_id', $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    <option value="{{ $cat->id }}" {{ old('parent_category_id', isset($listing) && $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -324,8 +324,8 @@
                 });
 
                 // Populate on old/initial value if present
-                const oldParent = @json(old('parent_category_id', $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : ''));
-                const oldChild = @json(old('category_id', $listing->categories->first() && $listing->categories->first()->parent_id ? $listing->categories->first()->id : ''));
+                const oldParent = @json(old('parent_category_id', isset($listing) && $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : ''));
+                const oldChild = @json(old('category_id', isset($listing) && $listing->categories->first() && $listing->categories->first()->parent_id ? $listing->categories->first()->id : ''));
 
                 if (oldParent) {
                     updateChildCategories(oldParent, oldChild);    
@@ -339,7 +339,7 @@
         <div class="form-input-side">
             <input type="file" name="galeri[]" id="galeri" class="form-control @error('galeri') is-invalid @enderror" multiple accept="image/*">
             <small id="galeri-info" style="color: var(--text-muted); display: block; margin-top: 8px;">
-                Maksimal <strong>{{ $listing->is_premium ? get_setting('max_foto_iklan_premium', 12) : get_setting('max_foto_iklan', 4) }}</strong> foto. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
+                Maksimal <strong>{{ optional($listing)->is_premium ? get_setting('max_foto_iklan_premium', 12) : get_setting('max_foto_iklan', 4) }}</strong> foto. Format: <strong>{{ strtoupper(str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp'))) }}</strong>. Ukuran maks: <strong>{{ get_setting('max_image_size', 2048) / 1024 }}MB</strong> per foto.
             </small>
             @error('galeri')
                 <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
@@ -411,5 +411,12 @@
         }
     });
 </script>
+    <div style="max-width: 720px; margin: 20px auto 0;">
+        @if(auth()->check() && auth()->user()->ads_quota <= 0)
+            <button type="button" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight:700;" disabled>Jatah Slot Habis</button>
+        @else
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-weight:700;">{{ $submit_label ?? 'Simpan' }}</button>
+        @endif
+    </div>
 
 </form>

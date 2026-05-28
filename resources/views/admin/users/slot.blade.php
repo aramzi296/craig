@@ -2,8 +2,8 @@
 
 @section('admin_content')
 <div style="margin-bottom: 40px;">
-    <h1 style="font-size: 2rem; font-weight: 700;">Kelola Slot Iklan Gratis</h1>
-    <p style="color: var(--text-muted);">Tambah atau kurangi jatah slot iklan untuk pengguna tertentu atau semua pengguna sekaligus.</p>
+    <h1 style="font-size: 2rem; font-weight: 700;">Kelola Slot Usaha Gratis</h1>
+    <p style="color: var(--text-muted);">Tambah atau kurangi jatah slot usaha untuk pengguna tertentu atau semua pengguna sekaligus.</p>
 </div>
 
 {{-- Info Panel --}}
@@ -34,8 +34,8 @@
         <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
             <i class="fa-solid fa-users" style="color: var(--primary);"></i> Semua Pengguna
         </h2>
-        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 25px;">
-            Tambah atau kurangi slot iklan untuk <strong>seluruh</strong> pengguna terdaftar sekaligus.
+            <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 25px;">
+            Tambah atau kurangi slot usaha untuk <strong>seluruh</strong> pengguna terdaftar sekaligus.
         </p>
 
         <form action="{{ route('admin.users.slot.bulk') }}" method="POST">
@@ -64,8 +64,8 @@
                 </small>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;"
-                onclick="return confirm('Apakah Anda yakin ingin mengubah slot iklan untuk SEMUA pengguna?')">
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;"
+                onclick="return confirm('Apakah Anda yakin ingin mengubah slot usaha untuk SEMUA pengguna?')">
                 <i class="fa-solid fa-users-gear"></i> Terapkan ke Semua Pengguna
             </button>
         </form>
@@ -77,7 +77,7 @@
             <i class="fa-solid fa-user-gear" style="color: var(--accent);"></i> Pengguna Tertentu
         </h2>
         <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 25px;">
-            Cari pengguna berdasarkan nama, email, atau nomor WhatsApp, lalu ubah slot iklannya.
+            Cari pengguna berdasarkan nama, email, atau nomor WhatsApp, lalu ubah slot usahanya.
         </p>
 
         <form action="{{ route('admin.users.slot.single') }}" method="POST">
@@ -156,8 +156,8 @@
                     <th>Nama</th>
                     <th>WhatsApp</th>
                     <th style="text-align: center;">Slot Tersisa</th>
-                    <th style="text-align: center;">Total Iklan</th>
-                    <th style="text-align: center;">Iklan Aktif</th>
+                    <th style="text-align: center;">Total Usaha</th>
+                    <th style="text-align: center;">Usaha Aktif</th>
                     <th style="text-align: right;">Aksi Cepat</th>
                 </tr>
             </thead>

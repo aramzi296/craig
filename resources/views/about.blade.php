@@ -98,7 +98,7 @@
             <h2 style="font-size: 1.8rem; font-weight: 800; color: #1e293b; margin-bottom: 25px;">Siap Bergabung?</h2>
             <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
                 <a href="{{ route('listings.create') }}" class="btn btn-primary" style="padding: 10px 25px; font-weight: 700; font-size: 0.95rem;">Mulai Posting Sekarang</a>
-                <a href="{{ route('home') }}" class="btn btn-outline" style="padding: 10px 25px; font-weight: 700; font-size: 0.95rem;">Lihat Iklan Terbaru</a>
+                <a href="{{ route('home') }}" class="btn btn-outline" style="padding: 10px 25px; font-weight: 700; font-size: 0.95rem;">Lihat Usaha Terbaru</a>
             </div>
         </div>
     </section>

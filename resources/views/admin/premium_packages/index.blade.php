@@ -4,7 +4,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
     <div>
         <h1 style="font-size: 2rem; font-weight: 700;">Paket Premium</h1>
-        <p style="color: var(--text-muted);">Definisikan harga dan durasi paket untuk iklan berbayar.</p>
+        <p style="color: var(--text-muted);">Definisikan harga dan durasi paket untuk promosi usaha berbayar.</p>
     </div>
     <a href="{{ route('admin.premium_packages.create') }}" class="btn btn-primary" style="padding: 12px 25px;">
         <i class="fa-solid fa-plus"></i> Tambah Paket

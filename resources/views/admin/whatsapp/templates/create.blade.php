@@ -12,7 +12,7 @@
         
         <div style="margin-bottom: 25px;">
             <label style="display: block; margin-bottom: 10px; font-weight: 600; font-size: 0.95rem; color: var(--text);">Nama Template</label>
-            <input type="text" name="name" placeholder="Contoh: Tagihan Iklan, Verifikasi Akun, dll" required 
+            <input type="text" name="name" placeholder="Contoh: Tagihan Usaha, Verifikasi Akun, dll" required 
                 style="width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #cbd5e1; background: #f8fafc; color: var(--text); font-size: 1rem; outline: none; transition: all 0.3s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"
                 onfocus="this.style.borderColor='var(--primary)'; this.style.background='white';"
                 onblur="this.style.borderColor='#cbd5e1'; this.style.background='#f8fafc';">

@@ -71,7 +71,7 @@
                             Informasi Publik & Privasi
                         </h2>
                         <p style="font-size: 0.95rem; margin-bottom: 10px;">
-                            Harap diperhatikan bahwa seluruh informasi yang Anda berikan saat memasang iklan, baik berupa <strong>nomor telepon/WhatsApp, email, deskripsi/keterangan, tautan (link), maupun foto-foto</strong>, merupakan informasi yang memang Anda inginkan agar diketahui oleh publik.
+                            Harap diperhatikan bahwa seluruh informasi yang Anda berikan saat mendaftarkan usaha, baik berupa <strong>nomor telepon/WhatsApp, email, deskripsi/keterangan, tautan (link), maupun foto-foto</strong>, merupakan informasi yang memang Anda inginkan agar diketahui oleh publik.
                         </p>
                         <p style="font-size: 0.95rem; color: #e53e3e; font-weight: 700;">
                             Jika Anda tidak ingin informasi pribadi atau data tertentu dilihat dan diakses oleh publik, maka jangan memasukkan, mendaftarkan, atau mempublikasikannya ke dalam website ini.

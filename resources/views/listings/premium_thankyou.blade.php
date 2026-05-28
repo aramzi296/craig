@@ -9,7 +9,7 @@
         
         <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; color: var(--text);">Terima Kasih!</h1>
         <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 40px;">
-            Konfirmasi pembayaran Anda telah kami terima. Admin kami akan segera melakukan verifikasi dan mengaktifkan fitur <strong>Premium</strong> untuk iklan Anda dalam waktu maksimal 1x24 jam.
+            Konfirmasi pembayaran Anda telah kami terima. Admin kami akan segera melakukan verifikasi dan mengaktifkan fitur <strong>Premium</strong> untuk usaha Anda dalam waktu maksimal 1x24 jam.
         </p>
 
         <div style="display: flex; flex-direction: column; gap: 15px;">

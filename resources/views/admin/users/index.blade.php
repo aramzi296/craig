@@ -7,7 +7,7 @@
         <p style="color: var(--text-muted);">Daftar semua pengguna yang terdaftar di {{ config('app.name') }}.</p>
     </div>
     <a href="{{ route('admin.users.slot') }}" class="btn btn-primary">
-        <i class="fa-solid fa-square-plus"></i> Kelola Slot Iklan
+        <i class="fa-solid fa-square-plus"></i> Kelola Slot Usaha
     </a>
 </div>
 
@@ -132,7 +132,7 @@
 
 
                             <a href="{{ route('admin.listings.create', ['user_id' => $user->id]) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: var(--primary); text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
-                                <i class="fa-solid fa-square-plus" style="width: 16px;"></i> Pasang Iklan
+                                <i class="fa-solid fa-square-plus" style="width: 16px;"></i> Pasang Usaha
                             </a>
 
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
@@ -143,7 +143,7 @@
 
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
 
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini? Semua iklan milik pengguna ini juga akan terhapus.')" style="margin: 0;">
+                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini? Semua usaha milik pengguna ini juga akan terhapus.')" style="margin: 0;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; cursor: pointer; font-size: 0.9rem; font-family: inherit;">

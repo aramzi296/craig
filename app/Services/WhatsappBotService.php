@@ -94,7 +94,7 @@ class WhatsappBotService
 
         if ($lowerText === 'aktivasi iklan' || $lowerText === 'aktivasi') {
             $this->setState($phone, ['step' => 'awaiting_activation_code']);
-            $this->whatsapp->sendMessage($phone, "🔑 *Aktivasi Iklan*\n\nSilakan kirimkan *Kode Unik* iklan yang ingin Anda aktifkan.");
+            $this->whatsapp->sendMessage($phone, "🔑 *Aktivasi Usaha*\n\nSilakan kirimkan *Kode Unik* usaha yang ingin Anda aktifkan.");
             return;
         }
 
@@ -149,11 +149,11 @@ class WhatsappBotService
             "2️⃣ *daftar*\n" .
             "Untuk mulai mendaftarkan profil usaha baru secara langsung melalui WhatsApp ini.\n\n" .
             "3️⃣ *lapak saya*\n" .
-            "Untuk melihat daftar iklan yang telah Anda pasang beserta statusnya.\n\n" .
+            "Untuk melihat daftar usaha yang telah Anda pasang beserta statusnya.\n\n" .
             "4️⃣ *aktivasi iklan*\n" .
-            "Untuk mengaktifkan iklan yang dibuat oleh Admin menggunakan Kode Unik.\n\n" .
+            "Untuk mengaktifkan usaha yang dibuat oleh Admin menggunakan Kode Unik.\n\n" .
             "5️⃣ *kuota iklan*\n" .
-            "Untuk melihat sisa jatah slot iklan Anda.\n\n" .
+            "Untuk melihat sisa jatah slot usaha Anda.\n\n" .
             "6️⃣ *menu*\n" .
             "Untuk menampilkan daftar perintah ini kembali.\n\n" .
             "_Silakan ketik salah satu kata kunci di atas untuk memulai._"
@@ -173,16 +173,16 @@ class WhatsappBotService
         $activeAdsCount = $user->listings()->whereRaw('is_active = true')->count();
         $totalAds = $user->listings()->count();
 
-        $msg = "📊 *Status Slot Iklan*\n\n" .
-               "Halo, *{$user->name}*!\n" .
-               "Berikut adalah informasi slot iklan Anda:\n\n" .
-               "✅ Sisa Slot Iklan: *{$user->ads_quota}*\n" .
-               "📢 Iklan Aktif Saat Ini: *{$activeAdsCount}*\n" .
-               "📄 Total Iklan Dipasang: *{$totalAds}*\n" .
-               "ℹ️ Slot Default per Akun: *{$defaultSlot}*\n";
+         $msg = "📊 *Status Slot Usaha*\n\n" .
+             "Halo, *{$user->name}*!\n" .
+             "Berikut adalah informasi slot usaha Anda:\n\n" .
+             "✅ Sisa Slot Usaha: *{$user->ads_quota}*\n" .
+             "📢 Usaha Aktif Saat Ini: *{$activeAdsCount}*\n" .
+             "📄 Total Usaha Dipasang: *{$totalAds}*\n" .
+             "ℹ️ Slot Default per Akun: *{$defaultSlot}*\n";
 
         if ($user->ads_quota <= 0) {
-            $msg .= "\n⚠️ _Slot iklan Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
+            $msg .= "\n⚠️ _Slot usaha Anda sudah habis. Silakan hubungi admin untuk menambah slot._";
         } else {
             $msg .= "\n_Ketik *daftar* untuk menggunakan slot Anda._";
         }
@@ -215,7 +215,7 @@ class WhatsappBotService
             ->limit($perPage)
             ->get();
 
-        $msg = "📋 *Daftar Iklan di Lapak Anda (Hal {$page}/{$totalPages})*\n\n";
+        $msg = "📋 *Daftar Usaha di Lapak Anda (Hal {$page}/{$totalPages})*\n\n";
 
         foreach ($listings as $i => $listing) {
             $status = $listing->is_active ? "✅ Aktif" : "⏳ Non-Aktif";
@@ -530,10 +530,10 @@ class WhatsappBotService
             $adminWa = get_setting('admin_whatsapp', config('services.whatsapp.bot_number', ''));
             $this->whatsapp->sendMessage(
                 $phone,
-                "⚠️ *Jatah Slot Iklan Habis*\n\n" .
-                "Maaf, jatah slot iklan gratis Anda sudah habis.\n\n" .
-                "Setiap akun mendapatkan *{$defaultSlot} slot iklan* secara default. " .
-                "Jika Anda memerlukan lebih banyak slot, silakan hubungi admin untuk menambah slot iklan Anda." .
+                "⚠️ *Jatah Slot Usaha Habis*\n\n" .
+                "Maaf, jatah slot usaha gratis Anda sudah habis.\n\n" .
+                "Setiap akun mendapatkan *{$defaultSlot} slot usaha* secara default. " .
+                "Jika Anda memerlukan lebih banyak slot, silakan hubungi admin untuk menambah slot usaha Anda." .
                 ($adminWa ? "\n\n📞 Admin: wa.me/{$adminWa}" : "")
             );
             return;
@@ -563,7 +563,7 @@ class WhatsappBotService
 
         if ($lower === 'batal') {
             $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "❌ Pemasangan iklan dibatalkan.");
+            $this->whatsapp->sendMessage($phone, "❌ Pendaftaran usaha dibatalkan.");
             return;
         }
 
@@ -595,21 +595,21 @@ class WhatsappBotService
         }
 
         if ($listing->is_active) {
-            $this->whatsapp->sendMessage($phone, "ℹ️ *Iklan Sudah Aktif*\n\nIklan dengan kode *{$code}* sudah dalam status aktif.");
+            $this->whatsapp->sendMessage($phone, "ℹ️ *Usaha Sudah Aktif*\n\nUsaha dengan kode *{$code}* sudah dalam status aktif.");
             $this->clearState($phone);
             return;
         }
 
         // Check if activation window is expired (10 days)
         if ($listing->expires_at && $listing->expires_at->isPast()) {
-            $this->whatsapp->sendMessage($phone, "⚠️ *Kode Kedaluwarsa*\n\nMaaf, masa aktivasi untuk iklan ini sudah habis (lebih dari 10 hari). Silakan hubungi admin untuk bantuan.");
+            $this->whatsapp->sendMessage($phone, "⚠️ *Kode Kedaluwarsa*\n\nMaaf, masa aktivasi untuk usaha ini sudah habis (lebih dari 10 hari). Silakan hubungi admin untuk bantuan.");
             $this->clearState($phone);
             return;
         }
 
         // Check ownership
         if ($listing->user->whatsapp !== $phone) {
-            $this->whatsapp->sendMessage($phone, "🚫 *Akses Ditolak*\n\nNomor WhatsApp Anda tidak sesuai dengan pemilik iklan ini. Aktivasi hanya dapat dilakukan oleh pemilik iklan.");
+            $this->whatsapp->sendMessage($phone, "🚫 *Akses Ditolak*\n\nNomor WhatsApp Anda tidak sesuai dengan pemilik usaha ini. Aktivasi hanya dapat dilakukan oleh pemilik usaha.");
             $this->clearState($phone);
             return;
         }
@@ -823,9 +823,9 @@ class WhatsappBotService
                     }
                 }
 
-                $this->whatsapp->sendMessage(
+                    $this->whatsapp->sendMessage(
                     $phone, 
-                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *#Tagar* untuk iklan Anda ini? (maksimal 30 huruf)." . $tagList
+                    "✅ Foto ke-{$photoCount} diterima. Anda sudah mencapai batas maksimal foto.\n\n📂 Apa nama *#Tagar* untuk usaha Anda ini? (maksimal 30 huruf)." . $tagList
                 );
             } else {
                 $next = $photoCount + 1;
@@ -879,7 +879,7 @@ class WhatsappBotService
         $wa = "Aktif";
         $comm = "Aktif";
 
-        $summary = "🧐 *Konfirmasi Iklan*\n\n" .
+        $summary = "🧐 *Konfirmasi Usaha*\n\n" .
                   "📌 Judul: {$title}\n" .
                   "📝 Detail: {$desc}\n" .
                   "📂 #Tagar: {$cat}\n" .
@@ -887,7 +887,7 @@ class WhatsappBotService
                   "📲 Tombol WA: {$wa}\n" .
                   "💬 Komentar: {$comm}\n" .
                   "🖼️ Foto: " . count($state['photos']) . " foto\n\n" .
-                  "*Terbitkan iklan ini?* (Ya/Tidak)";
+                  "*Terbitkan usaha ini?* (Ya/Tidak)";
 
         $state['step'] = 'awaiting_confirmation';
         $this->setState($phone, $state);
@@ -914,7 +914,7 @@ class WhatsappBotService
         $wa = $state['ad_data']['whatsapp_visibility'] ? "Aktif" : "Sembunyi";
         $comm = $state['ad_data']['comment_visibility'] ? "Aktif" : "Nonaktif";
 
-        $summary = "🧐 *Konfirmasi Iklan*\n\n" .
+        $summary = "🧐 *Konfirmasi Usaha*\n\n" .
                   "📌 Judul: {$title}\n" .
                   "📝 Detail: {$desc}\n" .
                   "📂 #Tagar: {$cat}\n" .
@@ -922,7 +922,7 @@ class WhatsappBotService
                   "📲 Tombol WA: {$wa}\n" .
                   "💬 Komentar: {$comm}\n" .
                   "🖼️ Foto: " . count($state['photos']) . " foto\n\n" .
-                  "*Terbitkan iklan ini?* (Ya/Tidak)";
+                  "*Terbitkan usaha ini?* (Ya/Tidak)";
 
         $state['step'] = 'awaiting_confirmation';
         $this->setState($phone, $state);
@@ -1024,23 +1024,23 @@ class WhatsappBotService
                 $sisaSlot = $user->ads_quota;
                 $this->whatsapp->sendMessage(
                     $phone,
-                    "🎉 *Iklan Berhasil Diterbitkan!*\n\n" .
-                    "Terima kasih telah memasang iklan di Sebatam.\n" .
-                    "Iklan Anda kini sudah online.\n\n" .
-                    "🔗 *Link Iklan:* " . route('listings.show', $listing->slug) . "\n\n" .
-                    "📊 *Sisa Slot Iklan Anda: {$sisaSlot}*\n\n" .
-                    "ℹ️ Jika mau edit iklan, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
+                    "🎉 *Usaha Berhasil Diterbitkan!*\n\n" .
+                    "Terima kasih telah memasang usaha di Sebatam.\n" .
+                    "Usaha Anda kini sudah online.\n\n" .
+                    "🔗 *Link Usaha:* " . route('listings.show', $listing->slug) . "\n\n" .
+                    "📊 *Sisa Slot Usaha Anda: {$sisaSlot}*\n\n" .
+                    "ℹ️ Jika mau edit usaha, bisa dilakukan di website. Cara masuk website adalah dengan kirim pesan *login* untuk mendapatkan link masuk."
                 );
             } catch (\Throwable $e) {
                 Log::error("WA Bot: Final publish error: " . $e->getMessage(), [
                     'exception' => $e,
                     'state' => $state
                 ]);
-                $this->whatsapp->sendMessage($phone, "❌ Terjadi kesalahan saat menerbitkan iklan. Silakan coba lagi nanti.");
+                $this->whatsapp->sendMessage($phone, "❌ Terjadi kesalahan saat menerbitkan usaha. Silakan coba lagi nanti.");
             }
         } else {
             $this->clearState($phone);
-            $this->whatsapp->sendMessage($phone, "🗑️ Iklan dibatalkan dan dihapus. Terima kasih.");
+            $this->whatsapp->sendMessage($phone, "🗑️ Pendaftaran usaha dibatalkan dan dihapus. Terima kasih.");
         }
     }
 

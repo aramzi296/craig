@@ -11,22 +11,22 @@
         </h1>
         <div style="display: flex; gap: 10px;">
             {{-- Beli Paket Premium dinonaktifkan sementara --}}
-            <a href="{{ route('listings.create') }}" class="btn btn-primary">+ Buat Iklan Baru</a>
+            <a href="{{ route('listings.create') }}" class="btn btn-primary">+ Buat Usaha Baru</a>
         </div>
     </div>
 
     @if(!$tab)
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-label">Total Iklan</div>
+            <div class="stat-label">Total Usaha</div>
             <div class="stat-value">{{ $totalListings }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Sisa Kuota Iklan</div>
+            <div class="stat-label">Sisa Kuota Usaha</div>
             <div class="stat-value" style="color: var(--primary);">{{ auth()->user()->ads_quota }}</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Iklan Aktif</div>
+            <div class="stat-label">Usaha Aktif</div>
             <div class="stat-value">{{ $activeListings }}</div>
         </div>
         <div class="stat-card">
@@ -59,7 +59,7 @@
             <table class="data-table" style="min-width: 600px; margin-bottom: 20px;">
                 <thead>
                     <tr>
-                        <th>Iklan</th>
+                        <th>Usaha</th>
                         <th>#Tagar</th>
                         <th>Komentar</th>
                         <th>Dilihat</th>
@@ -126,12 +126,12 @@
                                 <div id="dropdown-{{ $listing->id }}" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 160px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); border-radius: 12px; border: 1px solid #e2e8f0; z-index: 1000; margin-top: 5px; padding: 8px 0; text-align: left;">
                                     
                                     <a href="{{ route('listings.show', $listing->slug) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem;">
-                                        <i class="fa-solid fa-eye" style="width: 16px; color: #64748b;"></i> Lihat Iklan
+                                        <i class="fa-solid fa-eye" style="width: 16px; color: #64748b;"></i> Lihat Usaha
                                     </a>
 
                                     @if($tab != 'favorites')
                                         <a href="{{ route('listings.edit', $listing->id) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem;">
-                                            <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Iklan
+                                            <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Usaha
                                         </a>
 
                                         <form action="{{ route('listings.toggle', $listing->id) }}" method="POST" style="margin: 0;">
@@ -144,11 +144,11 @@
 
                                         <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
 
-                                        <form action="{{ route('listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus iklan ini?')" style="margin: 0;">
+                                        <form action="{{ route('listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus usaha ini?')" style="margin: 0;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
-                                                <i class="fa-solid fa-trash" style="width: 16px;"></i> Hapus Iklan
+                                                <i class="fa-solid fa-trash" style="width: 16px;"></i> Hapus Usaha
                                             </button>
                                         </form>
                                     @else
@@ -175,8 +175,8 @@
         @else
         <div style="text-align: center; padding: 40px; color: var(--text-muted);">
             <i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 15px; display: block;"></i>
-            <p>Anda belum memiliki iklan. Mulai berjualan sekarang!</p>
-            <a href="{{ route('listings.create') }}" class="btn btn-outline" style="margin-top: 20px;">Pasang Iklan Pertama</a>
+            <p>Anda belum memiliki usaha. Mulai berjualan sekarang!</p>
+            <a href="{{ route('listings.create') }}" class="btn btn-outline" style="margin-top: 20px;">Daftarkan Usaha Pertama</a>
         </div>
         @endif
     </div>

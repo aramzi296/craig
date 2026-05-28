@@ -3,10 +3,10 @@
 @section('admin_content')
 <div class="dashboard-header">
     <div>
-        <h1>Kelola Listing</h1>
-        <p style="color: var(--text-muted);">Kelola semua iklan yang terpasang di {{ config('app.name') }}.</p>
+        <h1>Kelola Usaha</h1>
+        <p style="color: var(--text-muted);">Kelola semua usaha yang terdaftar di {{ config('app.name') }}.</p>
     </div>
-    <a href="{{ route('admin.listings.create') }}" class="btn btn-primary">+ Listing Baru</a>
+    <a href="{{ route('admin.listings.create') }}" class="btn btn-primary">+ Usaha Baru</a>
 </div>
 
 @if(session('success'))
@@ -18,7 +18,7 @@
 <div class="glass" style="padding: 20px; border-radius: var(--radius); margin-bottom: 30px;">
     <form action="{{ route('admin.listings') }}" method="GET" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
         <div style="flex: 1; min-width: 200px;">
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cari Iklan</label>
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cari Usaha</label>
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul, deskripsi, atau lokasi..." class="form-control" style="padding: 10px 15px;">
         </div>
         
@@ -42,7 +42,7 @@
     <table class="data-table">
         <thead>
             <tr>
-                <th>Iklan</th>
+                <th>Usaha</th>
                 <th>Pemilik</th>
                 <th>Kategori</th>
                 <th style="text-align:center;">Rank</th>
@@ -119,7 +119,7 @@
                         <div id="dropdown-{{ $listing->id }}" class="dropdown-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; min-width: 180px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-radius: 12px; border: 1px solid #f1f5f9; z-index: 100; margin-top: 5px; padding: 8px 0; text-align: left;">
                             
                             <a href="{{ route('admin.listings.edit', $listing->id) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
-                                <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Iklan
+                                <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Usaha
                             </a>
 
                             <form action="{{ route('admin.listings.toggle', $listing->id) }}" method="POST" style="margin: 0;">
@@ -136,11 +136,11 @@
 
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
 
-                            <form action="{{ route('admin.listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus listing ini?')" style="margin: 0;">
+                            <form action="{{ route('admin.listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus usaha ini?')" style="margin: 0;">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #ef4444; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
-                                    <i class="fa-solid fa-trash" style="width: 16px;"></i> Hapus Iklan
+                                    <i class="fa-solid fa-trash" style="width: 16px;"></i> Hapus Usaha
                                 </button>
                             </form>
                         </div>
@@ -148,10 +148,10 @@
                 </td>
             </tr>
             @empty
-            <tr>
+                    <tr>
                 <td colspan="8" style="text-align: center; padding: 40px; color: var(--text-muted);">
                     <i class="fa-solid fa-magnifying-glass" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
-                    Tidak ada iklan yang ditemukan dengan kriteria tersebut.
+                    Tidak ada usaha yang ditemukan dengan kriteria tersebut.
                 </td>
             </tr>
             @endforelse

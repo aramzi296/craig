@@ -3,8 +3,8 @@
 @section('admin_content')
 <div class="dashboard-header">
     <div>
-        <h1>Laporan Iklan</h1>
-        <p style="color: var(--text-muted);">Kelola dan tinjau laporan dari pengunjung mengenai iklan yang bermasalah.</p>
+        <h1>Laporan Usaha</h1>
+        <p style="color: var(--text-muted);">Kelola dan tinjau laporan dari pengunjung mengenai usaha yang bermasalah.</p>
     </div>
 </div>
 
@@ -12,7 +12,7 @@
     <form action="{{ route('admin.reports') }}" method="GET" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
         <div style="flex: 1; min-width: 200px;">
             <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cari Laporan</label>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari alasan, keterangan, whatsapp, judul iklan..." class="form-control" style="padding: 10px 15px;">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari alasan, keterangan, whatsapp, judul usaha..." class="form-control" style="padding: 10px 15px;">
         </div>
         
         <div style="width: 180px;">
@@ -36,7 +36,7 @@
     <table class="data-table" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr>
-                <th style="text-align: left; padding: 12px 15px;">Iklan Yang Dilaporkan</th>
+                <th style="text-align: left; padding: 12px 15px;">Usaha Yang Dilaporkan</th>
                 <th style="text-align: left; padding: 12px 15px;">Pelapor</th>
                 <th style="text-align: left; padding: 12px 15px;">Alasan & Keterangan</th>
                 <th style="text-align: left; padding: 12px 15px;">Tanggal Laporan</th>
@@ -57,11 +57,11 @@
                                 {{ $report->listing->is_active ? 'Aktif' : 'Nonaktif' }}
                             </span>
                             <a href="{{ route('listings.show', ['slug' => $report->listing->slug, 'code' => $report->listing->activation_code]) }}" target="_blank" style="font-size: 0.8rem; color: var(--primary); text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Lihat Iklan
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Lihat Usaha
                             </a>
                         </div>
                     @else
-                        <span style="color: var(--text-muted); font-style: italic;">[Iklan sudah dihapus]</span>
+                        <span style="color: var(--text-muted); font-style: italic;">[Usaha sudah dihapus]</span>
                     @endif
                 </td>
                 <td style="padding: 15px;">
@@ -147,7 +147,7 @@
 
                             @if($report->listing)
                                 <a href="{{ route('admin.listings.edit', $report->listing->id) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #0ea5e9; text-decoration: none; font-size: 0.88rem; font-weight: 500;">
-                                    <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Kelola Iklan
+                                    <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Kelola Usaha
                                 </a>
                             @endif
 
@@ -167,7 +167,7 @@
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <div style="font-weight: 600; font-size: 1.1rem; color: var(--text);">Belum ada laporan</div>
-                    <div style="font-size: 0.9rem; margin-top: 5px;">Semua laporan iklan dari pengunjung akan tampil di halaman ini.</div>
+                    <div style="font-size: 0.9rem; margin-top: 5px;">Semua laporan usaha dari pengunjung akan tampil di halaman ini.</div>
                 </td>
             </tr>
             @endforelse

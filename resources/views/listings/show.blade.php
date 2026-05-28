@@ -91,7 +91,7 @@
             @if($listing->activation_code && !$listing->is_active)
                 <div style="background: #fff7ed; border: 1px solid #ffedd5; color: #9a3412; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px;">
                     <div style="flex: 1;">
-                        <div style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">KODE AKTIVASI IKLAN</div>
+                        <div style="font-size: 0.85rem; font-weight: 600; opacity: 0.8;">KODE AKTIVASI USAHA</div>
                         <div style="font-size: 1.2rem; font-weight: 800; letter-spacing: 2px;">{{ $listing->activation_code }}</div>
                     </div>
                     <div style="font-size: 0.8rem; font-weight: 600; background: rgba(255,255,255,0.5); padding: 4px 10px; border-radius: 6px;">BELUM AKTIF</div>
@@ -164,7 +164,7 @@
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan iklan Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" class="btn-detail btn-detail-whatsapp">
+                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan usaha Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" class="btn-detail btn-detail-whatsapp">
                             <i class="fa-brands fa-whatsapp"></i> Hubungi WhatsApp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)
@@ -195,13 +195,13 @@
                     @endauth
 
                     <button type="button" onclick="openReportModal()" class="btn-detail btn-detail-report">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Laporkan Iklan
+                        <i class="fa-solid fa-triangle-exclamation"></i> Laporkan Usaha
                     </button>
 
                     @auth
-                        @if($listing->user_id == auth()->id())
+                            @if($listing->user_id == auth()->id())
                             <a href="{{ route('listings.edit', $listing->id) }}" class="btn-detail btn-detail-sky" style="width: 100%; box-sizing: border-box;">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit Postingan
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Profil Usaha
                             </a>
                         @endif
                     @endauth
@@ -216,8 +216,8 @@
         <div style="margin-top: 50px;">
         @if($listing->whatsapp_visibility == 0)
             <div id="contact-form" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 20px; padding: 30px; margin-bottom: 50px; max-width: 800px;">
-                <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 10px;">Tertarik dengan iklan ini?</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Pengiklan memilih untuk menerima pesan melalui admin. Silakan isi form di bawah ini.</p>
+                <h3 style="font-size: 1.2rem; font-weight: 800; color: #1e293b; margin-bottom: 10px;">Tertarik dengan usaha ini?</h3>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px;">Pemilik usaha memilih untuk menerima pesan melalui admin. Silakan isi form di bawah ini.</p>
                 
                 <form action="{{ route('listing.contact.admin', $listing->id) }}" method="POST">
                     @csrf
@@ -226,7 +226,7 @@
                         <input type="text" name="visitor_whatsapp" class="form-control" placeholder="Contoh: 0812xxxx" required style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;">
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">Pesan kepada pengiklan</label>
+                        <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">Pesan kepada pemilik usaha</label>
                         <textarea name="visitor_message" rows="4" class="form-control" placeholder="Tuliskan pesan atau pertanyaan Anda..." required style="width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0;"></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; border-radius: 12px; font-weight: 800;">Kirim Pesan</button>
@@ -676,14 +676,14 @@
 <div id="reportModal" class="report-modal-overlay" style="display: none;">
     <div class="report-modal-card">
         <div class="report-modal-header">
-            <h3><i class="fa-solid fa-triangle-exclamation"></i> Laporkan Iklan</h3>
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Laporkan Usaha</h3>
             <button type="button" onclick="closeReportModal()" class="report-modal-close-btn">&times;</button>
         </div>
         <form action="{{ route('listings.report', $listing->id) }}" method="POST">
             @csrf
             <div class="report-modal-body">
                 <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">
-                    Bantu kami menjaga kenyamanan komunitas Sebatam. Silakan pilih alasan laporan Anda untuk iklan: <strong style="color: #1e293b;">"{{ $listing->title }}"</strong>.
+                    Bantu kami menjaga kenyamanan komunitas Sebatam. Silakan pilih alasan laporan Anda untuk usaha: <strong style="color: #1e293b;">"{{ $listing->title }}"</strong>.
                 </p>
 
                 <div class="report-form-group">
@@ -691,7 +691,7 @@
                     <select name="reason" required class="report-form-control">
                         <option value="" disabled selected>-- Pilih Alasan --</option>
                         <option value="Penipuan">Penipuan (Indikasi penipuan/kriminal)</option>
-                        <option value="Spam / Duplikat">Spam / Duplikat (Iklan sampah/berulang-ulang)</option>
+                        <option value="Spam / Duplikat">Spam / Duplikat (Usaha sampah/berulang-ulang)</option>
                         <option value="Konten Tidak Layak">Konten Tidak Layak (Melanggar norma/hukum)</option>
                         <option value="Usaha Sudah Tutup">Usaha Sudah Tutup (Informasi tidak lagi aktif)</option>
                         <option value="Lainnya">Lainnya (Tulis detail di kolom keterangan)</option>

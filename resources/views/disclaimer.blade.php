@@ -23,7 +23,7 @@
 
                     <div style="margin-bottom: 35px;">
                         <h2 style="font-size: 1.2rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">2. Tanggung Jawab Pengguna</h2>
-                        <p style="font-size: 0.95rem; margin-bottom: 12px;">{{ config('app.name') }} adalah platform iklan dan pengumuman online. Segala bentuk transaksi atau interaksi yang terjadi antara pengguna adalah tanggung jawab penuh masing-masing pihak. Kami tidak terlibat dalam proses transaksi dan tidak bertanggung jawab atas kerugian yang mungkin terjadi.</p>
+                        <p style="font-size: 0.95rem; margin-bottom: 12px;">{{ config('app.name') }} adalah platform usaha dan pengumuman online. Segala bentuk transaksi atau interaksi yang terjadi antara pengguna adalah tanggung jawab penuh masing-masing pihak. Kami tidak terlibat dalam proses transaksi dan tidak bertanggung jawab atas kerugian yang mungkin terjadi.</p>
                         <p style="font-size: 0.95rem;">Dengan mempublikasikan nomor WhatsApp, Anda memahami bahwa nomor tersebut dapat dihubungi oleh siapa saja. {{ config('app.name') }} tidak bertanggung jawab atas pesan spam atau gangguan lain yang mungkin timbul.</p>
                     </div>
 

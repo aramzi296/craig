@@ -29,7 +29,7 @@
             </li>
             <li class="sidebar-item">
                 <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Laporan Iklan
+                    <i class="fa-solid fa-triangle-exclamation"></i> Laporan Usaha
                 </a>
             </li>
             <li class="sidebar-item">
@@ -58,7 +58,7 @@
             </li>
             <li class="sidebar-item">
                 <a href="{{ route('admin.users.slot') }}" class="sidebar-link {{ request()->routeIs('admin.users.slot') ? 'active' : '' }}">
-                    <i class="fa-solid fa-square-plus"></i> Slot Iklan
+                    <i class="fa-solid fa-square-plus"></i> Slot Usaha
                 </a>
             </li>
 

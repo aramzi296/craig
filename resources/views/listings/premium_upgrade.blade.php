@@ -4,7 +4,7 @@
 <div style="margin-bottom: 40px;">
     <h1 style="font-size: 2rem; font-weight: 700;">{{ $listing ? 'Upgrade ke Premium' : 'Beli Paket Premium' }}</h1>
     <p style="color: var(--text-muted);">
-        {{ $listing ? 'Tingkatkan jangkauan iklan "' . $listing->title . '" Anda menjadi Premium.' : 'Beli paket premium sekarang dan gunakan kapan saja untuk iklan Anda.' }}
+        {{ $listing ? 'Tingkatkan jangkauan usaha "' . $listing->title . '" Anda menjadi Premium.' : 'Beli paket premium sekarang dan gunakan kapan saja untuk usaha Anda.' }}
     </p>
 </div>
 
@@ -67,7 +67,7 @@
             <p style="color: var(--text-muted); margin-bottom: 30px;">
                 Silakan scan QRIS di bawah ini untuk menyelesaikan pembayaran 
                 @if($listing)
-                    iklan <b>"{{ $listing->title }}"</b>
+                    usaha <b>"{{ $listing->title }}"</b>
                 @else
                     <b>Paket Premium</b>
                 @endif

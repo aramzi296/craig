@@ -58,7 +58,7 @@
     <div class="glass" style="padding: 30px; border-radius: var(--radius); display: flex; align-items: center; justify-content: space-between; gap: 20px;">
         <div>
             <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 5px;">Kompresi Gambar Otomatis</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Cari dan kompres semua foto iklan yang berukuran lebih dari <strong>200KB</strong> untuk menghemat ruang penyimpanan. Foto asli akan dicadangkan di metadata.</p>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Cari dan kompres semua foto usaha yang berukuran lebih dari <strong>200KB</strong> untuk menghemat ruang penyimpanan. Foto asli akan dicadangkan di metadata.</p>
         </div>
         <form action="{{ route('admin.settings.compress-images') }}" method="POST">
             @csrf
