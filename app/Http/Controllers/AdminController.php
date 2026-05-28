@@ -169,7 +169,7 @@ class AdminController extends Controller
     public function storeListing(\Illuminate\Http\Request $request)
     {
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|string',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -285,7 +285,7 @@ class AdminController extends Controller
         $listing = \App\Models\Listing::findOrFail($id);
 
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => 'nullable|exists:categories,id',
             'tags' => 'nullable|string',
             'title' => 'required|string|max:255',
             'description' => 'required|string',
