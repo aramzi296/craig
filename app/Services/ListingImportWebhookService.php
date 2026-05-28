@@ -100,8 +100,11 @@ class ListingImportWebhookService
                 continue;
             }
 
-            if (isset($item['uploaded_files']) && is_array($item['uploaded_files'])) {
-                $files = $this->filterFileUrls($item['uploaded_files']);
+            if (isset($item['uploaded_files'])) {
+                $rawFiles = is_string($item['uploaded_files'])
+                    ? array_values(array_filter(preg_split('/[\s,;\n\r]+/', $item['uploaded_files'])))
+                    : (is_array($item['uploaded_files']) ? $item['uploaded_files'] : []);
+                $files = $this->filterFileUrls($rawFiles);
                 continue;
             }
 
@@ -123,11 +126,22 @@ class ListingImportWebhookService
      */
     protected function finalizeRecord(array $record): array
     {
-        if (isset($record['uploaded_files']) && is_array($record['uploaded_files'])) {
-            $record['uploaded_files'] = $this->filterFileUrls($record['uploaded_files']);
+        if (isset($record['uploaded_files'])) {
+            if (is_string($record['uploaded_files'])) {
+                $urls = preg_split('/[\s,;\n\r]+/', $record['uploaded_files']);
+                $record['uploaded_files'] = array_values(array_filter($urls));
+            }
+            if (is_array($record['uploaded_files'])) {
+                $record['uploaded_files'] = $this->filterFileUrls($record['uploaded_files']);
+            }
         }
 
-        foreach (['nama', 'alamat', 'keterangan_usaha', 'nomor_wa'] as $field) {
+        // Auto fallback for nama_usaha if missing or empty
+        if (empty($record['nama_usaha']) && !empty($record['nama'])) {
+            $record['nama_usaha'] = $record['nama'];
+        }
+
+        foreach (['nama', 'nama_usaha', 'alamat', 'keterangan_usaha', 'nomor_wa'] as $field) {
             if (empty($record[$field]) || !is_string($record[$field])) {
                 throw new InvalidArgumentException("Field {$field} wajib diisi.");
             }
@@ -217,8 +231,7 @@ class ListingImportWebhookService
      */
     protected function isListingRecord(array $data): bool
     {
-        return isset($data['nama'], $data['uploaded_files'])
-            && is_array($data['uploaded_files']);
+        return isset($data['nama']) && isset($data['uploaded_files']);
     }
 
     /**
@@ -226,7 +239,7 @@ class ListingImportWebhookService
      */
     protected function isPartialListingRecord(array $data): bool
     {
-        return isset($data['nama']) || isset($data['nomor_wa']) || isset($data['uploaded_files']);
+        return isset($data['nama']) || isset($data['nomor_wa']) || isset($data['uploaded_files']) || isset($data['nama_usaha']);
     }
 
     /**
@@ -260,11 +273,12 @@ class ListingImportWebhookService
     protected function createListing(User $user, array $data): Listing
     {
         $districtId = $this->resolveDistrictId($data['alamat']);
+        $title = trim($data['nama_usaha'] ?? $data['nama']);
 
         return Listing::create([
             'user_id' => $user->id,
-            'title' => trim($data['nama']),
-            'slug' => Str::slug($data['nama'] . '-' . uniqid()),
+            'title' => $title,
+            'slug' => Str::slug($title . '-' . uniqid()),
             'description' => trim($data['keterangan_usaha']),
             'address' => trim($data['alamat']),
             'district_id' => $districtId,
@@ -273,6 +287,10 @@ class ListingImportWebhookService
             'is_premium' => DB::raw('false'),
             'whatsapp_visibility' => 2,
             'comment_visibility' => 0,
+            'features' => [
+                'nama_usaha' => trim($data['nama_usaha'] ?? ''),
+                'referensi' => trim($data['referensi'] ?? ''),
+            ],
         ]);
     }
 

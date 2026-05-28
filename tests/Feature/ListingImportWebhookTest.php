@@ -128,4 +128,43 @@ class ListingImportWebhookTest extends TestCase
 
         $response->assertUnauthorized();
     }
+
+    public function test_creates_listing_from_form_post_with_nama_usaha_and_referensi(): void
+    {
+        config(['services.webhook_import.secret' => null]);
+
+        $payload = [
+            'nama' => 'John Doe',
+            'nama_usaha' => 'Toko Elektronik Makmur',
+            'alamat' => 'Batam',
+            'keterangan_usaha' => 'Jual laptop dan HP murah.',
+            'nomor_wa' => '081234567890',
+            'referensi' => 'Rekomendasi Teman',
+            'uploaded_files' => "https://direktori-sebatam.sebatam.com/upload/2026/05/26/photo1.jpg, https://direktori-sebatam.sebatam.com/upload/2026/05/26/photo2.jpg",
+        ];
+
+        // Send as a standard form POST (urlencoded)
+        $response = $this->post(route('webhook.listing-import'), $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user_created', true)
+            ->assertJsonPath('data.photos_count', 2);
+
+        $user = User::where('whatsapp', '6281234567890')->first();
+        $this->assertNotNull($user);
+        $this->assertSame('John Doe', $user->name);
+
+        $listing = Listing::where('user_id', $user->id)->first();
+        $this->assertNotNull($listing);
+        $this->assertSame('Toko Elektronik Makmur', $listing->title);
+        $this->assertSame('Jual laptop dan HP murah.', $listing->description);
+        
+        // Assert the features contains referensi and nama_usaha
+        $this->assertIsArray($listing->features);
+        $this->assertSame('Toko Elektronik Makmur', $listing->features['nama_usaha']);
+        $this->assertSame('Rekomendasi Teman', $listing->features['referensi']);
+
+        $this->assertSame(2, ListingPhoto::where('listing_id', $listing->id)->count());
+    }
 }

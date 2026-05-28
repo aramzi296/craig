@@ -24,19 +24,12 @@ class ListingImportWebhookController extends Controller
             }
         }
 
-        $payload = $request->json()->all();
-
-        if ($payload === [] && $request->getContent() !== '') {
-            $decoded = json_decode($request->getContent(), true);
-            if (is_array($decoded)) {
-                $payload = $decoded;
-            }
-        }
+        $payload = $request->all();
 
         if (!is_array($payload) || $payload === []) {
             return response()->json([
                 'success' => false,
-                'message' => 'Body harus berupa JSON (array atau objek dengan field nama & uploaded_files).',
+                'message' => 'Payload tidak boleh kosong dan harus berupa format yang valid.',
             ], 422);
         }
 
