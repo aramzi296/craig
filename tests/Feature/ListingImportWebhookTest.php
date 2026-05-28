@@ -168,4 +168,42 @@ class ListingImportWebhookTest extends TestCase
 
         $this->assertSame(2, ListingPhoto::where('listing_id', $listing->id)->count());
     }
+
+    public function test_creates_listing_from_user_json_list_payload(): void
+    {
+        config(['services.webhook_import.secret' => null]);
+
+        $payload = [
+            [
+                'nama' => 'Prandiyanto Siregar',
+                'judul' => 'Jasa Tukang Bangunan',
+                'alamat' => 'Batam',
+                'nomor_wa' => '6285374277648',
+                'keterangan_usaha' => 'Menawarkan jasa dengan keahlian sebagai tukang bangunan. Berdasarkan foto-foto hasil kerja yang diunggah, pengerjaannya meliputi konstruksi dan renovasi rumah seperti pemasangan bata/dinding, plesteran, hingga pengerjaan plafon. Saat ini sedang aktif mencari informasi tawaran pekerjaan atau proyek pertukangan.',
+                'uploaded_files' => [
+                    'https://direktori-sebatam.sebatam.com/upload/2026/05/28/0c50c5e1-1047-4cc2-889f-9a3e81826016.jpg',
+                    'https://direktori-sebatam.sebatam.com/upload/2026/05/28/60eb32b7-4ef7-4e20-9665-77bade225185.jpg',
+                    'https://direktori-sebatam.sebatam.com/upload/2026/05/28/c32291ed-b0a0-4a29-a7c7-fe014a711a66.jpg',
+                ],
+            ]
+        ];
+
+        $response = $this->postJson(route('webhook.listing-import'), $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user_created', true)
+            ->assertJsonPath('data.photos_count', 3);
+
+        $user = User::where('whatsapp', '6285374277648')->first();
+        $this->assertNotNull($user);
+        $this->assertSame('Prandiyanto Siregar', $user->name);
+
+        $listing = Listing::where('user_id', $user->id)->first();
+        $this->assertNotNull($listing);
+        $this->assertSame('Jasa Tukang Bangunan', $listing->title);
+        $this->assertTrue(str_contains($listing->description, 'Menawarkan jasa dengan keahlian'));
+
+        $this->assertSame(3, ListingPhoto::where('listing_id', $listing->id)->count());
+    }
 }

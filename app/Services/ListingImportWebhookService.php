@@ -74,6 +74,11 @@ class ListingImportWebhookService
             return $this->finalizeRecord($payload);
         }
 
+        // Satu elemen berisi objek record lengkap: [ {...} ]
+        if (is_array($payload) && count($payload) === 1 && isset($payload[0]) && is_array($payload[0]) && $this->isListingRecord($payload[0])) {
+            return $this->finalizeRecord($payload[0]);
+        }
+
         if (!array_is_list($payload)) {
             throw new InvalidArgumentException('Format payload tidak dikenali. Kirim array JSON atau satu objek dengan field nama & uploaded_files.');
         }
@@ -104,8 +109,7 @@ class ListingImportWebhookService
                 $rawFiles = is_string($item['uploaded_files'])
                     ? array_values(array_filter(preg_split('/[\s,;\n\r]+/', $item['uploaded_files'])))
                     : (is_array($item['uploaded_files']) ? $item['uploaded_files'] : []);
-                $files = $this->filterFileUrls($rawFiles);
-                continue;
+                $files = array_merge($files, $this->filterFileUrls($rawFiles));
             }
 
             if ($this->isListingRecord($item) || $this->isPartialListingRecord($item)) {
