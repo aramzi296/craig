@@ -148,7 +148,7 @@ class HomeController extends Controller
     {
         $user = \App\Models\User::findOrFail($id);
         
-        $listings = \App\Models\Listing::query()
+        $recentListings = \App\Models\Listing::query()
             ->where('user_id', $id)
             ->whereRaw('is_active = true')
             ->notExpired()
@@ -156,19 +156,9 @@ class HomeController extends Controller
             ->orderBy('is_premium', 'desc')
             ->orderBy('listing_rank', 'asc')
             ->paginate(24);
-            
-        $categories = \App\Models\Category::whereRaw('is_approved = true')
-            ->whereNotNull('parent_id')
-            ->whereHas('listings', function($q) use ($id) {
-                $q->where('user_id', $id)->whereRaw('is_active = true')->notExpired();
-            })->orderBy('name')->get();
-            
-        $districts = \App\Models\District::orderBy('name')->get();
 
-        return view('listings.search', [
-            'listings' => $listings,
-            'categories' => $categories,
-            'districts' => $districts,
+        return view('home', [
+            'recentListings' => $recentListings,
             'user' => $user,
             'isUserPage' => true
         ]);

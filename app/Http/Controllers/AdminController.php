@@ -990,5 +990,90 @@ class AdminController extends Controller
 
         return back()->with('success', 'Pesan kontak berhasil dihapus.');
     }
+
+    /**
+     * Menampilkan halaman integrasi n8n listing.
+     */
+    public function n8nListings()
+    {
+        return view('admin.n8n.index');
+    }
+
+    /**
+     * Mengirim data teks dan file (multiple) ke n8n webhook.
+     */
+    public function sendToN8n(Request $request)
+    {
+        $request->validate([
+            'text' => 'required|string|min:50',
+            'files' => 'required|array|min:1', // Wajib minimal 1 file gambar
+            'files.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240', // Maksimal 10MB per gambar
+        ]);
+
+        $text = $request->input('text');
+        $n8nUrl = config('services.n8n.listing_webhook_url');
+
+        try {
+            $multipart = [
+                [
+                    'name' => 'text',
+                    'contents' => $text,
+                ]
+            ];
+
+            // Masukkan multiple files jika ada
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    $realPath = $file->getRealPath();
+                    $handle = fopen($realPath, 'r');
+                    if ($handle !== false) {
+                        $multipart[] = [
+                            'name' => 'files[]',
+                            'contents' => $handle,
+                            'filename' => $file->getClientOriginalName(),
+                            'headers' => [
+                                'Content-Type' => $file->getClientMimeType()
+                            ]
+                        ];
+                    }
+                }
+            }
+
+            // Kirim POST request ke n8n menggunakan opsi multipart langsung ke Guzzle
+            $response = \Illuminate\Support\Facades\Http::asMultipart()
+                ->withOptions([
+                    'multipart' => $multipart,
+                    'laravel_data' => $multipart
+                ])->post($n8nUrl);
+
+            // Tutup semua resource handle yang terbuka
+            foreach ($multipart as $item) {
+                if (isset($item['contents']) && is_resource($item['contents'])) {
+                    fclose($item['contents']);
+                }
+            }
+
+            if ($response->successful()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Data berhasil dikirim ke n8n.',
+                    'n8n_response' => $response->json() ?? $response->body()
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengirim ke n8n. Kode Status: ' . $response->status(),
+                'details' => $response->body()
+            ], 500);
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('n8n Webhook Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem saat menghubungi n8n: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
 

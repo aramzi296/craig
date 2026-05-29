@@ -1,0 +1,2 @@
+di dasbor admin, buatkan form untuk kirim text dan file (multiple).
+form input dikirim ke n8n endpoint https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/1f164d6f-5c3c-4b43-8ff2-709a06f01343

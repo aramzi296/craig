@@ -151,6 +151,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/contacts', [AdminController::class, 'contacts'])->name('contacts');
         Route::post('/contacts/{id}/read', [AdminController::class, 'markContactAsRead'])->name('contacts.read');
         Route::delete('/contacts/{id}', [AdminController::class, 'destroyContact'])->name('contacts.destroy');
+
+        // n8n Integrasi
+        Route::get('/n8n-listings', [AdminController::class, 'n8nListings'])->name('n8n.listings');
+        Route::post('/send-to-n8n', [AdminController::class, 'sendToN8n'])->name('send-to-n8n');
     });
 
     // Member Premium Upgrade

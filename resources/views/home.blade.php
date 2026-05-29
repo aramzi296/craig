@@ -89,6 +89,21 @@
             font-size: 1rem;
         }
     }
+    .advertiser-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .advertiser-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -5px rgba(14, 165, 233, 0.15) !important;
+    }
+    @media (max-width: 768px) {
+        .advertiser-card {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 20px !important;
+            padding: 20px !important;
+        }
+    }
 </style>
 <section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
     <div class="container" style="max-width: 800px;">
@@ -111,11 +126,54 @@
 </section>
 
 
-<div class="container page-section" style="padding-top: 0;">
+<div class="container page-section" style="padding-top: @if(isset($user)) 20px @else 0 @endif;">
 
+    @if(isset($user))
+        <div class="advertiser-card" style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 249, 255, 0.6) 100%); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(14, 165, 233, 0.15); border-radius: 20px; padding: 28px; box-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.08); margin-bottom: 35px; display: flex; align-items: center; gap: 28px; position: relative; overflow: hidden;">
+            <!-- Background accent gradients -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: radial-gradient(circle, rgba(14, 165, 233, 0.18) 0%, rgba(255,255,255,0) 70%); pointer-events: none; border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -60px; left: -20px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(37, 99, 235, 0.08) 0%, rgba(255,255,255,0) 70%); pointer-events: none; border-radius: 50%;"></div>
+
+            <!-- Avatar -->
+            <div class="advertiser-avatar-wrapper" style="position: relative; flex-shrink: 0;">
+                <img src="{{ $user->getProfilePhoto() }}" alt="{{ $user->name }}" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 4px solid #ffffff; box-shadow: 0 8px 20px rgba(0,0,0,0.06);">
+                <div style="position: absolute; bottom: 0; right: 0; background: #10b981; border: 2px solid #ffffff; width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" title="Aktif"></div>
+            </div>
+
+            <!-- Profile Info -->
+            <div style="flex-grow: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <h1 style="margin: 0; font-size: 1.8rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; line-height: 1.2;">{{ $user->name }}</h1>
+                    <span style="background: linear-gradient(90deg, #0ea5e9, #2563eb); color: #ffffff; font-size: 0.7rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.2);">Verified Partner</span>
+                </div>
+
+                <div style="display: flex; gap: 20px; margin-top: 12px; flex-wrap: wrap;">
+                    @if($user->whatsapp)
+                        <a href="https://wa.me/{{ $user->whatsapp }}" target="_blank" rel="noopener noreferrer" style="color: #475569; text-decoration: none; font-size: 0.88rem; display: flex; align-items: center; gap: 8px; transition: color 0.2s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#475569'">
+                            <i class="fa-brands fa-whatsapp" style="font-size: 1.1rem; color: #10b981;"></i>
+                            <span>+{{ $user->whatsapp }}</span>
+                        </a>
+                    @endif
+                    <div style="color: #475569; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-regular fa-calendar-check" style="font-size: 1.05rem; color: #0ea5e9;"></i>
+                        <span>Bergabung {{ $user->created_at->format('M Y') }}</span>
+                    </div>
+                    <div style="color: #475569; font-size: 0.88rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-layer-group" style="font-size: 1.05rem; color: #2563eb;"></i>
+                        <span>{{ $recentListings->total() }} Iklan Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
 <div id="listing-container">
-    @if(request('q'))
+    @if(isset($user))
+        <h2 class="section-title" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 20px;">
+            Semua Iklan dari {{ $user->name }}
+            <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} iklan</span>
+        </h2>
+    @elseif(request('q'))
         <h2 class="section-title">
             Hasil Pencarian: "{{ request('q') }}"
             <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} ditemukan</span>

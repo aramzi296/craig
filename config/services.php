@@ -69,4 +69,8 @@ return [
         'secret' => env('WEBHOOK_IMPORT_SECRET'),
     ],
 
+    'n8n' => [
+        'listing_webhook_url' => env('N8N_LISTING_WEBHOOK_URL', 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/1f164d6f-5c3c-4b43-8ff2-709a06f01343'),
+    ],
+
 ];
