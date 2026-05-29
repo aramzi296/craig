@@ -108,7 +108,7 @@
 <section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
     <div class="container" style="max-width: 800px;">
         <form action="{{ route('home') }}" method="GET" id="search-form" style="display: flex; gap: 10px;">
-            <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam... (Contoh: Tukang AC, Kos-kosan)" 
+            <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam... (Contoh: service AC, kost, rental mobil)" 
                 style="flex: 1; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
                 onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
             <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: background 0.2s;"

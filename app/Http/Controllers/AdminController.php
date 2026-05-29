@@ -27,7 +27,35 @@ class AdminController extends Controller
 
     public function categories()
     {
-        $categories = \App\Models\Category::with('parent')->withCount('listings')->orderBy('sort_order')->get();
+        // Ambil semua kategori induk beserta sub-kategorinya, masing-masing diurutkan berdasarkan sort_order
+        $parentCategories = \App\Models\Category::whereNull('parent_id')
+            ->with(['children' => function($q) {
+                $q->withCount('listings')->orderBy('sort_order');
+            }])
+            ->withCount('listings')
+            ->orderBy('sort_order')
+            ->get();
+
+        // Susun ke dalam flat collection agar sub-kategori tampil tepat di bawah kategori induknya
+        $categories = collect();
+        foreach ($parentCategories as $parent) {
+            $categories->push($parent);
+            foreach ($parent->children as $child) {
+                $categories->push($child);
+            }
+        }
+
+        // Antisipasi jika ada sub-kategori yang tidak memiliki kategori induk yang valid (orphan)
+        $orphanSubcategories = \App\Models\Category::whereNotNull('parent_id')
+            ->whereNotIn('parent_id', $parentCategories->pluck('id'))
+            ->withCount('listings')
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($orphanSubcategories as $orphan) {
+            $categories->push($orphan);
+        }
+
         return view('admin.categories.index', compact('categories'));
     }
 
