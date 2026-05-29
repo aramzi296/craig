@@ -213,7 +213,6 @@
         const searchInput = document.getElementById('search-input');
         const searchForm = document.getElementById('search-form');
         const listingContainer = document.getElementById('listing-container');
-        let timeout = null;
 
         function performSearch() {
             const q = searchInput.value;
@@ -252,9 +251,24 @@
             });
         }
 
+        // Pemicu pencarian ketika menekan tombol Spasi (kata sudah utuh)
+        searchInput.addEventListener('keyup', function(e) {
+            if (e.key === ' ' || e.code === 'Space') {
+                performSearch();
+            }
+        });
+
+        // Pemicu pencarian ketika input dihapus bersih (reset instan)
         searchInput.addEventListener('input', function() {
-            clearTimeout(timeout);
-            timeout = setTimeout(performSearch, 500); // 500ms debounce
+            if (searchInput.value === '') {
+                performSearch();
+            }
+        });
+
+        // Intersepsi submit form (klik tombol Cari atau tekan Enter)
+        searchForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            performSearch();
         });
 
         // Handle browser back/forward buttons
