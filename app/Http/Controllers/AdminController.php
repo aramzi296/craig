@@ -476,7 +476,21 @@ class AdminController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$id,
+            'whatsapp' => 'required|string|max:20',
         ]);
+
+        $normalizedWa = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']);
+
+        if (!$normalizedWa) {
+            return back()->withErrors(['whatsapp' => 'Nomor WhatsApp tidak valid.'])->withInput();
+        }
+
+        // Check if normalized WA already exists for another user
+        if (\App\Models\User::where('whatsapp', $normalizedWa)->where('id', '!=', $id)->exists()) {
+            return back()->withErrors(['whatsapp' => 'Nomor WhatsApp ini sudah terdaftar.'])->withInput();
+        }
+
+        $data['whatsapp'] = $normalizedWa;
 
         $user->update($data);
 

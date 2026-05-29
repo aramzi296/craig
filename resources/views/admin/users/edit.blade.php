@@ -27,6 +27,14 @@
             @enderror
         </div>
 
+        <div class="form-group">
+            <label for="whatsapp">Nomor WhatsApp</label>
+            <input type="text" name="whatsapp" id="whatsapp" class="form-control @error('whatsapp') is-invalid @enderror" value="{{ old('whatsapp', $user->whatsapp) }}" required>
+            @error('whatsapp')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
         <div style="padding: 15px; background: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; margin-top: 20px; color: #92400e; font-size: 0.85rem;">
             <i class="fa-solid fa-circle-info"></i> Password hanya dapat diubah oleh pengguna sendiri melalui fitur reset password atau profil pribadi mereka.
         </div>
