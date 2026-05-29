@@ -138,13 +138,22 @@ class Listing extends Model
         $cleanTerm = str_replace(['/', '\\'], ' ', $term);
         $keywords = explode(' ', $cleanTerm);
 
-        return $query->where(function($q) use ($keywords) {
+        $driver = $query->getConnection()->getDriverName();
+
+        return $query->where(function($q) use ($keywords, $driver) {
             foreach ($keywords as $keyword) {
                 $word = trim($keyword);
                 if ($word !== '') {
-                    // Menggunakan ILIKE untuk substring matching (agar "kontrak" bisa menemukan "kontrakan")
-                    // Ini bekerja baik di PostgreSQL dan SQLite (dengan bantuan Laravel abstraction)
-                    $q->where('searchable', 'ilike', '%' . $word . '%');
+                    if ($driver === 'pgsql') {
+                        // Di PostgreSQL, gunakan POSIX case-insensitive regex matching dengan word boundary \y
+                        $q->whereRaw("searchable ~* ?", ['\y' . preg_quote($word, '/') . '\y']);
+                    } elseif ($driver === 'sqlite') {
+                        // Di SQLite (untuk testing), gunakan normalisasi concatenating space untuk pencarian kata utuh
+                        $q->whereRaw("' ' || searchable || ' ' LIKE ?", ['% ' . $word . ' %']);
+                    } else {
+                        // Fallback aman untuk database lain
+                        $q->where('searchable', 'like', '%' . $word . '%');
+                    }
                 }
             }
         });
