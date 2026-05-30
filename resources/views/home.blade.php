@@ -104,6 +104,19 @@
             padding: 20px !important;
         }
     }
+    .category-item {
+        transition: all 0.2s ease;
+    }
+    .category-item:hover {
+        background: #0ea5e9 !important;
+        border-color: #0ea5e9 !important;
+        color: #ffffff !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+    }
+    .category-item:hover span {
+        color: #ffffff !important;
+    }
 </style>
 <section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
     <div class="container" style="max-width: 800px;">
@@ -199,6 +212,23 @@
             </h2>
         @endif
     @endif
+    
+    @if(request('q') && isset($matchingTags) && $matchingTags->isNotEmpty())
+        <div class="matching-tags-container" style="margin-bottom: 25px; background: #ffffff; padding: 16px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #64748b; margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                <i class="fa-solid fa-hashtag" style="color: #0ea5e9;"></i> Tagar Terkait
+            </h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                @foreach($matchingTags as $tag)
+                    <a href="{{ route('home', ['tag' => $tag->slug]) }}" class="category-item" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
+                        <span style="color: #64748b; font-weight: 400;">#</span>
+                        <span>{{ $tag->name }}</span>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    @endif
+
     <div class="listing-grid">
         @foreach($recentListings as $listing)
         <a href="{{ route('listings.show', $listing->slug) }}" class="listing-card-grid">

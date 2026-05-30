@@ -8,6 +8,7 @@ class HomeController extends Controller
 {
     public function index(\Illuminate\Http\Request $request)
     {
+        $matchingTags = collect();
         $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
 
         // Basic Filters
@@ -50,6 +51,57 @@ class HomeController extends Controller
                 ->orderBy('is_premium', 'desc')
                 ->orderBy('created_at', 'desc')
                 ->paginate(24);
+
+            $cleanQuery = strtolower(trim($q));
+            try {
+                $redisStore = \Illuminate\Support\Facades\Cache::store('redis');
+                $redis = \Illuminate\Support\Facades\Redis::connection('cache');
+                
+                // Coba ambil dari Redis Hash
+                $cachedSearch = $redis->hget('laravel-cache-tags:searches', $cleanQuery);
+
+                if ($cachedSearch) {
+                    $categoriesData = json_decode($cachedSearch, true);
+                    $matchingTags = \App\Models\Tag::hydrate($categoriesData);
+                } else {
+                    // Ambil daftar utama dari Redis, jika tidak ada baru query DB
+                    $allTags = $redisStore->remember('tags:approved_with_listings', 3600, function() {
+                        return \App\Models\Tag::whereRaw('is_approved = true')
+                            ->whereHas('listings', function($q) {
+                                $q->whereRaw('is_active = true')->notExpired();
+                            })
+                            ->orderBy('name')
+                            ->get();
+                    });
+
+                    $filteredTags = $allTags->filter(function($tag) use ($cleanQuery) {
+                        return str_contains(strtolower($tag->name), $cleanQuery) || 
+                               str_contains(strtolower($tag->slug), $cleanQuery);
+                    })->values();
+
+                    // Simpan hasil filter ke Redis Hash
+                    $redis->hset('laravel-cache-tags:searches', $cleanQuery, json_encode($filteredTags->toArray()));
+                    
+                    // Set expiry pada hash jika baru dibuat (misal 10 menit)
+                    if ($redis->ttl('laravel-cache-tags:searches') === -1) {
+                        $redis->expire('laravel-cache-tags:searches', 600);
+                    }
+
+                    $matchingTags = $filteredTags;
+                }
+            } catch (\Exception $e) {
+                // Fallback to direct DB query if Redis connection/driver fails
+                $matchingTags = \App\Models\Tag::whereRaw('is_approved = true')
+                    ->where(function($queryBuilder) use ($cleanQuery) {
+                        $queryBuilder->where('name', 'like', "%{$cleanQuery}%")
+                            ->orWhere('slug', 'like', "%{$cleanQuery}%");
+                    })
+                    ->whereHas('listings', function($q) {
+                        $q->whereRaw('is_active = true')->notExpired();
+                    })
+                    ->orderBy('name')
+                    ->get();
+            }
         } else {
             $recentListings = $query->with('district')
                 ->orderBy('created_at', 'desc')
@@ -58,7 +110,7 @@ class HomeController extends Controller
                 ->paginate(24);
         }
 
-        return view('home', compact('recentListings'));
+        return view('home', compact('recentListings', 'matchingTags'));
     }
 
 
