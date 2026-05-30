@@ -20,6 +20,22 @@ class Listing extends Model
         'expires_at' => 'datetime',
     ];
 
+    protected static function booted()
+    {
+        $clearCache = function () {
+            try {
+                $redisStore = \Illuminate\Support\Facades\Cache::store('redis');
+                $redisStore->forget('tags:approved_with_listings');
+                $redisStore->forget('tags:searches');
+            } catch (\Exception $e) {
+                // Prevent app from crashing if Redis connection fails
+            }
+        };
+
+        static::saved($clearCache);
+        static::deleted($clearCache);
+    }
+
 
     public function user()
     {

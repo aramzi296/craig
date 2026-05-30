@@ -33,40 +33,90 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('categorySearch');
-        const categoryItems = document.querySelectorAll('.category-item');
         const noResults = document.getElementById('noResults');
+        const container = document.getElementById('categoriesContainer');
+
+        let debounceTimer;
+
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
 
         searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            let totalVisible = 0;
+            clearTimeout(debounceTimer);
+            const query = this.value.trim();
 
-            categoryItems.forEach(item => {
-                const name = item.getAttribute('data-name');
-                const span = item.querySelector('.name-span');
-                
-                if (query === '' || name.includes(query)) {
-                    item.style.display = 'flex';
-                    totalVisible++;
-
-                    // Reset/Apply highlights
-                    if (query !== '') {
-                        const originalText = span.textContent;
-                        const index = originalText.toLowerCase().indexOf(query);
-                        if (index >= 0) {
-                            const before = originalText.substring(0, index);
-                            const match = originalText.substring(index, index + query.length);
-                            const after = originalText.substring(index + query.length);
-                            span.innerHTML = `${before}<span style="background: rgba(14, 165, 233, 0.2); color: #0ea5e9; font-weight: 700; border-radius: 2px;">${match}</span>${after}`;
-                        }
-                    } else {
-                        span.innerHTML = span.textContent;
+            debounceTimer = setTimeout(() => {
+                fetch(`/tagar?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
                     }
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    container.innerHTML = '';
+                    const categories = data.categories;
 
-            noResults.style.display = totalVisible > 0 ? 'none' : 'block';
+                    if (categories && categories.length > 0) {
+                        noResults.style.display = 'none';
+                        categories.forEach(category => {
+                            const a = document.createElement('a');
+                            // Ensure the dynamic tag has identical styling, hover transitions, and features
+                            a.href = `/?tag=${encodeURIComponent(category.slug)}`;
+                            a.className = 'category-item';
+                            a.setAttribute('data-name', category.name.toLowerCase());
+                            a.style.textDecoration = 'none';
+                            a.style.color = '#4b5563';
+                            a.style.fontWeight = '600';
+                            a.style.fontSize = '0.9rem';
+                            a.style.transition = 'all 0.2s';
+                            a.style.display = 'flex';
+                            a.style.alignItems = 'center';
+                            a.style.gap = '5px';
+                            a.style.background = '#f1f5f9';
+                            a.style.padding = '8px 16px';
+                            a.style.borderRadius = '50px';
+                            a.style.border = '1px solid #e2e8f0';
+
+                            const hashSpan = document.createElement('span');
+                            hashSpan.style.color = '#64748b';
+                            hashSpan.style.fontWeight = '400';
+                            hashSpan.textContent = '#';
+
+                            const nameSpan = document.createElement('span');
+                            nameSpan.className = 'name-span';
+
+                            const nameText = category.name;
+                            const queryLower = query.toLowerCase();
+                            const index = nameText.toLowerCase().indexOf(queryLower);
+
+                            if (query !== '' && index >= 0) {
+                                const before = nameText.substring(0, index);
+                                const match = nameText.substring(index, index + query.length);
+                                const after = nameText.substring(index + query.length);
+                                nameSpan.innerHTML = `${escapeHtml(before)}<span style="background: rgba(14, 165, 233, 0.2); color: #0ea5e9; font-weight: 700; border-radius: 2px;">${escapeHtml(match)}</span>${escapeHtml(after)}`;
+                            } else {
+                                nameSpan.textContent = nameText;
+                            }
+
+                            a.appendChild(hashSpan);
+                            a.appendChild(nameSpan);
+                            container.appendChild(a);
+                        });
+                    } else {
+                        noResults.style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching tags:', error);
+                });
+            }, 250);
         });
     });
 </script>
