@@ -198,7 +198,7 @@ class N8nSendTest extends TestCase
         ]);
         $listingWithTag->tags()->attach($tag->id);
 
-        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
 
         Http::fake([
             $webhookUrl => Http::sequence()
@@ -251,7 +251,7 @@ class N8nSendTest extends TestCase
             'is_active' => true,
         ]);
 
-        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
 
         Http::fake([
             $webhookUrl => Http::response(['status' => 'success'], 200)

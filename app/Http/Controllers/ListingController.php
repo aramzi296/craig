@@ -166,7 +166,7 @@ class ListingController extends Controller
         $tagIds = [];
         if ($request->filled('tags')) {
             $tagifyTags = json_decode($request->tags, true);
-            $maxAllowed = $isPremiumPackage ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
+            $maxAllowed = $isPremiumPackage ? get_setting('max_tagar_premium', 10) : get_setting('max_tagar', 3);
             
             foreach (array_slice($tagifyTags, 0, $maxAllowed) as $cat) {
                 $tagName = trim($cat['value']);
@@ -340,7 +340,7 @@ class ListingController extends Controller
         $tagIds = [];
         if ($request->filled('tags')) {
             $tagifyTags = json_decode($request->tags, true);
-            $maxAllowed = $listing->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3);
+            $maxAllowed = $listing->is_premium ? get_setting('max_tagar_premium', 10) : get_setting('max_tagar', 3);
             
             foreach (array_slice($tagifyTags, 0, $maxAllowed) as $cat) {
                 $tagName = trim($cat['value']);

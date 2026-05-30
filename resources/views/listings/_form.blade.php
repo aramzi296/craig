@@ -50,8 +50,8 @@
         
         const charLimitStandard = {{ get_setting('huruf_deskripsi_iklan', 100) }};
         const charLimitPremium = {{ get_setting('huruf_deskripsi_iklan_premium', 2000) }};
-        const maxCategoryStandard = {{ get_setting('max_category', 3) }};
-        const maxCategoryPremium = {{ get_setting('max_category_premium', 10) }};
+        const maxCategoryStandard = {{ get_setting('max_tagar', 3) }};
+        const maxCategoryPremium = {{ get_setting('max_tagar_premium', 10) }};
         const maxPhotosStandard = {{ get_setting('max_foto_iklan', 4) }};
         const maxPhotosPremium = {{ get_setting('max_foto_iklan_premium', 12) }};
         
@@ -262,7 +262,7 @@
                     
                     window.tagifyInstance = new Tagify(input, {
                         whitelist: whitelist,
-                        maxTags: {{ optional($listing)->is_premium ? get_setting('max_category_premium', 10) : get_setting('max_category', 3) }},
+                        maxTags: {{ optional($listing)->is_premium ? get_setting('max_tagar_premium', 10) : get_setting('max_tagar', 3) }},
                         dropdown: {
                             maxItems: 20,
                             classname: "tags-look",
