@@ -1117,5 +1117,54 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Membaca setiap listing yang belum ada tagar dan mengirimkan ID & Deskripsi ke webhook n8n
+     */
+    public function generateTags(Request $request)
+    {
+        set_time_limit(0);
+
+        // Ambil limit dari request, default = 1
+        $limit = (int) $request->input('limit', 1);
+        if ($limit < 1) {
+            $limit = 1;
+        }
+
+        // Ambil listing yang tidak memiliki tag, batasi sesuai limit
+        $listings = \App\Models\Listing::doesntHave('tags')->take($limit)->get();
+
+        $processedCount = 0;
+        $successCount = 0;
+        $failedCount = 0;
+
+        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+
+        foreach ($listings as $listing) {
+            $processedCount++;
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->post($webhookUrl, [
+                    'id' => $listing->id,
+                    'description' => $listing->description,
+                ]);
+
+                if ($response->successful()) {
+                    $successCount++;
+                } else {
+                    $failedCount++;
+                    \Illuminate\Support\Facades\Log::warning("Gagal mengirim listing ID {$listing->id} ke webhook. Status: " . $response->status());
+                }
+            } catch (\Exception $e) {
+                $failedCount++;
+                \Illuminate\Support\Facades\Log::error("Kesalahan saat mengirim listing ID {$listing->id} ke webhook: " . $e->getMessage());
+            }
+        }
+
+        if ($processedCount === 0) {
+            return back()->with('success', 'Semua listing sudah memiliki tagar.');
+        }
+
+        return back()->with('success', "Proses pembuatan tagar selesai. Total listing diproses: {$processedCount}. Berhasil: {$successCount}, Gagal: {$failedCount}.");
+    }
 }
 

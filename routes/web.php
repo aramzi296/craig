@@ -12,6 +12,7 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\WebhookController;
 use App\Http\Controllers\ListingImportWebhookController;
 use App\Http\Controllers\WaLoginController;
+use App\Http\Controllers\GenerateTagsWebhookController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kategori', [HomeController::class, 'categoriesDirectory'])->name('categories.directory');
@@ -20,6 +21,7 @@ Route::get('/tagar', [HomeController::class, 'categories'])->name('categories.in
 // ─── Webhooks (CSRF exempt via bootstrap/app.php) ─────────────────────────────
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
 Route::post('webhook/listing-import', [ListingImportWebhookController::class, 'handle'])->name('webhook.listing-import');
+Route::post('webhook/generate-tags', [GenerateTagsWebhookController::class, 'handle'])->name('webhook.generate-tags');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {
@@ -155,6 +157,7 @@ Route::middleware('auth')->group(function () {
         // n8n Integrasi
         Route::get('/n8n-listings', [AdminController::class, 'n8nListings'])->name('n8n.listings');
         Route::post('/send-to-n8n', [AdminController::class, 'sendToN8n'])->name('send-to-n8n');
+        Route::get('/generate-tags', [AdminController::class, 'generateTags'])->name('generate-tags');
     });
 
     // Member Premium Upgrade

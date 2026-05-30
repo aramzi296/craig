@@ -115,7 +115,7 @@
                 onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
                 Cari
             </button>
-            @if(request()->filled('q'))
+            @if(request()->filled('q') || request()->filled('category') || request()->filled('tag') || request()->filled('location'))
                 <a href="{{ route('home') }}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; transition: background 0.2s;"
                     onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                     Reset
@@ -178,6 +178,26 @@
             Hasil Pencarian: "{{ request('q') }}"
             <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} ditemukan</span>
         </h2>
+    @elseif(request('category'))
+        @php
+            $currentCategory = \App\Models\Category::where('slug', request('category'))->first();
+        @endphp
+        @if($currentCategory)
+            <h2 class="section-title" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 20px;">
+                Kategori: {{ $currentCategory->name }}
+                <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} iklan</span>
+            </h2>
+        @endif
+    @elseif(request('tag'))
+        @php
+            $currentTag = \App\Models\Tag::where('slug', request('tag'))->first();
+        @endphp
+        @if($currentTag)
+            <h2 class="section-title" style="font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 20px;">
+                Tagar: #{{ $currentTag->name }}
+                <span style="font-size: 0.9rem; color: #94a3b8; font-weight: 600; margin-left: 10px;">{{ $recentListings->total() }} iklan</span>
+            </h2>
+        @endif
     @endif
     <div class="listing-grid">
         @foreach($recentListings as $listing)

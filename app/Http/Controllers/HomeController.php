@@ -33,6 +33,15 @@ class HomeController extends Controller
             }
         }
 
+        if ($request->filled('tag')) {
+            $tag = \App\Models\Tag::where('slug', $request->tag)->first();
+            if ($tag) {
+                $query->whereHas('tags', function($q) use ($tag) {
+                    $q->where('tags.id', $tag->id);
+                });
+            }
+        }
+
         if ($request->filled('q')) {
             $q = $request->q;
             $query->search($q);

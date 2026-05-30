@@ -149,4 +149,127 @@ class N8nSendTest extends TestCase
         $response->assertSee('n8n Listing');
         $response->assertSee('Kirim Data ke n8n');
     }
+
+    /** @test */
+    public function guests_and_non_admins_cannot_access_generate_tags()
+    {
+        // Guest is redirected
+        $response = $this->get(route('admin.generate-tags'));
+        $response->assertRedirect('/login');
+
+        // Non-admin is redirected with error
+        $response = $this->actingAs($this->user)->get(route('admin.generate-tags'));
+        $response->assertRedirect('/');
+        $response->assertSessionHas('error', 'Anda tidak memiliki akses ke halaman ini.');
+    }
+
+    /** @test */
+    public function admin_can_trigger_generate_tags_and_sends_listings_without_tags_to_webhook()
+    {
+        // Create 2 listings without tags, and 1 listing with a tag
+        $listing1 = \App\Models\Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Tag 1',
+            'slug' => 'listing-tanpa-tag-1',
+            'description' => 'Deskripsi listing tanpa tag pertama.',
+            'is_active' => true,
+        ]);
+
+        $listing2 = \App\Models\Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Tag 2',
+            'slug' => 'listing-tanpa-tag-2',
+            'description' => 'Deskripsi listing tanpa tag kedua.',
+            'is_active' => true,
+        ]);
+
+        $listingWithTag = \App\Models\Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Dengan Tag',
+            'slug' => 'listing-dengan-tag',
+            'description' => 'Deskripsi listing yang sudah memiliki tag.',
+            'is_active' => true,
+        ]);
+        
+        $tag = \App\Models\Tag::create([
+            'name' => 'TestTag',
+            'slug' => 'testtag',
+            'is_approved' => true
+        ]);
+        $listingWithTag->tags()->attach($tag->id);
+
+        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+
+        Http::fake([
+            $webhookUrl => Http::sequence()
+                ->push(['status' => 'success'], 200) // success for listing 1
+                ->push(['status' => 'error'], 500)   // failure/error for listing 2
+        ]);
+
+        $response = $this->actingAs($this->admin)->get(route('admin.generate-tags', ['limit' => 2]));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Proses pembuatan tagar selesai. Total listing diproses: 2. Berhasil: 1, Gagal: 1.');
+
+        Http::assertSent(function ($request) use ($listing1, $webhookUrl) {
+            return $request->url() === $webhookUrl &&
+                   $request->method() === 'POST' &&
+                   $request['id'] === $listing1->id &&
+                   $request['description'] === $listing1->description;
+        });
+
+        Http::assertSent(function ($request) use ($listing2, $webhookUrl) {
+            return $request->url() === $webhookUrl &&
+                   $request->method() === 'POST' &&
+                   $request['id'] === $listing2->id &&
+                   $request['description'] === $listing2->description;
+        });
+
+        // Listing with tag should NOT be sent
+        Http::assertNotSent(function ($request) use ($listingWithTag, $webhookUrl) {
+            return $request['id'] === $listingWithTag->id;
+        });
+    }
+
+    /** @test */
+    public function admin_trigger_generate_tags_defaults_to_limit_of_1()
+    {
+        // Create 2 listings without tags
+        $listing1 = \App\Models\Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Tag 1',
+            'slug' => 'listing-tanpa-tag-1',
+            'description' => 'Deskripsi listing tanpa tag pertama.',
+            'is_active' => true,
+        ]);
+
+        $listing2 = \App\Models\Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Tag 2',
+            'slug' => 'listing-tanpa-tag-2',
+            'description' => 'Deskripsi listing tanpa tag kedua.',
+            'is_active' => true,
+        ]);
+
+        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+
+        Http::fake([
+            $webhookUrl => Http::response(['status' => 'success'], 200)
+        ]);
+
+        // Trigger without limit query parameter
+        $response = $this->actingAs($this->admin)->get(route('admin.generate-tags'));
+
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Proses pembuatan tagar selesai. Total listing diproses: 1. Berhasil: 1, Gagal: 0.');
+
+        Http::assertSent(function ($request) use ($listing1, $webhookUrl) {
+            return $request['id'] === $listing1->id;
+        });
+
+        // The second listing should NOT be sent because of default limit of 1
+        Http::assertNotSent(function ($request) use ($listing2, $webhookUrl) {
+            return $request['id'] === $listing2->id;
+        });
+    }
 }

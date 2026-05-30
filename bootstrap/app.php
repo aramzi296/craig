@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'webhook/whatsapp',
             'webhook/whatsapp/*',
             'webhook/listing-import',
+            'webhook/generate-tags',
         ]);
 
         $middleware->alias([

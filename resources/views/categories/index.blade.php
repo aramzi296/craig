@@ -13,7 +13,7 @@
 
     <div id="categoriesContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
         @foreach($categories as $category)
-            <a href="{{ route('home', ['category' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
+            <a href="{{ route('home', ['tag' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
                 <span style="color: #64748b; font-weight: 400;">#</span>
                 <span class="name-span">{{ $category->name }}</span>
             </a>

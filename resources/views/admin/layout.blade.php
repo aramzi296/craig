@@ -33,6 +33,11 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="#" class="sidebar-link {{ request()->routeIs('admin.generate-tags*') ? 'active' : '' }}" onclick="event.preventDefault(); openGenerateTagsModal();">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Tagar
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                     <i class="fa-solid fa-triangle-exclamation"></i> Laporan Usaha
                 </a>
@@ -123,5 +128,37 @@
         overlay.classList.toggle('show');
         layout.classList.toggle('sidebar-collapsed');
     }
+
+    function openGenerateTagsModal() {
+        const modal = document.getElementById('generateTagsModal');
+        modal.style.display = 'flex';
+    }
+
+    function closeGenerateTagsModal() {
+        const modal = document.getElementById('generateTagsModal');
+        modal.style.display = 'none';
+    }
 </script>
+
+<!-- Modal Input Jumlah Listing Buat Tagar -->
+<div id="generateTagsModal" class="report-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); align-items: center; justify-content: center; z-index: 10000;">
+    <div style="background: #ffffff; border-radius: 20px; width: 100%; max-width: 400px; padding: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); border: 1px solid rgba(226, 232, 240, 0.8);">
+        <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 1.25rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color: #0ea5e9;"></i> Buat Tagar
+        </h3>
+        <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5;">
+            Masukkan jumlah listing tanpa tagar yang ingin Anda kirimkan ke webhook n8n untuk dibuatkan tagar otomatis.
+        </p>
+        <form action="{{ route('admin.generate-tags') }}" method="GET">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 8px;">Jumlah Listing</label>
+                <input type="number" name="limit" value="1" min="1" required style="width: 100%; padding: 12px 16px; border-radius: 12px; border: 1.5px solid #e2e8f0; font-size: 0.95rem; box-sizing: border-box; background: #f8fafc; color: #1e293b;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" onclick="closeGenerateTagsModal()" style="padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; background: #fff; color: #64748b; border: 1.5px solid #e2e8f0; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#fff'">Batal</button>
+                <button type="submit" style="padding: 10px 20px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); color: white; border: none; cursor: pointer; box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">Proses</button>
+            </div>
+        </form>
+    </div>
+</div>
 @endsection
