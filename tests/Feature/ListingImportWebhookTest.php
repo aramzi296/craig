@@ -206,4 +206,36 @@ class ListingImportWebhookTest extends TestCase
 
         $this->assertSame(3, ListingPhoto::where('listing_id', $listing->id)->count());
     }
+
+    public function test_imports_listing_successfully_with_undefined_files_and_missing_alamat(): void
+    {
+        config(['services.webhook_import.secret' => null]);
+
+        $payload = [
+            [
+                "uploaded_files" => "https://direktori-sebatam.sebatam.com/undefined",
+                "keterangan_usaha" => "Pijat pria batam\nSedia tempat dan menerima panggilan",
+                "group_url" => "https://www.facebook.com/groups/397212271668337",
+                "nomor_wa" => "6285972998865",
+                "nama" => "Rendy Piat Pria Batam"
+            ]
+        ];
+
+        $response = $this->postJson(route('webhook.listing-import'), $payload);
+
+        $response->assertCreated()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.photos_count', 0);
+
+        $user = User::where('whatsapp', '6285972998865')->first();
+        $this->assertNotNull($user);
+        $this->assertSame('Rendy Piat Pria Batam', $user->name);
+
+        $listing = Listing::where('user_id', $user->id)->first();
+        $this->assertNotNull($listing);
+        $this->assertSame('Rendy Piat Pria Batam', $listing->title);
+        $this->assertSame('Batam', $listing->address);
+        
+        $this->assertSame(0, ListingPhoto::where('listing_id', $listing->id)->count());
+    }
 }

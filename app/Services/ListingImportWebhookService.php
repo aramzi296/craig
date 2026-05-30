@@ -28,9 +28,6 @@ class ListingImportWebhookService
         }
 
         $files = $data['uploaded_files'] ?? [];
-        if ($files === []) {
-            throw new InvalidArgumentException('uploaded_files wajib berisi minimal satu URL gambar.');
-        }
 
         return DB::transaction(function () use ($data, $whatsapp, $files) {
             [$user, $userCreated] = $this->resolveUser($whatsapp, $data['nama']);
@@ -140,6 +137,11 @@ class ListingImportWebhookService
             }
         }
 
+        // Auto fallback for alamat
+        if (empty($record['alamat'])) {
+            $record['alamat'] = 'Batam';
+        }
+
         // Auto fallback for judul
         if (empty($record['judul'])) {
             if (!empty($record['nama_usaha'])) {
@@ -164,6 +166,13 @@ class ListingImportWebhookService
      */
     protected function filterFileUrls(array $urls): array
     {
+        // Filter out empty URLs or URLs containing "undefined"
+        $urls = array_filter($urls, function ($url) {
+            if (!is_string($url)) return false;
+            $trimmed = trim($url);
+            return $trimmed !== '' && !str_contains($trimmed, 'undefined');
+        });
+
         $candidates = array_values(array_filter(
             $urls,
             fn ($url) => is_string($url) && filter_var($url, FILTER_VALIDATE_URL)
@@ -178,12 +187,6 @@ class ListingImportWebhookService
                 continue;
             }
             $valid[] = $url;
-        }
-
-        if ($valid === [] && $candidates !== []) {
-            throw new InvalidArgumentException(
-                'Semua URL gambar tidak valid (bukan file gambar atau file kosong/HTML error). Detail: ' . implode('; ', $rejected)
-            );
         }
 
         return $valid;
@@ -239,7 +242,7 @@ class ListingImportWebhookService
      */
     protected function isListingRecord(array $data): bool
     {
-        return isset($data['nama']) && isset($data['uploaded_files']);
+        return isset($data['nama']);
     }
 
     /**
