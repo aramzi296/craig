@@ -135,10 +135,10 @@
                             <!-- Impacted Listings -->
                             <td style="padding: 20px 24px; text-align: center; vertical-align: middle; font-weight: 800; color: #334155; font-size: 1.1rem;">
                                 <?php
-                                    $primaryListings = $group['primary']->listings()->pluck('id');
+                                    $primaryListings = $group['primary']->listings()->pluck('listings.id');
                                     $duplicateListings = collect();
                                     foreach ($group['duplicates'] as $dup) {
-                                        $duplicateListings = $duplicateListings->merge($dup->listings()->pluck('id'));
+                                        $duplicateListings = $duplicateListings->merge($dup->listings()->pluck('listings.id'));
                                     }
                                     $totalUniqueListings = $primaryListings->merge($duplicateListings)->unique()->count();
                                 ?>
