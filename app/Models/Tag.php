@@ -58,7 +58,7 @@ class Tag extends Model
                 'slug' => $slug,
                 'icon' => 'fa-solid fa-tag',
                 'sort_order' => (int)self::max('sort_order') + 1,
-                'is_approved' => $isApproved,
+                'is_approved' => $isApproved ? \DB::raw('true') : \DB::raw('false'),
             ]);
         }
 
