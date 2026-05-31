@@ -951,20 +951,7 @@ class WhatsappBotService
                 $tagName = trim($ad['category_name']);
                 $slug = Str::slug($tagName);
                 
-                // Cari berdasarkan nama (case-insensitive) atau slug
-                $tag = Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'is_approved' => \DB::raw('false'), // Tag baru harus disetujui admin
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)Tag::max('sort_order') + 1,
-                    ]);
-                }
+                $tag = Tag::findOrCreateByName($tagName, false);
                 $listing->tags()->attach($tag->id);
 
                 // Handle Photos

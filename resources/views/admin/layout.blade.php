@@ -38,6 +38,11 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.tags.deduplicate') }}" class="sidebar-link {{ request()->routeIs('admin.tags.deduplicate*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-broom"></i> Bersihkan Tagar
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                     <i class="fa-solid fa-triangle-exclamation"></i> Laporan Usaha
                 </a>

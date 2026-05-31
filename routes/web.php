@@ -76,6 +76,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('/categories/{id}', [AdminController::class, 'destroyCategory'])->name('categories.destroy');
         Route::post('/categories/{id}/toggle-approval', [AdminController::class, 'toggleCategoryApproval'])->name('categories.toggle-approval');
 
+        // Tag Deduplication
+        Route::get('/tags/deduplicate', [AdminController::class, 'showDeduplicateTags'])->name('tags.deduplicate');
+        Route::post('/tags/deduplicate', [AdminController::class, 'runDeduplicateTags'])->name('tags.deduplicate.run');
+
 
         // Listing Management
         Route::get('/listings', [AdminController::class, 'listings'])->name('listings');

@@ -234,19 +234,7 @@ class AdminController extends Controller
                 $tagName = trim($cat['value']);
                 $slug = \Illuminate\Support\Str::slug($tagName);
 
-                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = \App\Models\Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
-                        'is_approved' => \DB::raw('true')
-                    ]);
-                }
+                $tag = \App\Models\Tag::findOrCreateByName($tagName, true);
                 $tagIds[] = $tag->id;
             }
         }
@@ -345,19 +333,7 @@ class AdminController extends Controller
                 $tagName = trim($cat['value']);
                 $slug = \Illuminate\Support\Str::slug($tagName);
 
-                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = \App\Models\Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
-                        'is_approved' => \DB::raw('true')
-                    ]);
-                }
+                $tag = \App\Models\Tag::findOrCreateByName($tagName, true);
                 $tagIds[] = $tag->id;
             }
         }
@@ -1165,6 +1141,66 @@ class AdminController extends Controller
         }
 
         return back()->with('success', "Proses pembuatan tagar selesai. Total listing diproses: {$processedCount}. Berhasil: {$successCount}, Gagal: {$failedCount}.");
+    }
+
+    public function showDeduplicateTags()
+    {
+        $allTags = \App\Models\Tag::all();
+        
+        $groups = $allTags->groupBy(function ($tag) {
+            return str_replace(' ', '', strtolower($tag->name));
+        });
+        
+        $duplicateGroups = [];
+        $totalDuplicatesCount = 0;
+        
+        foreach ($groups as $normalized => $group) {
+            if ($group->count() > 1) {
+                // Sort them similar to the deduplicate method to show which one will be kept
+                $sorted = $group->sort(function ($a, $b) {
+                    if ($a->is_approved !== $b->is_approved) {
+                        return $b->is_approved <=> $a->is_approved;
+                    }
+                    
+                    $aCount = $a->listings()->count();
+                    $bCount = $b->listings()->count();
+                    if ($aCount !== $bCount) {
+                        return $bCount <=> $aCount;
+                    }
+                    
+                    $aHasSpace = strpos($a->name, ' ') !== false;
+                    $bHasSpace = strpos($b->name, ' ') !== false;
+                    if ($aHasSpace !== $bHasSpace) {
+                        return $bHasSpace <=> $aHasSpace;
+                    }
+                    
+                    return $a->id <=> $b->id;
+                });
+                
+                $primary = $sorted->first();
+                $duplicates = $sorted->slice(1);
+                
+                $duplicateGroups[] = [
+                    'primary' => $primary,
+                    'duplicates' => $duplicates,
+                    'count' => $group->count(),
+                ];
+                
+                $totalDuplicatesCount += $duplicates->count();
+            }
+        }
+        
+        return view('admin.tags.deduplicate', compact('duplicateGroups', 'totalDuplicatesCount', 'allTags'));
+    }
+
+    public function runDeduplicateTags()
+    {
+        $summary = \App\Models\Tag::deduplicate();
+        
+        $mergedCount = count($summary);
+        
+        return redirect()->route('admin.tags.deduplicate')
+            ->with('success', "Proses pembersihan tagar selesai! Berhasil menggabungkan {$mergedCount} grup tagar duplikat.");
     }
 }
 

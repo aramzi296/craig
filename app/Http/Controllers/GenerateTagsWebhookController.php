@@ -42,20 +42,7 @@ class GenerateTagsWebhookController extends Controller
 
                 $slug = Str::slug($name);
 
-                // Cari tag berdasarkan nama (case-insensitive) atau slug
-                $tag = Tag::whereRaw('LOWER(name) = ?', [strtolower($name)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = Tag::create([
-                        'name' => $name,
-                        'slug' => $slug,
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)Tag::max('sort_order') + 1,
-                        'is_approved' => DB::raw('true'),
-                    ]);
-                }
+                $tag = Tag::findOrCreateByName($name, true);
 
                 $tagIds[] = $tag->id;
             }

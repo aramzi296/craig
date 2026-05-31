@@ -172,20 +172,7 @@ class ListingController extends Controller
                 $tagName = trim($cat['value']);
                 $slug = \Illuminate\Support\Str::slug($tagName);
 
-                // Cari berdasarkan nama (case-insensitive) atau slug
-                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = \App\Models\Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
-                        'is_approved' => \DB::raw('false')
-                    ]);
-                }
+                $tag = \App\Models\Tag::findOrCreateByName($tagName, false);
 
                 $tagIds[] = $tag->id;
             }
@@ -346,20 +333,7 @@ class ListingController extends Controller
                 $tagName = trim($cat['value']);
                 $slug = \Illuminate\Support\Str::slug($tagName);
 
-                // Cari berdasarkan nama (case-insensitive) atau slug
-                $tag = \App\Models\Tag::whereRaw('LOWER(name) = ?', [strtolower($tagName)])
-                    ->orWhere('slug', $slug)
-                    ->first();
-
-                if (!$tag) {
-                    $tag = \App\Models\Tag::create([
-                        'name' => $tagName,
-                        'slug' => $slug,
-                        'icon' => 'fa-solid fa-tag',
-                        'sort_order' => (int)\App\Models\Tag::max('sort_order') + 1,
-                        'is_approved' => \DB::raw('false')
-                    ]);
-                }
+                $tag = \App\Models\Tag::findOrCreateByName($tagName, false);
                 $tagIds[] = $tag->id;
             }
         }
