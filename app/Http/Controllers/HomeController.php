@@ -74,9 +74,10 @@ class HomeController extends Controller
                             ->get();
                     });
 
-                    $filteredTags = $allTags->filter(function($tag) use ($cleanQuery) {
-                        return str_contains(strtolower($tag->name), $cleanQuery) || 
-                               str_contains(strtolower($tag->slug), $cleanQuery);
+                    $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
+                    $filteredTags = $allTags->filter(function($tag) use ($pattern) {
+                        return preg_match($pattern, $tag->name) || 
+                               preg_match($pattern, $tag->slug);
                     })->values();
 
                     // Simpan hasil filter ke Redis Hash
@@ -91,16 +92,32 @@ class HomeController extends Controller
                 }
             } catch (\Exception $e) {
                 // Fallback to direct DB query if Redis connection/driver fails
-                $matchingTags = \App\Models\Tag::whereRaw('is_approved = true')
-                    ->where(function($queryBuilder) use ($cleanQuery) {
-                        $queryBuilder->where('name', 'like', "%{$cleanQuery}%")
-                            ->orWhere('slug', 'like', "%{$cleanQuery}%");
-                    })
+                $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+                $matchingTagsQuery = \App\Models\Tag::whereRaw('is_approved = true')
                     ->whereHas('listings', function($q) {
                         $q->whereRaw('is_active = true')->notExpired();
+                    });
+
+                if ($driver === 'pgsql') {
+                    $matchingTagsQuery->where(function($queryBuilder) use ($cleanQuery) {
+                        $queryBuilder->whereRaw("name ~* ?", ['\y' . preg_quote($cleanQuery, '/') . '\y'])
+                                     ->orWhereRaw("slug ~* ?", ['\y' . preg_quote($cleanQuery, '/') . '\y']);
+                    });
+                    $matchingTags = $matchingTagsQuery->orderBy('name')->get();
+                } else {
+                    // SQLite/MySQL fallback: query with LIKE, then filter with preg_match in PHP for exact whole word match
+                    $dbTags = $matchingTagsQuery->where(function($queryBuilder) use ($cleanQuery) {
+                        $queryBuilder->where('name', 'like', "%{$cleanQuery}%")
+                                     ->orWhere('slug', 'like', "%{$cleanQuery}%");
                     })
                     ->orderBy('name')
                     ->get();
+
+                    $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
+                    $matchingTags = $dbTags->filter(function($tag) use ($pattern) {
+                        return preg_match($pattern, $tag->name) || preg_match($pattern, $tag->slug);
+                    })->values();
+                }
             }
         } else {
             $recentListings = $query->with('district')
@@ -220,9 +237,10 @@ class HomeController extends Controller
                         ->get();
                 });
 
-                $filteredTags = $allTags->filter(function($tag) use ($cleanQuery) {
-                    return str_contains(strtolower($tag->name), $cleanQuery) || 
-                           str_contains(strtolower($tag->slug), $cleanQuery);
+                $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
+                $filteredTags = $allTags->filter(function($tag) use ($pattern) {
+                    return preg_match($pattern, $tag->name) || 
+                           preg_match($pattern, $tag->slug);
                 })->values();
 
                 // Simpan hasil filter ke Redis Hash

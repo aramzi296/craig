@@ -18,7 +18,9 @@ class Tag extends Model
             try {
                 $redisStore = \Illuminate\Support\Facades\Cache::store('redis');
                 $redisStore->forget('tags:approved_with_listings');
-                $redisStore->forget('tags:searches');
+                
+                // Hapus juga Hash pencarian di Redis secara langsung
+                \Illuminate\Support\Facades\Redis::connection('cache')->del('laravel-cache-tags:searches');
             } catch (\Exception $e) {
                 // Prevent app from crashing if Redis connection fails
             }
@@ -201,7 +203,9 @@ class Tag extends Model
             try {
                 $redisStore = \Illuminate\Support\Facades\Cache::store('redis');
                 $redisStore->forget('tags:approved_with_listings');
-                $redisStore->forget('tags:searches');
+                
+                // Hapus juga Hash pencarian di Redis secara langsung
+                \Illuminate\Support\Facades\Redis::connection('cache')->del('laravel-cache-tags:searches');
             } catch (\Exception $e) {
                 // Prevent failure if redis isn't configured/running
             }
