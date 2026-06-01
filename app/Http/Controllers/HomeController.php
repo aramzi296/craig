@@ -74,10 +74,18 @@ class HomeController extends Controller
                             ->get();
                     });
 
-                    $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
-                    $filteredTags = $allTags->filter(function($tag) use ($pattern) {
-                        return preg_match($pattern, $tag->name) || 
-                               preg_match($pattern, $tag->slug);
+                    $words = array_filter(explode(' ', $cleanQuery));
+                    $patterns = array_map(function($word) {
+                        return '/\b' . preg_quote($word, '/') . '\b/i';
+                    }, $words);
+
+                    $filteredTags = $allTags->filter(function($tag) use ($patterns) {
+                        foreach ($patterns as $pattern) {
+                            if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
+                                return false; // Ada satu kata yang tidak cocok
+                            }
+                        }
+                        return true; // Semua kata cocok sebagai kata utuh
                     })->values();
 
                     // Simpan hasil filter ke Redis Hash
@@ -98,24 +106,37 @@ class HomeController extends Controller
                         $q->whereRaw('is_active = true')->notExpired();
                     });
 
+                $words = array_filter(explode(' ', $cleanQuery));
+
                 if ($driver === 'pgsql') {
-                    $matchingTagsQuery->where(function($queryBuilder) use ($cleanQuery) {
-                        $queryBuilder->whereRaw("name ~* ?", ['\y' . preg_quote($cleanQuery, '/') . '\y'])
-                                     ->orWhereRaw("slug ~* ?", ['\y' . preg_quote($cleanQuery, '/') . '\y']);
-                    });
+                    foreach ($words as $word) {
+                        $matchingTagsQuery->where(function($queryBuilder) use ($word) {
+                            $queryBuilder->whereRaw("name ~* ?", ['\y' . preg_quote($word, '/') . '\y'])
+                                         ->orWhereRaw("slug ~* ?", ['\y' . preg_quote($word, '/') . '\y']);
+                        });
+                    }
                     $matchingTags = $matchingTagsQuery->orderBy('name')->get();
                 } else {
                     // SQLite/MySQL fallback: query with LIKE, then filter with preg_match in PHP for exact whole word match
-                    $dbTags = $matchingTagsQuery->where(function($queryBuilder) use ($cleanQuery) {
-                        $queryBuilder->where('name', 'like', "%{$cleanQuery}%")
-                                     ->orWhere('slug', 'like', "%{$cleanQuery}%");
-                    })
-                    ->orderBy('name')
-                    ->get();
+                    foreach ($words as $word) {
+                        $matchingTagsQuery->where(function($queryBuilder) use ($word) {
+                            $queryBuilder->where('name', 'like', "%{$word}%")
+                                         ->orWhere('slug', 'like', "%{$word}%");
+                        });
+                    }
+                    $dbTags = $matchingTagsQuery->orderBy('name')->get();
 
-                    $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
-                    $matchingTags = $dbTags->filter(function($tag) use ($pattern) {
-                        return preg_match($pattern, $tag->name) || preg_match($pattern, $tag->slug);
+                    $patterns = array_map(function($word) {
+                        return '/\b' . preg_quote($word, '/') . '\b/i';
+                    }, $words);
+
+                    $matchingTags = $dbTags->filter(function($tag) use ($patterns) {
+                        foreach ($patterns as $pattern) {
+                            if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
+                                return false;
+                            }
+                        }
+                        return true;
                     })->values();
                 }
             }
@@ -237,10 +258,18 @@ class HomeController extends Controller
                         ->get();
                 });
 
-                $pattern = '/\b' . preg_quote($cleanQuery, '/') . '\b/i';
-                $filteredTags = $allTags->filter(function($tag) use ($pattern) {
-                    return preg_match($pattern, $tag->name) || 
-                           preg_match($pattern, $tag->slug);
+                $words = array_filter(explode(' ', $cleanQuery));
+                $patterns = array_map(function($word) {
+                    return '/\b' . preg_quote($word, '/') . '\b/i';
+                }, $words);
+
+                $filteredTags = $allTags->filter(function($tag) use ($patterns) {
+                    foreach ($patterns as $pattern) {
+                        if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
+                            return false;
+                        }
+                    }
+                    return true;
                 })->values();
 
                 // Simpan hasil filter ke Redis Hash
