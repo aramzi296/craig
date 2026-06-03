@@ -193,5 +193,6 @@ Route::get('/test-tailwind', function () {
 // Wildcard Routes (Must be at the bottom)
 Route::post('/listing/{id}/contact-admin', [ListingController::class, 'contactAdmin'])->name('listing.contact.admin');
 Route::post('/listing/{id}/report', [ListingController::class, 'report'])->name('listings.report');
+Route::get('/listing/{id}/whatsapp', [ListingController::class, 'whatsapp'])->name('listings.whatsapp');
 Route::get('/pengiklan/{id}', [HomeController::class, 'userListings'])->name('user.listings');
 Route::get('/listing/{slug}', [HomeController::class, 'show'])->name('listings.show');

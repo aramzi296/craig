@@ -166,7 +166,7 @@
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="https://wa.me/{{ $listing->user->whatsapp }}?text=Halo {{ $listing->user->name }}, saya tertarik dengan usaha Anda di {{ config('app.name') }}: {{ $listing->title }}." target="_blank" class="btn-detail btn-detail-whatsapp">
+                        <a href="{{ route('listings.whatsapp', $listing->id) }}" target="_blank" class="btn-detail btn-detail-whatsapp">
                             <i class="fa-brands fa-whatsapp"></i> Hubungi WhatsApp
                         </a>
                     @elseif($listing->whatsapp_visibility == 1)

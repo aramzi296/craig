@@ -469,4 +469,22 @@ class ListingController extends Controller
 
         return back()->with('success', 'Laporan Anda berhasil dikirim dan akan segera ditinjau oleh Admin. Terima kasih!');
     }
+
+    public function whatsapp(Request $request, $id)
+    {
+        $listing = \App\Models\Listing::with('user')->findOrFail($id);
+
+        \App\Models\ListingWhatsappClick::create([
+            'listing_id' => $listing->id,
+            'user_id' => auth()->id(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        // $message = "Halo " . $listing->user->name . ", saya tertarik dengan usaha Anda di " . config('app.name') . ": " . $listing->title . ".";
+        $message = "Saya membaca profil Anda di " . config('app.name') . " dengan judul: " . $listing->title . ".";
+        $url = "https://wa.me/" . $listing->user->whatsapp . "?text=" . urlencode($message);
+
+        return redirect()->away($url);
+    }
 }
