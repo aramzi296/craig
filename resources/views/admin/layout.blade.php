@@ -28,6 +28,11 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.photos') }}" class="sidebar-link {{ request()->routeIs('admin.photos*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-images"></i> Gambar Sebatam
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.n8n.listings') }}" class="sidebar-link {{ request()->routeIs('admin.n8n.listings*') ? 'active' : '' }}">
                     <i class="fa-solid fa-share-nodes"></i> n8n Listing
                 </a>

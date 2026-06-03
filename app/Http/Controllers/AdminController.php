@@ -410,6 +410,22 @@ class AdminController extends Controller
         return back()->with('success', 'Foto berhasil dihapus.');
     }
 
+    public function photos(Request $request)
+    {
+        $query = \App\Models\ListingPhoto::with(['listing.user']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('listing', function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%");
+            });
+        }
+
+        $photos = $query->latest()->paginate(24)->withQueryString();
+
+        return view('admin.photos.index', compact('photos'));
+    }
+
     public function toggleListingStatus($id)
     {
         $listing = \App\Models\Listing::findOrFail($id);
