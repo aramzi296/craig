@@ -60,4 +60,64 @@ class TagarSearchHomeTest extends TestCase
         $response->assertSee('Baja Ringan');
         $response->assertSee('Tagar Terkait');
     }
+
+    public function test_home_search_requires_all_words_in_tag(): void
+    {
+        // Create tags
+        $tagsToCreate = [
+            'service ac' => true,
+            'ac service' => true,
+            'service ac bekas' => true,
+            'terima service ac' => true,
+            'service' => false, // should not match
+            'ac' => false,      // should not match
+            'baja ringan' => false // should not match
+        ];
+
+        $matchedTags = [];
+        $unmatchedTags = [];
+
+        foreach ($tagsToCreate as $name => $shouldMatch) {
+            $tag = Tag::create([
+                'name' => $name,
+                'slug' => \Illuminate\Support\Str::slug($name),
+                'is_approved' => true
+            ]);
+
+            // Create an active listing for the tag
+            $listing = Listing::create([
+                'user_id' => $this->user->id,
+                'title' => 'Listing for ' . $name,
+                'slug' => 'listing-for-' . \Illuminate\Support\Str::slug($name),
+                'description' => 'Description of listing',
+                'is_active' => true
+            ]);
+            $listing->tags()->attach($tag->id);
+
+            if ($shouldMatch) {
+                $matchedTags[] = $tag;
+            } else {
+                $unmatchedTags[] = $tag;
+            }
+        }
+
+        // Perform search request
+        $response = $this->get('/?q=service ac');
+        $response->assertStatus(200);
+
+        // Assert all matched tags are in matchingTags
+        $response->assertViewHas('matchingTags', function($tags) use ($matchedTags, $unmatchedTags) {
+            foreach ($matchedTags as $tag) {
+                if (!$tags->contains('id', $tag->id)) {
+                    return false;
+                }
+            }
+            foreach ($unmatchedTags as $tag) {
+                if ($tags->contains('id', $tag->id)) {
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
 }

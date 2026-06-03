@@ -75,17 +75,16 @@ class HomeController extends Controller
                     });
 
                     $words = array_filter(explode(' ', $cleanQuery));
-                    $patterns = array_map(function($word) {
-                        return '/\b' . preg_quote($word, '/') . '\b/i';
-                    }, $words);
 
-                    $filteredTags = $allTags->filter(function($tag) use ($patterns) {
-                        foreach ($patterns as $pattern) {
-                            if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
+                    $filteredTags = $allTags->filter(function($tag) use ($words) {
+                        $name = strtolower($tag->name);
+                        $slug = strtolower($tag->slug);
+                        foreach ($words as $word) {
+                            if (!str_contains($name, $word) && !str_contains($slug, $word)) {
                                 return false; // Ada satu kata yang tidak cocok
                             }
                         }
-                        return true; // Semua kata cocok sebagai kata utuh
+                        return true; // Semua kata cocok
                     })->values();
 
                     // Simpan hasil filter ke Redis Hash
@@ -111,13 +110,13 @@ class HomeController extends Controller
                 if ($driver === 'pgsql') {
                     foreach ($words as $word) {
                         $matchingTagsQuery->where(function($queryBuilder) use ($word) {
-                            $queryBuilder->whereRaw("name ~* ?", ['\y' . preg_quote($word, '/') . '\y'])
-                                         ->orWhereRaw("slug ~* ?", ['\y' . preg_quote($word, '/') . '\y']);
+                            $queryBuilder->where('name', 'ilike', "%{$word}%")
+                                         ->orWhere('slug', 'ilike', "%{$word}%");
                         });
                     }
                     $matchingTags = $matchingTagsQuery->orderBy('name')->get();
                 } else {
-                    // SQLite/MySQL fallback: query with LIKE, then filter with preg_match in PHP for exact whole word match
+                    // SQLite/MySQL fallback: query with LIKE, then filter with str_contains in PHP
                     foreach ($words as $word) {
                         $matchingTagsQuery->where(function($queryBuilder) use ($word) {
                             $queryBuilder->where('name', 'like', "%{$word}%")
@@ -126,13 +125,11 @@ class HomeController extends Controller
                     }
                     $dbTags = $matchingTagsQuery->orderBy('name')->get();
 
-                    $patterns = array_map(function($word) {
-                        return '/\b' . preg_quote($word, '/') . '\b/i';
-                    }, $words);
-
-                    $matchingTags = $dbTags->filter(function($tag) use ($patterns) {
-                        foreach ($patterns as $pattern) {
-                            if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
+                    $matchingTags = $dbTags->filter(function($tag) use ($words) {
+                        $name = strtolower($tag->name);
+                        $slug = strtolower($tag->slug);
+                        foreach ($words as $word) {
+                            if (!str_contains($name, $word) && !str_contains($slug, $word)) {
                                 return false;
                             }
                         }
@@ -241,15 +238,90 @@ class HomeController extends Controller
         if (!empty($query)) {
             $cleanQuery = strtolower(trim($query));
             
-            // Coba ambil dari Redis Hash
-            $cachedSearch = $redis->hget('laravel-cache-tags:searches', $cleanQuery);
+            try {
+                // Coba ambil dari Redis Hash
+                $cachedSearch = $redis->hget('laravel-cache-tags:searches', $cleanQuery);
 
-            if ($cachedSearch) {
-                $categoriesData = json_decode($cachedSearch, true);
-                $categories = \App\Models\Tag::hydrate($categoriesData);
-            } else {
-                // Ambil daftar utama dari Redis, jika tidak ada baru query DB
-                $allTags = $redisStore->remember('tags:approved_with_listings', 3600, function() {
+                if ($cachedSearch) {
+                    $categoriesData = json_decode($cachedSearch, true);
+                    $categories = \App\Models\Tag::hydrate($categoriesData);
+                } else {
+                    // Ambil daftar utama dari Redis, jika tidak ada baru query DB
+                    $allTags = $redisStore->remember('tags:approved_with_listings', 3600, function() {
+                        return \App\Models\Tag::whereRaw('is_approved = true')
+                            ->whereHas('listings', function($q) {
+                                $q->whereRaw('is_active = true')->notExpired();
+                            })
+                            ->orderBy('name')
+                            ->get();
+                    });
+
+                    $words = array_filter(explode(' ', $cleanQuery));
+
+                    $filteredTags = $allTags->filter(function($tag) use ($words) {
+                        $name = strtolower($tag->name);
+                        $slug = strtolower($tag->slug);
+                        foreach ($words as $word) {
+                            if (!str_contains($name, $word) && !str_contains($slug, $word)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })->values();
+
+                    // Simpan hasil filter ke Redis Hash
+                    $redis->hset('laravel-cache-tags:searches', $cleanQuery, json_encode($filteredTags->toArray()));
+                    
+                    // Set expiry pada hash jika baru dibuat (misal 10 menit)
+                    if ($redis->ttl('laravel-cache-tags:searches') === -1) {
+                        $redis->expire('laravel-cache-tags:searches', 600);
+                    }
+
+                    $categories = $filteredTags;
+                }
+            } catch (\Exception $e) {
+                // Fallback to direct DB query if Redis connection/driver fails
+                $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
+                $categoriesQuery = \App\Models\Tag::whereRaw('is_approved = true')
+                    ->whereHas('listings', function($q) {
+                        $q->whereRaw('is_active = true')->notExpired();
+                    });
+
+                $words = array_filter(explode(' ', $cleanQuery));
+
+                if ($driver === 'pgsql') {
+                    foreach ($words as $word) {
+                        $categoriesQuery->where(function($queryBuilder) use ($word) {
+                            $queryBuilder->where('name', 'ilike', "%{$word}%")
+                                         ->orWhere('slug', 'ilike', "%{$word}%");
+                        });
+                    }
+                    $categories = $categoriesQuery->orderBy('name')->get();
+                } else {
+                    foreach ($words as $word) {
+                        $categoriesQuery->where(function($queryBuilder) use ($word) {
+                            $queryBuilder->where('name', 'like', "%{$word}%")
+                                         ->orWhere('slug', 'like', "%{$word}%");
+                        });
+                    }
+                    $dbTags = $categoriesQuery->orderBy('name')->get();
+
+                    $categories = $dbTags->filter(function($tag) use ($words) {
+                        $name = strtolower($tag->name);
+                        $slug = strtolower($tag->slug);
+                        foreach ($words as $word) {
+                            if (!str_contains($name, $word) && !str_contains($slug, $word)) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })->values();
+                }
+            }
+        } else {
+            try {
+                // Ambil daftar utama dari Redis
+                $categories = $redisStore->remember('tags:approved_with_listings', 3600, function() {
                     return \App\Models\Tag::whereRaw('is_approved = true')
                         ->whereHas('listings', function($q) {
                             $q->whereRaw('is_active = true')->notExpired();
@@ -257,41 +329,15 @@ class HomeController extends Controller
                         ->orderBy('name')
                         ->get();
                 });
-
-                $words = array_filter(explode(' ', $cleanQuery));
-                $patterns = array_map(function($word) {
-                    return '/\b' . preg_quote($word, '/') . '\b/i';
-                }, $words);
-
-                $filteredTags = $allTags->filter(function($tag) use ($patterns) {
-                    foreach ($patterns as $pattern) {
-                        if (!preg_match($pattern, $tag->name) && !preg_match($pattern, $tag->slug)) {
-                            return false;
-                        }
-                    }
-                    return true;
-                })->values();
-
-                // Simpan hasil filter ke Redis Hash
-                $redis->hset('laravel-cache-tags:searches', $cleanQuery, json_encode($filteredTags->toArray()));
-                
-                // Set expiry pada hash jika baru dibuat (misal 10 menit)
-                if ($redis->ttl('laravel-cache-tags:searches') === -1) {
-                    $redis->expire('laravel-cache-tags:searches', 600);
-                }
-
-                $categories = $filteredTags;
-            }
-        } else {
-            // Ambil daftar utama dari Redis
-            $categories = $redisStore->remember('tags:approved_with_listings', 3600, function() {
-                return \App\Models\Tag::whereRaw('is_approved = true')
+            } catch (\Exception $e) {
+                // Fallback direct DB query if Redis fails
+                $categories = \App\Models\Tag::whereRaw('is_approved = true')
                     ->whereHas('listings', function($q) {
                         $q->whereRaw('is_active = true')->notExpired();
                     })
                     ->orderBy('name')
                     ->get();
-            });
+            }
         }
 
         if ($request->expectsJson() || $request->ajax()) {
