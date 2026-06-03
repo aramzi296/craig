@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/listings', [AdminController::class, 'listings'])->name('listings');
         Route::get('/listings/create', [AdminController::class, 'createListing'])->name('listings.create');
         Route::post('/listings', [AdminController::class, 'storeListing'])->name('listings.store');
+        Route::get('/listings/json', [AdminController::class, 'createListingByJson'])->name('listings.json');
+        Route::post('/listings/json', [AdminController::class, 'storeListingByJson'])->name('listings.json.store');
         Route::get('/listings/{id}/edit', [AdminController::class, 'editListing'])->name('listings.edit');
         Route::put('/listings/{id}', [AdminController::class, 'updateListing'])->name('listings.update');
         Route::delete('/listings/{id}', [AdminController::class, 'destroyListing'])->name('listings.destroy');

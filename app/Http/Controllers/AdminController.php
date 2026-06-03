@@ -1244,5 +1244,129 @@ class AdminController extends Controller
         
         return redirect()->route('admin.tags.deduplicate')->with('success', $msg);
     }
+
+    public function createListingByJson()
+    {
+        return view('admin.listings.create_json');
+    }
+
+    public function storeListingByJson(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'json_data' => 'required|string',
+            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+        ]);
+
+        $jsonData = trim($request->input('json_data'));
+        $decoded = json_decode($jsonData, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return back()->withErrors(['json_data' => 'Format JSON tidak valid: ' . json_last_error_msg()])->withInput();
+        }
+
+        // Validate required keys in decoded JSON
+        $requiredKeys = ['judul', 'nama', 'alamat', 'keterangan_usaha', 'nomor_wa'];
+        foreach ($requiredKeys as $key) {
+            if (empty($decoded[$key])) {
+                return back()->withErrors(['json_data' => "Key '{$key}' wajib diisi di dalam JSON."])->withInput();
+            }
+        }
+
+        // Check and normalize WhatsApp
+        $nomorWa = $decoded['nomor_wa'];
+        $normalizedWa = \App\Models\User::normalizeWhatsappNumber($nomorWa);
+        if (!$normalizedWa) {
+            return back()->withErrors(['json_data' => 'Nomor WhatsApp di dalam JSON tidak valid.'])->withInput();
+        }
+
+        // Check if WA already exists
+        if (\App\Models\User::where('whatsapp', $normalizedWa)->exists()) {
+            return back()->with('error', 'Nomor WhatsApp ini sudah terdaftar.')->withInput();
+        }
+
+        $fileDetails = null;
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $tempDir = storage_path('app/private/temp_uploads');
+            if (!file_exists($tempDir)) { 
+                mkdir($tempDir, 0777, true); 
+            }
+            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move($tempDir, $fileName);
+            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+            $fileDetails = [
+                'fullPath' => $fullPath,
+                'fileName' => $fileName,
+            ];
+        }
+
+        try {
+            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa) {
+                // Generate automatic email (Match WhatsappBotService logic)
+                $randomSuffix = rand(100, 999);
+                $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
+                $randomPassword = \Illuminate\Support\Str::random(16);
+
+                $user = \App\Models\User::create([
+                    'name' => trim($decoded['nama']),
+                    'whatsapp' => $normalizedWa,
+                    'email' => $autoEmail,
+                    'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
+                    'is_verified' => \DB::raw('true'),
+                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+                ]);
+
+                // Create listing
+                $listingData = [
+                    'user_id' => $user->id,
+                    'title' => trim($decoded['judul']),
+                    'description' => trim($decoded['keterangan_usaha']),
+                    'address' => trim($decoded['alamat']),
+                    'slug' => \Illuminate\Support\Str::slug(trim($decoded['judul']) . '-' . uniqid()),
+                    'is_active' => \DB::raw('true'),
+                    'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
+                    'whatsapp_visibility' => 2,
+                ];
+
+                $listing = \App\Models\Listing::create($listingData);
+                $listing->updateSearchableField();
+
+                return [$user, $listing];
+            });
+
+            $userModel = $result[0];
+            $listingModel = $result[1];
+
+            // Upload Foto after transaction commits successfully
+            if ($fileDetails) {
+                ProcessListingImageUpload::dispatchSync($fileDetails['fullPath'], $listingModel->id, 'foto_fitur', $fileDetails['fileName']);
+            }
+
+            // Trigger tag generation webhook
+            $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->post($webhookUrl, [
+                    'id' => $listingModel->id,
+                    'description' => $listingModel->description,
+                ]);
+
+                if (!$response->successful()) {
+                    \Illuminate\Support\Facades\Log::warning("Gagal mengirim listing ID {$listingModel->id} ke webhook buat tagar. Status: " . $response->status());
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Kesalahan saat mengirim listing ID {$listingModel->id} ke webhook buat tagar: " . $e->getMessage());
+            }
+
+            return redirect()->route('admin.listings')->with('success', "Akun pengguna ({$normalizedWa}) dan listing '{$listingModel->title}' berhasil dibuat. Tagar otomatis sedang diproses.");
+
+        } catch (\Exception $e) {
+            // If transaction failed but file was moved, cleanup
+            if ($fileDetails && file_exists($fileDetails['fullPath'])) {
+                @unlink($fileDetails['fullPath']);
+            }
+            \Illuminate\Support\Facades\Log::error("Gagal memproses Listing By JSON: " . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan sistem saat menyimpan data: ' . $e->getMessage())->withInput();
+        }
+    }
 }
 

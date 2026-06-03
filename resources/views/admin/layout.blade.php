@@ -38,6 +38,11 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.listings.json') }}" class="sidebar-link {{ request()->routeIs('admin.listings.json*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-file-code"></i> Listing By JSON
+                </a>
+            </li>
+            <li class="sidebar-item">
                 <a href="#" class="sidebar-link {{ request()->routeIs('admin.generate-tags*') ? 'active' : '' }}" onclick="event.preventDefault(); openGenerateTagsModal();">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Buat Tagar
                 </a>
