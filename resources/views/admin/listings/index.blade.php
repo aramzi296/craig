@@ -19,7 +19,7 @@
     <form action="{{ route('admin.listings') }}" method="GET" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
         <div style="flex: 1; min-width: 200px;">
             <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Cari Usaha</label>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul, deskripsi, atau lokasi..." class="form-control" style="padding: 10px 15px;">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Judul, deskripsi, lokasi, pemilik, WA..." class="form-control" style="padding: 10px 15px;">
         </div>
         
         <div style="width: 150px;">

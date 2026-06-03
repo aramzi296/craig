@@ -68,19 +68,85 @@ class Tag extends Model
     }
 
     /**
+     * Check if a tag name contains forbidden words (district names in Batam).
+     *
+     * @param string $tagName
+     * @return bool
+     */
+    public static function isForbidden(string $tagName): bool
+    {
+        $forbiddenWords = [
+            "Batam Center",
+            "Batam Kota",
+            "Lubuk Baja",
+            "Batu Ampar",
+            "Bengkong",
+            "Nongsa",
+            "Sungai Beduk",
+            "Batu Aji",
+            "Sagulung",
+            "Sekupang",
+            "Bulang",
+            "Galang",
+            "Belakang Padang"
+        ];
+
+        $nameLower = strtolower($tagName);
+        foreach ($forbiddenWords as $word) {
+            if (str_contains($nameLower, strtolower($word))) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Deduplicate tags by normalizing their names (lowercasing and removing spaces).
      * Merges duplicate tags, re-associates listings, preserves icons and approvals,
      * updates affected listing searchable fields, and deletes duplicate tags.
+     * Also cleans forbidden tags that contain district names.
      *
-     * @return array Summary of merged tags
+     * @return array Summary of merged and cleaned tags
      */
     public static function deduplicate(): array
     {
         return \DB::transaction(function () {
             $allTags = self::all();
             
-            // Group tags by normalized name (lowercase, no spaces)
-            $grouped = $allTags->groupBy(function ($tag) {
+            // 1. Bersihkan tagar terlarang yang mengandung nama kecamatan
+            $forbiddenTags = $allTags->filter(function ($tag) {
+                return self::isForbidden($tag->name);
+            });
+
+            $cleanedTagsSummary = [];
+            foreach ($forbiddenTags as $tag) {
+                // Ambil relasi listings yang terpengaruh untuk di-update indeks pencariannya
+                $affectedListings = $tag->listings;
+                $listingsCount = $affectedListings->count();
+                
+                // Putus hubungan relasi pivot
+                $tag->listings()->detach();
+                
+                // Hapus tagar terlarang dari database
+                $tag->delete();
+                
+                // Perbarui kolom searchable di listing agar kata terlarang ini tidak tersisa di index pencarian
+                foreach ($affectedListings as $listing) {
+                    $listing->updateSearchableField();
+                }
+
+                $cleanedTagsSummary[] = [
+                    'name' => $tag->name,
+                    'listings_affected' => $listingsCount
+                ];
+            }
+
+            // Muat ulang daftar tagar setelah penghapusan tagar terlarang
+            $remainingTags = self::all();
+            
+            // 2. Group tags by normalized name (lowercase, no spaces) untuk penggabungan duplikat
+            $grouped = $remainingTags->groupBy(function ($tag) {
                 return str_replace(' ', '', strtolower($tag->name));
             });
             
@@ -210,7 +276,10 @@ class Tag extends Model
                 // Prevent failure if redis isn't configured/running
             }
             
-            return $summary;
+            return [
+                'merged' => $summary,
+                'cleaned' => $cleanedTagsSummary
+            ];
         });
     }
 }

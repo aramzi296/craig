@@ -138,7 +138,21 @@ class AdminController extends Controller
         $query = \App\Models\Listing::query()->with(['tags', 'user']);
 
         if ($request->filled('search')) {
-            $query->search($request->search);
+            $search = $request->search;
+            $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
+
+            $query->where(function($q) use ($search, $normalizedSearch) {
+                $q->search($search);
+
+                $q->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
+                    $uQuery->where('name', 'like', "%{$search}%")
+                           ->orWhere('whatsapp', 'like', "%{$search}%");
+
+                    if ($normalizedSearch) {
+                        $uQuery->orWhere('whatsapp', 'like', "%{$normalizedSearch}%");
+                    }
+                });
+            });
         }
 
         if ($request->filled('status')) {
@@ -1189,18 +1203,30 @@ class AdminController extends Controller
                 $totalDuplicatesCount += $duplicates->count();
             }
         }
+
+        // Filter tagar terlarang yang mengandung nama kecamatan
+        $forbiddenTags = $allTags->filter(function($tag) {
+            return \App\Models\Tag::isForbidden($tag->name);
+        })->values();
         
-        return view('admin.tags.deduplicate', compact('duplicateGroups', 'totalDuplicatesCount', 'allTags'));
+        return view('admin.tags.deduplicate', compact('duplicateGroups', 'totalDuplicatesCount', 'allTags', 'forbiddenTags'));
     }
 
     public function runDeduplicateTags()
     {
-        $summary = \App\Models\Tag::deduplicate();
+        $result = \App\Models\Tag::deduplicate();
         
-        $mergedCount = count($summary);
+        $mergedCount = count($result['merged'] ?? []);
+        $cleanedCount = count($result['cleaned'] ?? []);
         
-        return redirect()->route('admin.tags.deduplicate')
-            ->with('success', "Proses pembersihan tagar selesai! Berhasil menggabungkan {$mergedCount} grup tagar duplikat.");
+        $msg = "Proses pembersihan tagar selesai! Berhasil menggabungkan {$mergedCount} grup tagar duplikat";
+        if ($cleanedCount > 0) {
+            $msg .= " dan menghapus {$cleanedCount} tagar terlarang yang mengandung nama kecamatan.";
+        } else {
+            $msg .= ".";
+        }
+        
+        return redirect()->route('admin.tags.deduplicate')->with('success', $msg);
     }
 }
 

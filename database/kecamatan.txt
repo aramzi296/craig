@@ -1,0 +1,16 @@
+[
+"Batam",
+"Batam Center",
+  "Batam Kota",
+  "Lubuk Baja",
+  "Batu Ampar",
+  "Bengkong",
+  "Nongsa",
+  "Sungai Beduk",
+  "Batu Aji",
+  "Sagulung",
+  "Sekupang",
+  "Bulang",
+  "Galang",
+  "Belakang Padang"
+]
