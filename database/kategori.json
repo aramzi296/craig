@@ -6,7 +6,10 @@
       "Rumah Makan & Warung Kuliner",
       "Pujasera & Food Court",
       "Jajanan Kaki Lima & Gerobakan",
-      "Katering & Kue Rumahan"
+      "Katering & Kue Rumahan",
+      "Warung Seafood & Hasil Laut",
+      "Oleh-oleh & Produk Khas Batam",
+      "Produksi Keripik, Snack & Minuman UMKM"
     ]
   },
   {
@@ -16,7 +19,9 @@
       "Tukang Bangunan & Renovasi",
       "Service AC & Elektronik Rumah",
       "Bengkel Motor & Mobil",
-      "Laundry & Jasa Bersih Rumah"
+      "Laundry & Jasa Bersih Rumah",
+      "Jasa Instalasi Listrik & Plumbing",
+      "Bengkel Mesin Kapal & Alat Berat"
     ]
   },
   {
@@ -26,7 +31,20 @@
       "Desain Grafis & Undangan Digital",
       "Pembuatan Website & IT Support",
       "Agensi Iklan & Sosial Media",
-      "Akuntansi & Pembukuan UMKM"
+      "Akuntansi & Pembukuan UMKM",
+      "Jasa Kepabeanan & Dokumen Ekspor-Impor",
+      "Konsultan Perizinan BP Batam & OSS",
+      "Jasa Terjemahan & Legalisasi Dokumen"
+    ]
+  },
+  {
+    "category": "Logistik, Ekspedisi & Kargo",
+    "subcategories": [
+      "Ekspedisi Pengiriman Domestik",
+      "Jasa Kargo & Forwarder Internasional",
+      "Jasa Titip (Jastip) Singapura / Malaysia",
+      "Jasa Angkut Barang Antar Pulau",
+      "Pergudangan & Penyimpanan Barang"
     ]
   },
   {
@@ -36,7 +54,9 @@
       "Rental Motor",
       "Jasa Lori & Pindahan Rumah",
       "Antar Jemput Anak Sekolah",
-      "Travel & Tour Guide Lokal"
+      "Travel & Tour Guide Lokal",
+      "Speedboat & Transportasi Antar Pulau",
+      "Jasa Ojek & Kurir Lokal"
     ]
   },
   {
@@ -46,7 +66,11 @@
       "Butik & Fashion Lokal",
       "Konter HP, Pulsa & Aksesoris",
       "Toko Mainan & Hobi",
-      "Supplier & Agen Grosir UMKM"
+      "Supplier & Agen Grosir UMKM",
+      "Toko Barang Elektronik & Gadget",
+      "Toko Material & Perkakas Bangunan",
+      "Toko Obat Tradisional & Herbal",
+      "Toko Ikan Hias & Perlengkapan Aquarium"
     ]
   },
   {
@@ -55,7 +79,9 @@
       "Info Kos-Kosan",
       "Kontrakan & Sewa Rumah",
       "Guest House & Homestay",
-      "Agen Properti Perorangan"
+      "Agen Properti Perorangan",
+      "Sewa Ruko & Ruang Usaha",
+      "Villa & Penginapan Wisata Pulau"
     ]
   },
   {
@@ -64,7 +90,10 @@
       "Loker Toko / Cafe / Resto",
       "Loker Admin & Operasional",
       "Loker ART & Sopir",
-      "Jasa Penyalur Tenaga Kerja"
+      "Jasa Penyalur Tenaga Kerja",
+      "Loker Industri & Manufaktur",
+      "Loker Pelaut & Galangan Kapal",
+      "Loker Freelance & Kerja Lepas"
     ]
   },
   {
@@ -73,17 +102,47 @@
       "Barbershop & Salon",
       "Jasa MUA & Wedding",
       "Fotografi & Videografi",
-      "Studio Tato & Henna Art"
+      "Studio Tato & Henna Art",
+      "Spa, Refleksi & Perawatan Tubuh",
+      "Nail Art & Perawatan Kuku",
+      "Jasa Dekorasi Event & Pesta"
     ]
   },
   {
-    "category": "Kesehatan, Kursus & Komunitas",
+    "category": "Kesehatan & Kebugaran",
     "subcategories": [
-      "Klinik & Praktik Dokter/Bidan",
+      "Klinik & Praktik Dokter / Bidan",
+      "Apotek & Toko Alat Kesehatan",
       "Pijat Tradisional & Refleksi",
+      "Spa & Perawatan Tubuh",
+      "Gym, Fitness & Olahraga",
+      "Jasa Penitipan Anak & Daycare",
+      "Pengobatan Alternatif & Herbal"
+    ]
+  },
+  {
+    "category": "Pendidikan & Pelatihan",
+    "subcategories": [
       "Les Privat & Bimbel Sekolah",
-      "Kursus Menyetir & Keterampilan",
-      "Komunitas & Layanan Publik"
+      "Kursus Bahasa Inggris / Mandarin",
+      "Kursus Menyetir",
+      "Kursus Komputer & Teknologi",
+      "Kursus Memasak & Tata Boga",
+      "Kursus Menjahit & Kerajinan",
+      "Kursus Musik, Seni & Tari",
+      "Pelatihan Keterampilan Teknis (Las, Listrik, dll)",
+      "Pelatihan Bisnis & Kewirausahaan UMKM",
+      "PAUD, TK & Lembaga Pendidikan Anak"
+    ]
+  },
+  {
+    "category": "Wisata & Hiburan Lokal",
+    "subcategories": [
+      "Wisata Pulau & Snorkeling",
+      "Penyewaan Alat Selam & Olahraga Air",
+      "Agen Perjalanan & Paket Wisata Lokal",
+      "Wahana Hiburan & Rekreasi Keluarga",
+      "Event Organizer & Dekorasi Pernikahan"
     ]
   },
   {
@@ -92,6 +151,9 @@
       "Agribisnis, Hewan & Tanaman",
       "Kerajinan Tangan & Barang Unik",
       "Jasa Kustom / Langka",
+      "Budidaya Ikan & Hasil Laut",
+      "Jasa Fotocopy, Print & ATK",
+      "Komunitas & Layanan Publik",
       "Lain-Lain"
     ]
   }
