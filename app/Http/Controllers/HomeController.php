@@ -214,16 +214,11 @@ class HomeController extends Controller
 
     public function categoriesDirectory()
     {
-        $categories = \App\Models\Category::whereNull('parent_id')
-            ->with(['children' => function($q) {
-                $q->whereRaw('is_approved = true')
-                  ->withCount(['listings' => function($query) {
-                      $query->whereRaw('is_active = true')->notExpired();
-                  }])
-                  ->orderBy('sort_order');
+        $categories = \App\Models\Category::whereRaw('is_approved = true')
+            ->withCount(['listings' => function($query) {
+                $query->whereRaw('is_active = true')->notExpired();
             }])
-            ->whereRaw('is_approved = true')
-            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
 
         return view('categories.directory', compact('categories'));
