@@ -64,7 +64,7 @@ class SetListingCategoryTest extends TestCase
         // If there are no listings at all
         $response = $this->actingAs($this->admin)->get(route('admin.set-category'));
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Semua listing sudah memiliki kategori.');
+        $response->assertSessionHas('success', 'Semua listing sudah memiliki kategori atau sedang diproses oleh n8n.');
 
         // If there's a listing, but it already has a category
         $listing = Listing::create([
@@ -83,7 +83,7 @@ class SetListingCategoryTest extends TestCase
 
         $response = $this->actingAs($this->admin)->get(route('admin.set-category'));
         $response->assertRedirect();
-        $response->assertSessionHas('success', 'Semua listing sudah memiliki kategori.');
+        $response->assertSessionHas('success', 'Semua listing sudah memiliki kategori atau sedang diproses oleh n8n.');
     }
 
     /** @test */
@@ -188,6 +188,55 @@ class SetListingCategoryTest extends TestCase
         // The second listing should NOT be sent because of limit of 1
         Http::assertNotSent(function ($request) use ($listing2) {
             return $request['id'] === $listing2->id;
+        });
+    }
+
+    /** @test */
+    public function admin_trigger_set_category_excludes_listings_already_processing()
+    {
+        $listing1 = Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Kategori 1',
+            'slug' => 'listing-tanpa-kategori-1',
+            'description' => 'Deskripsi listing tanpa kategori pertama.',
+            'is_active' => true,
+        ]);
+
+        $listing2 = Listing::create([
+            'user_id' => $this->user->id,
+            'title' => 'Listing Tanpa Kategori 2',
+            'slug' => 'listing-tanpa-kategori-2',
+            'description' => 'Deskripsi listing tanpa kategori kedua.',
+            'is_active' => true,
+        ]);
+
+        Http::fake([
+            $this->webhookUrl => Http::response(['status' => 'success'], 200)
+        ]);
+
+        // First call - should send listing 1 (since limit is 1)
+        $response = $this->actingAs($this->admin)->get(route('admin.set-category', ['limit' => 1]));
+        $response->assertSessionHas('success', 'Proses pengaturan kategori selesai. Total listing diproses: 1. Berhasil: 1, Gagal: 0.');
+
+        Http::assertSent(function ($request) use ($listing1) {
+            return $request['id'] === $listing1->id;
+        });
+
+        // Clear recorded requests for clean assertions
+        Http::fake([
+            $this->webhookUrl => Http::response(['status' => 'success'], 200)
+        ]);
+
+        // Second call immediately after - should send listing 2 because listing 1 is marked as processing in cache
+        $response = $this->actingAs($this->admin)->get(route('admin.set-category', ['limit' => 1]));
+        $response->assertSessionHas('success', 'Proses pengaturan kategori selesai. Total listing diproses: 1. Berhasil: 1, Gagal: 0.');
+
+        Http::assertSent(function ($request) use ($listing2) {
+            return $request['id'] === $listing2->id;
+        });
+        
+        Http::assertNotSent(function ($request) use ($listing1) {
+            return $request['id'] === $listing1->id;
         });
     }
 }

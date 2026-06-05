@@ -1186,8 +1186,27 @@ class AdminController extends Controller
             $limit = 1;
         }
 
-        // Ambil listing yang tidak memiliki kategori, batasi sesuai limit
-        $listings = \App\Models\Listing::doesntHave('categories')->take($limit)->get();
+        // Ambil ID listing yang sedang diproses oleh n8n dari cache
+        $processingIds = \Illuminate\Support\Facades\Cache::get('listings_category_processing', []);
+
+        // Filter cache: hanya simpan ID yang BENAR-BENAR belum memiliki kategori
+        if (!empty($processingIds)) {
+            $stillUncategorizedIds = \App\Models\Listing::whereIn('id', $processingIds)
+                ->doesntHave('categories')
+                ->pluck('id')
+                ->toArray();
+            
+            if (count($stillUncategorizedIds) !== count($processingIds)) {
+                $processingIds = $stillUncategorizedIds;
+                \Illuminate\Support\Facades\Cache::put('listings_category_processing', $processingIds, now()->addMinutes(10));
+            }
+        }
+
+        // Ambil listing yang tidak memiliki kategori dan tidak sedang diproses, batasi sesuai limit
+        $listings = \App\Models\Listing::doesntHave('categories')
+            ->whereNotIn('id', $processingIds)
+            ->take($limit)
+            ->get();
 
         $processedCount = 0;
         $successCount = 0;
@@ -1199,6 +1218,8 @@ class AdminController extends Controller
             return back()->with('error', 'Webhook URL kategori listing (N8N_LISTING_CATEGORY_WEBHOOK_URL) belum dikonfigurasi.');
         }
 
+        $sentIds = [];
+
         foreach ($listings as $listing) {
             $processedCount++;
             try {
@@ -1209,6 +1230,7 @@ class AdminController extends Controller
 
                 if ($response->successful()) {
                     $successCount++;
+                    $sentIds[] = $listing->id;
                 } else {
                     $failedCount++;
                     \Illuminate\Support\Facades\Log::warning("Gagal mengirim listing ID {$listing->id} ke webhook kategori. Status: " . $response->status());
@@ -1219,8 +1241,14 @@ class AdminController extends Controller
             }
         }
 
+        // Tambahkan ID yang berhasil dikirim ke cache list pemrosesan
+        if (!empty($sentIds)) {
+            $processingIds = array_merge($processingIds, $sentIds);
+            \Illuminate\Support\Facades\Cache::put('listings_category_processing', $processingIds, now()->addMinutes(10));
+        }
+
         if ($processedCount === 0) {
-            return back()->with('success', 'Semua listing sudah memiliki kategori.');
+            return back()->with('success', 'Semua listing sudah memiliki kategori atau sedang diproses oleh n8n.');
         }
 
         return back()->with('success', "Proses pengaturan kategori selesai. Total listing diproses: {$processedCount}. Berhasil: {$successCount}, Gagal: {$failedCount}.");
