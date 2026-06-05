@@ -165,6 +165,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/n8n-listings', [AdminController::class, 'n8nListings'])->name('n8n.listings');
         Route::post('/send-to-n8n', [AdminController::class, 'sendToN8n'])->name('send-to-n8n');
         Route::get('/generate-tags', [AdminController::class, 'generateTags'])->name('generate-tags');
+        Route::get('/set-category', [AdminController::class, 'setCategory'])->name('set-category');
     });
 
     // Member Premium Upgrade
