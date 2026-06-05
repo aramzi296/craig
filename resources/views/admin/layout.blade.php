@@ -177,7 +177,7 @@
             <i class="fa-solid fa-wand-magic-sparkles" style="color: #0ea5e9;"></i> Buat Tagar
         </h3>
         <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5;">
-            Masukkan jumlah listing tanpa tagar yang ingin Anda kirimkan ke webhook n8n untuk dibuatkan tagar otomatis.
+            Masukkan jumlah listing tanpa tagar yang ingin Anda kirimkan ke webhook n8n untuk dibuatkan tagar otomatis. (Saat ini terdapat <strong>{{ $untaggedListingsCount ?? 0 }}</strong> listing tanpa tagar).
         </p>
         <form action="{{ route('admin.generate-tags') }}" method="GET">
             <div style="margin-bottom: 20px;">
@@ -199,7 +199,7 @@
             <i class="fa-solid fa-folder-open" style="color: #f59e0b;"></i> Set Kategori Listing
         </h3>
         <p style="color: #64748b; font-size: 0.88rem; margin-bottom: 20px; line-height: 1.5;">
-            Masukkan jumlah listing tanpa kategori yang ingin Anda kirimkan ke webhook n8n untuk ditentukan kategorinya secara otomatis.
+            Masukkan jumlah listing tanpa kategori yang ingin Anda kirimkan ke webhook n8n untuk ditentukan kategorinya secara otomatis. (Saat ini terdapat <strong>{{ $uncategorizedListingsCount ?? 0 }}</strong> listing tanpa kategori).
         </p>
         <form action="{{ route('admin.set-category') }}" method="GET">
             <div style="margin-bottom: 20px;">
