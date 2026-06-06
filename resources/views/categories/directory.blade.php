@@ -76,7 +76,7 @@
                                 <span class="parent-name-text">{{ $parent->name }}</span>
                             </a>
                         </h2>
-                        <span class="parent-listings-badge">({{ $parent->listings_count }}) Listing</span>
+                        <span class="parent-listings-badge {{ $parent->listings_count > 0 ? 'has-listings' : '' }}">({{ $parent->listings_count }}) Listing</span>
                     </div>
                 </div>
 
@@ -89,7 +89,7 @@
                                     <i class="fa-solid fa-hashtag subcat-hashtag"></i>
                                     <span class="subcat-name-text">{{ $child->name }}</span>
                                 </div>
-                                <span class="subcat-count-badge">({{ $child->listings_count }})</span>
+                                <span class="subcat-count-badge {{ $child->listings_count > 0 ? 'has-listings' : '' }}">({{ $child->listings_count }})</span>
                             </a>
                         </div>
                     @endforeach
@@ -276,6 +276,12 @@
         display: inline-block;
     }
 
+    .parent-listings-badge.has-listings {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
     /* Subcategory List */
     .subcategory-list {
         display: flex;
@@ -346,10 +352,22 @@
         margin-left: 10px;
     }
 
+    .subcat-count-badge.has-listings {
+        background-color: #dcfce7;
+        color: #166534;
+        border-color: #bbf7d0;
+    }
+
     .subcategory-link:hover .subcat-count-badge {
         color: #0284c7;
         border-color: #bae6fd;
         background: #e0f2fe;
+    }
+
+    .subcategory-link:hover .subcat-count-badge.has-listings {
+        color: #166534;
+        border-color: #86efac;
+        background: #bbf7d0;
     }
 </style>
 
