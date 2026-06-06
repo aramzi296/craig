@@ -201,7 +201,11 @@
                     </button>
 
                     @auth
-                            @if($listing->user_id == auth()->id())
+                        @if(auth()->user()->is_admin)
+                            <a href="{{ route('admin.listings.edit', $listing->id) }}" class="btn-detail btn-detail-sky" style="width: 100%; box-sizing: border-box;">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit Profil Usaha (Admin)
+                            </a>
+                        @elseif($listing->user_id == auth()->id())
                             <a href="{{ route('listings.edit', $listing->id) }}" class="btn-detail btn-detail-sky" style="width: 100%; box-sizing: border-box;">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit Profil Usaha
                             </a>
