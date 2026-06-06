@@ -201,4 +201,37 @@ class AdminListingsByJsonTest extends TestCase
         $response->assertSessionHasErrors(['json_data']);
         $this->assertDatabaseCount('users', 2);
     }
+
+    /** @test */
+    public function admin_can_create_listing_using_admin_account_when_nomor_wa_is_missing()
+    {
+        Http::fake([
+            'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/*' => Http::response(['status' => 'success'], 200),
+        ]);
+
+        $jsonPayload = json_encode([
+            'judul' => 'Jasa Servis AC Batam',
+            'alamat' => 'Nongsa',
+            'keterangan_usaha' => 'Melayani servis dan cuci AC murah.',
+            // nomor_wa and nama are missing
+        ]);
+
+        $foto = UploadedFile::fake()->image('ac.jpg');
+
+        $response = $this->actingAs($this->admin)->post(route('admin.listings.json.store'), [
+            'json_data' => $jsonPayload,
+            'foto' => $foto,
+        ]);
+
+        $response->assertRedirect(route('admin.listings'));
+        $response->assertSessionHas('success', "Listing 'Jasa Servis AC Batam' berhasil dibuat menggunakan akun admin Anda. Tagar otomatis sedang diproses.");
+
+        // Assert no new user was created
+        $this->assertDatabaseCount('users', 2);
+
+        // Check if listing is created with user_id set to admin's ID
+        $listing = Listing::where('title', 'Jasa Servis AC Batam')->first();
+        $this->assertNotNull($listing);
+        $this->assertEquals($this->admin->id, $listing->user_id);
+    }
 }

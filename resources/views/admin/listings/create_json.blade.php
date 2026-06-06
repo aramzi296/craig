@@ -40,7 +40,7 @@
   "nomor_wa": "6285789173762"
 }' required>{{ old('json_data') }}</textarea>
                 <small style="color: var(--text-muted); display: block; margin-top: 5px;">
-                    Pastikan JSON menggunakan format yang valid dengan key: <code>judul</code>, <code>nama</code>, <code>alamat</code>, <code>keterangan_usaha</code>, dan <code>nomor_wa</code>.
+                    Pastikan JSON menggunakan format yang valid dengan key wajib: <code>judul</code>, <code>alamat</code>, dan <code>keterangan_usaha</code>. Sertakan <code>nomor_wa</code> dan <code>nama</code> jika ingin membuat akun pengguna baru. Jika dikosongkan, postingan akan dibuat menggunakan akun admin Anda.
                 </small>
                 @error('json_data')
                     <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>

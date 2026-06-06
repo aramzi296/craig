@@ -1421,23 +1421,30 @@ class AdminController extends Controller
         }
 
         // Validate required keys in decoded JSON
-        $requiredKeys = ['judul', 'nama', 'alamat', 'keterangan_usaha', 'nomor_wa'];
+        $requiredKeys = ['judul', 'alamat', 'keterangan_usaha'];
+        if (!empty($decoded['nomor_wa'])) {
+            $requiredKeys[] = 'nama';
+            $requiredKeys[] = 'nomor_wa';
+        }
         foreach ($requiredKeys as $key) {
             if (empty($decoded[$key])) {
                 return back()->withErrors(['json_data' => "Key '{$key}' wajib diisi di dalam JSON."])->withInput();
             }
         }
 
-        // Check and normalize WhatsApp
-        $nomorWa = $decoded['nomor_wa'];
-        $normalizedWa = \App\Models\User::normalizeWhatsappNumber($nomorWa);
-        if (!$normalizedWa) {
-            return back()->withErrors(['json_data' => 'Nomor WhatsApp di dalam JSON tidak valid.'])->withInput();
-        }
+        // Check and normalize WhatsApp if provided
+        $normalizedWa = null;
+        if (!empty($decoded['nomor_wa'])) {
+            $nomorWa = $decoded['nomor_wa'];
+            $normalizedWa = \App\Models\User::normalizeWhatsappNumber($nomorWa);
+            if (!$normalizedWa) {
+                return back()->withErrors(['json_data' => 'Nomor WhatsApp di dalam JSON tidak valid.'])->withInput();
+            }
 
-        // Check if WA already exists
-        if (\App\Models\User::where('whatsapp', $normalizedWa)->exists()) {
-            return back()->with('error', 'Nomor WhatsApp ini sudah terdaftar.')->withInput();
+            // Check if WA already exists
+            if (\App\Models\User::where('whatsapp', $normalizedWa)->exists()) {
+                return back()->with('error', 'Nomor WhatsApp ini sudah terdaftar.')->withInput();
+            }
         }
 
         $fileDetails = null;
@@ -1460,19 +1467,23 @@ class AdminController extends Controller
 
         try {
             $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa, $website) {
-                // Generate automatic email (Match WhatsappBotService logic)
-                $randomSuffix = rand(100, 999);
-                $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
-                $randomPassword = \Illuminate\Support\Str::random(16);
+                if ($normalizedWa) {
+                    // Generate automatic email (Match WhatsappBotService logic)
+                    $randomSuffix = rand(100, 999);
+                    $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
+                    $randomPassword = \Illuminate\Support\Str::random(16);
 
-                $user = \App\Models\User::create([
-                    'name' => trim($decoded['nama']),
-                    'whatsapp' => $normalizedWa,
-                    'email' => $autoEmail,
-                    'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
-                    'is_verified' => \DB::raw('true'),
-                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
-                ]);
+                    $user = \App\Models\User::create([
+                        'name' => trim($decoded['nama']),
+                        'whatsapp' => $normalizedWa,
+                        'email' => $autoEmail,
+                        'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
+                        'is_verified' => \DB::raw('true'),
+                        'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+                    ]);
+                } else {
+                    $user = auth()->user();
+                }
 
                 // Create listing
                 $listingData = [
@@ -1516,7 +1527,11 @@ class AdminController extends Controller
                 \Illuminate\Support\Facades\Log::error("Kesalahan saat mengirim listing ID {$listingModel->id} ke webhook buat tagar: " . $e->getMessage());
             }
 
-            return redirect()->route('admin.listings')->with('success', "Akun pengguna ({$normalizedWa}) dan listing '{$listingModel->title}' berhasil dibuat. Tagar otomatis sedang diproses.");
+            if ($normalizedWa) {
+                return redirect()->route('admin.listings')->with('success', "Akun pengguna ({$normalizedWa}) dan listing '{$listingModel->title}' berhasil dibuat. Tagar otomatis sedang diproses.");
+            } else {
+                return redirect()->route('admin.listings')->with('success', "Listing '{$listingModel->title}' berhasil dibuat menggunakan akun admin Anda. Tagar otomatis sedang diproses.");
+            }
 
         } catch (\Exception $e) {
             // If transaction failed but file was moved, cleanup
