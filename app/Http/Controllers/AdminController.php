@@ -25,35 +25,109 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats', 'latestListings'));
     }
 
-    public function categories()
+    public function categories(\Illuminate\Http\Request $request)
     {
-        // Ambil semua kategori induk beserta sub-kategorinya, masing-masing diurutkan berdasarkan sort_order
-        $parentCategories = \App\Models\Category::whereNull('parent_id')
-            ->with(['children' => function($q) {
-                $q->withCount('listings')->orderBy('sort_order');
-            }])
-            ->withCount('listings')
-            ->orderBy('sort_order')
-            ->get();
+        $search = $request->input('search');
+        $type = $request->input('type');
+        $status = $request->input('status');
 
-        // Susun ke dalam flat collection agar sub-kategori tampil tepat di bawah kategori induknya
-        $categories = collect();
-        foreach ($parentCategories as $parent) {
-            $categories->push($parent);
-            foreach ($parent->children as $child) {
-                $categories->push($child);
+        $hasFilters = $request->filled('search') || $request->filled('type') || $request->filled('status');
+
+        if (!$hasFilters) {
+            // Default: Hierarchical view
+            $parentCategories = \App\Models\Category::whereNull('parent_id')
+                ->with(['children' => function($q) {
+                    $q->withCount('listings')->orderBy('sort_order');
+                }])
+                ->withCount('listings')
+                ->orderBy('sort_order')
+                ->get();
+
+            $categories = collect();
+            foreach ($parentCategories as $parent) {
+                $categories->push($parent);
+                foreach ($parent->children as $child) {
+                    $categories->push($child);
+                }
             }
-        }
 
-        // Antisipasi jika ada sub-kategori yang tidak memiliki kategori induk yang valid (orphan)
-        $orphanSubcategories = \App\Models\Category::whereNotNull('parent_id')
-            ->whereNotIn('parent_id', $parentCategories->pluck('id'))
-            ->withCount('listings')
-            ->orderBy('sort_order')
-            ->get();
+            // Orphan subcategories
+            $orphanSubcategories = \App\Models\Category::whereNotNull('parent_id')
+                ->whereNotIn('parent_id', $parentCategories->pluck('id'))
+                ->withCount('listings')
+                ->orderBy('sort_order')
+                ->get();
 
-        foreach ($orphanSubcategories as $orphan) {
-            $categories->push($orphan);
+            foreach ($orphanSubcategories as $orphan) {
+                $categories->push($orphan);
+            }
+        } else {
+            // Filtered view with structured layout
+            $categoriesQuery = \App\Models\Category::withCount('listings');
+
+            if ($request->filled('search')) {
+                $categoriesQuery->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('slug', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('type')) {
+                if ($type === 'parent') {
+                    $categoriesQuery->whereNull('parent_id');
+                } elseif ($type === 'sub') {
+                    $categoriesQuery->whereNotNull('parent_id');
+                }
+            }
+
+            if ($request->filled('status')) {
+                if ($status === 'approved') {
+                    $categoriesQuery->whereRaw('is_approved = true');
+                } elseif ($status === 'unapproved') {
+                    $categoriesQuery->whereRaw('is_approved = false');
+                }
+            }
+
+            $filteredCategories = $categoriesQuery->orderBy('sort_order')->orderBy('name')->get();
+
+            if ($type === 'sub') {
+                $categories = $filteredCategories;
+            } else {
+                $parentIds = $filteredCategories->whereNull('parent_id')->pluck('id')->toArray();
+                $subParentIds = $filteredCategories->whereNotNull('parent_id')->pluck('parent_id')->toArray();
+                $allParentIds = array_unique(array_merge($parentIds, $subParentIds));
+
+                $parents = \App\Models\Category::whereNull('parent_id')
+                    ->whereIn('id', $allParentIds)
+                    ->withCount('listings')
+                    ->orderBy('sort_order')
+                    ->get();
+
+                $categories = collect();
+                foreach ($parents as $parent) {
+                    $parentMatches = $filteredCategories->contains('id', $parent->id);
+                    
+                    if ($parentMatches || $type !== 'parent') {
+                        if ($type !== 'sub') {
+                            $categories->push($parent);
+                        }
+                    }
+
+                    if ($type !== 'parent') {
+                        $matchingChildren = $filteredCategories->where('parent_id', $parent->id)->sortBy('sort_order');
+                        foreach ($matchingChildren as $child) {
+                            $categories->push($child);
+                        }
+                    }
+                }
+
+                $matchedOrphans = $filteredCategories->whereNotNull('parent_id')
+                    ->whereNotIn('parent_id', $parents->pluck('id'))
+                    ->sortBy('sort_order');
+                foreach ($matchedOrphans as $orphan) {
+                    $categories->push($orphan);
+                }
+            }
         }
 
         return view('admin.categories.index', compact('categories'));
