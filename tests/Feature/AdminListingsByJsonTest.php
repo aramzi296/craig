@@ -50,6 +50,7 @@ class AdminListingsByJsonTest extends TestCase
         $response->assertOk();
         $response->assertSee('Listing By JSON');
         $response->assertSee('Payload JSON');
+        $response->assertSee('name="website"', false);
     }
 
     /** @test */
@@ -97,6 +98,7 @@ class AdminListingsByJsonTest extends TestCase
         $response = $this->actingAs($this->admin)->post(route('admin.listings.json.store'), [
             'json_data' => $jsonPayload,
             'foto' => $foto,
+            'website' => 'https://mitrosanjay.com',
         ]);
 
         $response->assertRedirect(route('admin.listings'));
@@ -114,6 +116,7 @@ class AdminListingsByJsonTest extends TestCase
         $this->assertEquals('Jasa Tukang Bangunan Batam', $listing->title);
         $this->assertEquals('Melayani jasa pertukangan dan renovasi bangunan.', $listing->description);
         $this->assertEquals('Batam', $listing->address);
+        $this->assertEquals('https://mitrosanjay.com', $listing->website);
         $this->assertTrue($listing->is_active);
 
         // Assert photo is uploaded and attached
@@ -128,6 +131,40 @@ class AdminListingsByJsonTest extends TestCase
                 && $request['id'] == $listing->id
                 && $request['description'] == $listing->description;
         });
+    }
+
+    /** @test */
+    public function admin_can_create_listing_without_website_optionally()
+    {
+        Http::fake([
+            'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/*' => Http::response(['status' => 'success'], 200),
+        ]);
+
+        $jsonPayload = json_encode([
+            'judul' => 'Jasa Tukang Listrik Batam',
+            'nama' => 'Ahmad Listrik',
+            'alamat' => 'Batam Center',
+            'keterangan_usaha' => 'Melayani instalasi listrik rumah tangga.',
+            'nomor_wa' => '628987654321' // new whatsapp
+        ]);
+
+        $foto = UploadedFile::fake()->image('listrik.jpg');
+
+        $response = $this->actingAs($this->admin)->post(route('admin.listings.json.store'), [
+            'json_data' => $jsonPayload,
+            'foto' => $foto,
+            // 'website' is omitted (optional)
+        ]);
+
+        $response->assertRedirect(route('admin.listings'));
+        $response->assertSessionHas('success');
+
+        $user = User::where('whatsapp', '628987654321')->first();
+        $this->assertNotNull($user);
+
+        $listing = Listing::where('user_id', $user->id)->first();
+        $this->assertNotNull($listing);
+        $this->assertNull($listing->website);
     }
 
     /** @test */

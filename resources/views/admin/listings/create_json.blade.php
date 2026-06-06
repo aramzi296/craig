@@ -57,6 +57,17 @@
                     <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
+
+            <div class="form-group-horizontal" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+                <label for="website" style="font-weight: 700; color: var(--text); font-size: 0.95rem;">Website <span style="color: var(--text-muted); font-weight: normal;">(Opsional)</span></label>
+                <input type="text" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website') }}" style="padding: 12px 15px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;" placeholder="https://example.com">
+                <small style="color: var(--text-muted); display: block; margin-top: 5px;">
+                    Masukkan alamat website listing jika ada.
+                </small>
+                @error('website')
+                    <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 30px;">

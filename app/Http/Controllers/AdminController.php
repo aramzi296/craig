@@ -1410,6 +1410,7 @@ class AdminController extends Controller
         $request->validate([
             'json_data' => 'required|string',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'website' => 'nullable|string|max:255',
         ]);
 
         $jsonData = trim($request->input('json_data'));
@@ -1455,8 +1456,10 @@ class AdminController extends Controller
             ];
         }
 
+        $website = $request->input('website');
+
         try {
-            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa) {
+            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa, $website) {
                 // Generate automatic email (Match WhatsappBotService logic)
                 $randomSuffix = rand(100, 999);
                 $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
@@ -1481,6 +1484,7 @@ class AdminController extends Controller
                     'is_active' => \DB::raw('true'),
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                     'whatsapp_visibility' => 2,
+                    'website' => $website ? trim($website) : null,
                 ];
 
                 $listing = \App\Models\Listing::create($listingData);
