@@ -148,6 +148,8 @@ class Listing extends Model
             'district_id' => $this->district_id,
             'categories' => $this->categories->pluck('id')->toArray(),
             'tags' => $this->tags->pluck('id')->toArray(),
+            'owner_name' => $this->user ? $this->user->name : null,
+            'owner_whatsapp' => $this->user ? $this->user->whatsapp : null,
         ];
     }
 }
