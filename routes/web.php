@@ -22,6 +22,7 @@ Route::get('/tagar', [HomeController::class, 'categories'])->name('categories.in
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
 Route::post('webhook/listing-import', [ListingImportWebhookController::class, 'handle'])->name('webhook.listing-import');
 Route::post('webhook/generate-tags', [GenerateTagsWebhookController::class, 'handle'])->name('webhook.generate-tags');
+Route::post('webhook/assign-category', [\App\Http\Controllers\AssignCategoryWebhookController::class, 'handle'])->name('webhook.assign-category');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {
@@ -169,6 +170,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/send-to-n8n', [AdminController::class, 'sendToN8n'])->name('send-to-n8n');
         Route::get('/generate-tags', [AdminController::class, 'generateTags'])->name('generate-tags');
         Route::get('/set-category', [AdminController::class, 'setCategory'])->name('set-category');
+        Route::post('/clear-category', [AdminController::class, 'clearCategories'])->name('clear-category');
     });
 
     // Member Premium Upgrade

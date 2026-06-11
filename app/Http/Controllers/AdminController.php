@@ -1316,12 +1316,18 @@ class AdminController extends Controller
 
         $sentIds = [];
 
+        $parentCategories = \App\Models\Category::whereNull('parent_id')
+            ->whereRaw('is_approved = true')
+            ->pluck('name')
+            ->toArray();
+
         foreach ($listings as $listing) {
             $processedCount++;
             try {
                 $response = \Illuminate\Support\Facades\Http::timeout(5)->post($webhookUrl, [
                     'id' => $listing->id,
                     'description' => $listing->description,
+                    'induk_kategori' => $parentCategories,
                 ]);
 
                 if ($response->successful()) {
@@ -1348,6 +1354,14 @@ class AdminController extends Controller
         }
 
         return back()->with('success', "Proses pengaturan kategori selesai. Total listing diproses: {$processedCount}. Berhasil: {$successCount}, Gagal: {$failedCount}.");
+    }
+
+    public function clearCategories()
+    {
+        \Illuminate\Support\Facades\DB::table('category_listing')->truncate();
+        \Illuminate\Support\Facades\Cache::forget('listings_category_processing');
+
+        return back()->with('success', 'Semua kategori pada seluruh listing berhasil dihapus.');
     }
 
     public function showDeduplicateTags()

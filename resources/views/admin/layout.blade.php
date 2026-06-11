@@ -58,6 +58,14 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.clear-category') }}" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin mengosongkan semua kategori pada seluruh listing? Tindakan ini tidak dapat dibatalkan.')) document.getElementById('clearCategoryForm').submit();">
+                    <i class="fa-solid fa-trash-can" style="color: #ef4444;"></i> Kosongkan Kategori
+                </a>
+                <form id="clearCategoryForm" action="{{ route('admin.clear-category') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.reports') }}" class="sidebar-link {{ request()->routeIs('admin.reports*') ? 'active' : '' }}">
                     <i class="fa-solid fa-triangle-exclamation"></i> Laporan Usaha
                 </a>
