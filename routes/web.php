@@ -127,6 +127,9 @@ Route::middleware('auth')->group(function () {
         // User Verification
         Route::post('/users/{id}/toggle-verification', [AdminController::class, 'toggleUserVerification'])->name('users.toggle-verification');
 
+        // Meilisearch Sync
+        Route::post('/meilisearch/sync', [AdminController::class, 'syncMeilisearch'])->name('meilisearch.sync');
+
         // Settings Management
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
         Route::get('/settings/create', [AdminController::class, 'createSetting'])->name('settings.create');

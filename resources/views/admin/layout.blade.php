@@ -93,6 +93,14 @@
             </li>
 
             <li class="sidebar-item">
+                <a href="{{ route('admin.meilisearch.sync') }}" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin menyinkronkan seluruh data listing ke Meilisearch? Proses ini mungkin memakan waktu beberapa detik.')) document.getElementById('syncMeiliForm').submit();">
+                    <i class="fa-solid fa-server"></i> Sinkron Meili
+                </a>
+                <form id="syncMeiliForm" action="{{ route('admin.meilisearch.sync') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.settings') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
                     <i class="fa-solid fa-gears"></i> Parameter
                 </a>

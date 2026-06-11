@@ -3,8 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Scout\Searchable;
+
 class Listing extends Model
 {
+    use Searchable;
     protected $fillable = [
         'user_id', 'district_id', 'subdistrict_id', 'title', 'slug', 'activation_code', 'description', 
         'address', 'price', 'is_featured', 'is_premium', 'is_active', 'features', 
@@ -131,50 +134,21 @@ class Listing extends Model
 
     public function updateSearchableField()
     {
-        $tags = $this->tags()->pluck('name')->implode(' ');
-        $categories = $this->categories()->pluck('name')->implode(' ');
-        $district = $this->district ? $this->district->name : '';
-        $subdistrict = $this->subdistrict ? $this->subdistrict->name : '';
-        $address = $this->address ?? '';
-        
-        // Gabungkan semua bidang
-        $text = $this->title . ' ' . $this->description . ' ' . $tags . ' ' . $categories . ' ' . $district . ' ' . $subdistrict . ' ' . $address;
-        
-        // Ganti karakter separator yang sering menyatukan kata agar bisa dicari terpisah
-        // Contoh: "Barang/Jasa" menjadi "Barang Jasa"
-        $text = str_replace(['/', '\\', '-', '_'], ' ', $text);
-        
-        $this->searchable = trim($text);
-        $this->saveQuietly();
+        // No longer needed, Scout handles indexing automatically
     }
 
-    public function scopeSearch($query, $term)
+    public function toSearchableArray()
     {
-        if (empty($term)) return $query;
-
-        // Bersihkan term dari karakter yang bisa mengganggu
-        $cleanTerm = str_replace(['/', '\\'], ' ', $term);
-        $keywords = explode(' ', $cleanTerm);
-
-        $driver = $query->getConnection()->getDriverName();
-
-        return $query->where(function($q) use ($keywords, $driver) {
-            foreach ($keywords as $keyword) {
-                $word = trim($keyword);
-                if ($word !== '') {
-                    if ($driver === 'pgsql') {
-                        // Di PostgreSQL, gunakan POSIX case-insensitive regex matching dengan word boundary \y
-                        $q->whereRaw("searchable ~* ?", ['\y' . preg_quote($word, '/') . '\y']);
-                    } elseif ($driver === 'sqlite') {
-                        // Di SQLite (untuk testing), gunakan normalisasi concatenating space untuk pencarian kata utuh
-                        $q->whereRaw("' ' || searchable || ' ' LIKE ?", ['% ' . $word . ' %']);
-                    } else {
-                        // Fallback aman untuk database lain
-                        $q->where('searchable', 'like', '%' . $word . '%');
-                    }
-                }
-            }
-        });
+        return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'description' => $this->description,
+            'address' => $this->address,
+            'is_active' => (bool) $this->is_active,
+            'district_id' => $this->district_id,
+            'categories' => $this->categories->pluck('id')->toArray(),
+            'tags' => $this->tags->pluck('id')->toArray(),
+        ];
     }
 }
 

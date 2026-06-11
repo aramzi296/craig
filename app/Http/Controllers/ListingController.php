@@ -18,17 +18,23 @@ class ListingController extends Controller
 
     public function create()
     {
-        $categories = \App\Models\Category::whereNull('parent_id')
-            ->with(['children' => function($q) {
-                $q->whereRaw('is_approved = true')->orderBy('sort_order');
-            }])
-            ->whereRaw('is_approved = true')
-            ->orderBy('sort_order')
-            ->get();
+        $categories = \Illuminate\Support\Facades\Cache::store('redis')->remember('categories:form_dropdown', 3600, function() {
+            return \App\Models\Category::whereNull('parent_id')
+                ->with(['children' => function($q) {
+                    $q->whereRaw('is_approved = true')->orderBy('sort_order');
+                }])
+                ->whereRaw('is_approved = true')
+                ->orderBy('sort_order')
+                ->get();
+        });
 
         $districts = \App\Models\District::orderBy('name')->get();
         $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
-        $tags = \App\Models\Tag::orderBy('sort_order')->get();
+        
+        // Mengambil tag dari cache global
+        $tags = \Illuminate\Support\Facades\Cache::store('redis')->remember('tags:global_list', 3600, function() {
+            return \App\Models\Tag::orderBy('sort_order')->get();
+        });
         
         $layout = auth()->check() ? 'layouts.dashboard' : 'layouts.app';
         $section = auth()->check() ? 'dashboard_content' : 'content';
@@ -223,17 +229,23 @@ class ListingController extends Controller
     public function edit($id)
     {
         $listing = \App\Models\Listing::with('photos')->where('user_id', auth()->id())->findOrFail($id);
-        $categories = \App\Models\Category::whereNull('parent_id')
-            ->with(['children' => function($q) {
-                $q->whereRaw('is_approved = true')->orderBy('sort_order');
-            }])
-            ->whereRaw('is_approved = true')
-            ->orderBy('sort_order')
-            ->get();
+        $categories = \Illuminate\Support\Facades\Cache::store('redis')->remember('categories:form_dropdown', 3600, function() {
+            return \App\Models\Category::whereNull('parent_id')
+                ->with(['children' => function($q) {
+                    $q->whereRaw('is_approved = true')->orderBy('sort_order');
+                }])
+                ->whereRaw('is_approved = true')
+                ->orderBy('sort_order')
+                ->get();
+        });
 
         $districts = \App\Models\District::orderBy('name')->get();
         $subdistricts = \App\Models\Subdistrict::orderBy('name')->get();
-        $tags = \App\Models\Tag::orderBy('sort_order')->get();
+        
+        // Mengambil tag dari cache global
+        $tags = \Illuminate\Support\Facades\Cache::store('redis')->remember('tags:global_list', 3600, function() {
+            return \App\Models\Tag::orderBy('sort_order')->get();
+        });
 
         return view('listings.edit', compact('listing', 'categories', 'districts', 'subdistricts', 'tags'));
     }

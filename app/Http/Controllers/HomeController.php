@@ -9,48 +9,39 @@ class HomeController extends Controller
     public function index(\Illuminate\Http\Request $request)
     {
         $matchingTags = collect();
-        $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
-
-        // Basic Filters
-        if ($request->filled('location')) {
-            $query->where('district_id', (int)$request->location);
-        }
-
-        if ($request->filled('category')) {
-            $category = \App\Models\Category::where('slug', $request->category)->first();
-            if ($category) {
-                if ($category->parent_id === null) {
-                    // Kategori Utama: ambil semua sub kategori di bawahnya
-                    $subCategoryIds = $category->children()->pluck('id')->push($category->id);
-                    $query->whereHas('categories', function($q) use ($subCategoryIds) {
-                        $q->whereIn('categories.id', $subCategoryIds);
-                    });
-                } else {
-                    // Sub Kategori spesifik
-                    $query->whereHas('categories', function($q) use ($category) {
-                        $q->where('categories.id', $category->id);
-                    });
-                }
-            }
-        }
-
-        if ($request->filled('tag')) {
-            $tag = \App\Models\Tag::where('slug', $request->tag)->first();
-            if ($tag) {
-                $query->whereHas('tags', function($q) use ($tag) {
-                    $q->where('tags.id', $tag->id);
-                });
-            }
-        }
 
         if ($request->filled('q')) {
             $q = $request->q;
-            $query->search($q);
-            
-            $recentListings = $query->with('district')
-                ->orderBy('is_premium', 'desc')
-                ->orderBy('created_at', 'desc')
-                ->paginate(24);
+            $scoutQuery = \App\Models\Listing::search($q)->where('is_active', true);
+
+            if ($request->filled('location')) {
+                $scoutQuery->where('district_id', (int)$request->location);
+            }
+
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    if ($category->parent_id === null) {
+                        $subCategoryIds = $category->children()->pluck('id')->push($category->id)->toArray();
+                        $scoutQuery->whereIn('categories', $subCategoryIds);
+                    } else {
+                        $scoutQuery->whereIn('categories', [$category->id]);
+                    }
+                }
+            }
+
+            if ($request->filled('tag')) {
+                $tag = \App\Models\Tag::where('slug', $request->tag)->first();
+                if ($tag) {
+                    $scoutQuery->whereIn('tags', [$tag->id]);
+                }
+            }
+
+            $scoutQuery->query(function ($builder) {
+                $builder->with('district')->notExpired();
+            });
+
+            $recentListings = $scoutQuery->paginate(24);
 
             $cleanQuery = strtolower(trim($q));
             try {
@@ -138,6 +129,37 @@ class HomeController extends Controller
                 }
             }
         } else {
+            $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+
+            if ($request->filled('location')) {
+                $query->where('district_id', (int)$request->location);
+            }
+
+            if ($request->filled('category')) {
+                $category = \App\Models\Category::where('slug', $request->category)->first();
+                if ($category) {
+                    if ($category->parent_id === null) {
+                        $subCategoryIds = $category->children()->pluck('id')->push($category->id);
+                        $query->whereHas('categories', function($q) use ($subCategoryIds) {
+                            $q->whereIn('categories.id', $subCategoryIds);
+                        });
+                    } else {
+                        $query->whereHas('categories', function($q) use ($category) {
+                            $q->where('categories.id', $category->id);
+                        });
+                    }
+                }
+            }
+
+            if ($request->filled('tag')) {
+                $tag = \App\Models\Tag::where('slug', $request->tag)->first();
+                if ($tag) {
+                    $query->whereHas('tags', function($q) use ($tag) {
+                        $q->where('tags.id', $tag->id);
+                    });
+                }
+            }
+            
             $recentListings = $query->with('district')
                 ->orderBy('created_at', 'desc')
                 ->orderBy('is_premium', 'desc')
@@ -214,30 +236,34 @@ class HomeController extends Controller
 
     public function categoriesDirectory()
     {
-        $categories = \App\Models\Category::whereNull('parent_id')
-            ->whereRaw('is_approved = true')
-            ->with(['children' => function($query) {
-                $query->whereRaw('is_approved = true')
-                    ->withCount(['listings' => function($q) {
-                        $q->whereRaw('is_active = true')->notExpired();
-                    }])
-                    ->orderBy('sort_order')
-                    ->orderBy('name');
-            }])
-            ->orderBy('sort_order')
-            ->orderBy('name')
-            ->get();
+        $categories = \Illuminate\Support\Facades\Cache::store('redis')->remember('categories:directory_with_counts', 3600, function() {
+            $cats = \App\Models\Category::whereNull('parent_id')
+                ->whereRaw('is_approved = true')
+                ->with(['children' => function($query) {
+                    $query->whereRaw('is_approved = true')
+                        ->withCount(['listings' => function($q) {
+                            $q->whereRaw('is_active = true')->notExpired();
+                        }])
+                        ->orderBy('sort_order')
+                        ->orderBy('name');
+                }])
+                ->orderBy('sort_order')
+                ->orderBy('name')
+                ->get();
 
-        // Count parent unique listings as the unique count of listings across parent and all its children
-        foreach ($categories as $parent) {
-            $categoryIds = $parent->children->pluck('id')->push($parent->id);
-            $parent->listings_count = \App\Models\Listing::whereRaw('is_active = true')
-                ->notExpired()
-                ->whereHas('categories', function($q) use ($categoryIds) {
-                    $q->whereIn('categories.id', $categoryIds);
-                })
-                ->count();
-        }
+            // Count parent unique listings as the unique count of listings across parent and all its children
+            foreach ($cats as $parent) {
+                $categoryIds = $parent->children->pluck('id')->push($parent->id);
+                $parent->listings_count = \App\Models\Listing::whereRaw('is_active = true')
+                    ->notExpired()
+                    ->whereHas('categories', function($q) use ($categoryIds) {
+                        $q->whereIn('categories.id', $categoryIds);
+                    })
+                    ->count();
+            }
+            
+            return $cats;
+        });
 
         return view('categories.directory', compact('categories'));
     }

@@ -214,9 +214,12 @@ class AdminController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
+            
+            // Mengambil ID listing yang cocok dari Meilisearch
+            $listingIds = \App\Models\Listing::search($search)->keys();
 
-            $query->where(function($q) use ($search, $normalizedSearch) {
-                $q->search($search);
+            $query->where(function($q) use ($search, $normalizedSearch, $listingIds) {
+                $q->whereIn('id', $listingIds);
 
                 $q->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
                     $uQuery->where('name', 'like', "%{$search}%")
@@ -847,6 +850,25 @@ class AdminController extends Controller
 
     // User Verification
     // Settings Management
+    public function syncMeilisearch()
+    {
+        try {
+            // Import data secara programatis (karena command artisan scout:import bersifat console-only)
+            \App\Models\Listing::makeAllSearchable();
+            
+            // Sinkronkan pengaturan index menggunakan proses CLI
+            if (class_exists(\Illuminate\Support\Facades\Process::class)) {
+                \Illuminate\Support\Facades\Process::path(base_path())->run('php artisan scout:sync-index-settings');
+            } else {
+                exec('php artisan scout:sync-index-settings');
+            }
+            
+            return redirect()->back()->with('success', 'Berhasil menyinkronkan data Listing dan pengaturan index ke Meilisearch!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menyinkronkan Meilisearch: ' . $e->getMessage());
+        }
+    }
+
     public function settings()
     {
         $settings = \App\Models\Setting::all();
