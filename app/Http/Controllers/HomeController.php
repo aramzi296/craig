@@ -10,9 +10,12 @@ class HomeController extends Controller
     {
         $matchingTags = collect();
 
-        if ($request->filled('q')) {
+        if ($request->filled('q') && strlen(trim($request->q)) >= 2) {
             $q = $request->q;
-            $scoutQuery = \App\Models\Listing::search($q)->where('is_active', true);
+            $scoutQuery = \App\Models\Listing::search($q, function ($meilisearch, $query, $options) {
+                $options['matchingStrategy'] = 'all';
+                return $meilisearch->search($query, $options);
+            })->where('is_active', true);
 
             if ($request->filled('location')) {
                 $scoutQuery->where('district_id', (int)$request->location);
