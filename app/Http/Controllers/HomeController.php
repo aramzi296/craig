@@ -392,6 +392,9 @@ class HomeController extends Controller
                     ->orderBy('name')
                     ->get();
             }
+            
+            // Randomize and take 100 tags for initial view
+            $categories = $categories->shuffle()->take(100)->values();
         }
 
         if ($request->expectsJson() || $request->ajax()) {

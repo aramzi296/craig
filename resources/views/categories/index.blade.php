@@ -3,34 +3,40 @@
 @section('title', 'Cari Berdasarkan Tagar - ' . config('app.name'))
 
 @section('content')
-<!-- Include Tagify -->
-<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
-<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-
 <style>
-    .tagify {
+    .hashtag-item {
+        display: inline-block;
+        background: #f1f5f9;
+        color: #0ea5e9;
+        padding: 5px 12px;
+        border-radius: 20px;
+        text-decoration: none;
+        font-weight: 600;
+        margin: 3px;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+    .hashtag-item:hover {
+        background: #e0f2fe;
+        border-color: #7dd3fc;
+        transform: translateY(-2px);
+    }
+    .search-input {
         width: 100%;
-        padding: 8px 12px;
+        max-width: 600px;
+        padding: 12px 20px;
         border: 2px solid #e2e8f0;
         border-radius: 12px;
-        background: #fff;
+        font-size: 1rem;
+        outline: none;
         transition: border-color 0.2s;
-        font-family: inherit;
+        margin-bottom: 20px;
     }
-    .tagify:hover {
-        border-color: #cbd5e1;
-    }
-    .tagify--focus {
+    .search-input:focus {
         border-color: #0ea5e9;
     }
-    .tagify__tag {
-        background-color: #f1f5f9;
-        border-radius: 6px;
-    }
-    .tagify__tag > div {
-        color: #1e293b;
-        font-weight: 600;
-    }
+
     /* Grid Layout Styles (Same as home) */
     .listing-grid {
         display: grid;
@@ -86,84 +92,73 @@
 </style>
 
 <div class="container page-section" style="padding-top: 40px; min-height: 60vh;">
-    <div style="margin-bottom: 30px;">
+    <div style="margin-bottom: 30px; text-align: center;">
         <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Cari dengan Tagar</h2>
-        <p style="color: #64748b; margin-bottom: 20px;">Ketik dan pilih satu atau lebih tagar untuk menampilkan iklan yang sesuai.</p>
+        <p style="color: #64748b; margin-bottom: 20px;">Ketik untuk mencari tagar, atau pilih dari tagar acak di bawah ini.</p>
         
-        <input name="tags" id="tagsInput" placeholder="Ketik nama tagar (misal: kost, sewa mobil)...">
+        <input type="text" id="tagsInput" class="search-input" placeholder="Ketik nama tagar (misal: kost, sewa mobil)...">
+    </div>
+
+    <!-- Container for Tags -->
+    <div id="tags-container" style="text-align: center; transition: opacity 0.2s; max-height: 250px; overflow-y: auto; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
+        @foreach($categories as $tag)
+            <a href="{{ route('home', ['tag' => $tag->slug]) }}" class="hashtag-item">#{{ $tag->name }}</a>
+        @endforeach
     </div>
 
     <!-- Container for Listings -->
-    <div id="listing-container" style="transition: opacity 0.2s;">
-        <!-- Akan diisi otomatis via AJAX -->
-        <div style="text-align: center; color: #94a3b8; padding: 40px 0;">
-            Silakan pilih tagar di atas untuk melihat iklan.
-        </div>
+    <div id="listing-container" style="margin-top: 40px; transition: opacity 0.2s;">
+        <!-- Akan diisi otomatis via AJAX saat tagar diklik -->
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const input = document.getElementById('tagsInput');
+        const tagsContainer = document.getElementById('tags-container');
         const listingContainer = document.getElementById('listing-container');
-        let tagify;
 
-        // Fetch all tags for whitelist
-        fetch('/tagar', {
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const whitelist = data.categories.map(tag => ({
-                value: tag.name,
-                slug: tag.slug
-            }));
+        let timeout = null;
 
-            tagify = new Tagify(input, {
-                whitelist: whitelist,
-                enforceWhitelist: true,
-                dropdown: {
-                    maxItems: 20,
-                    classname: "tags-look",
-                    enabled: 0,
-                    closeOnSelect: false
-                }
-            });
+        input.addEventListener('input', function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const query = input.value.trim();
+                
+                tagsContainer.style.opacity = '0.5';
 
-            tagify.on('add', fetchListings);
-            tagify.on('remove', fetchListings);
-
-            // Check if there are initial tags in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const urlTags = urlParams.getAll('tags[]');
-            if (urlTags.length > 0) {
-                const initialTags = urlTags.map(slug => whitelist.find(w => w.slug === slug)).filter(Boolean);
-                if (initialTags.length > 0) {
-                    // tagify.addTags will trigger the 'add' event and fetchListings automatically
-                    tagify.addTags(initialTags);
-                }
-            }
+                fetch(`/tagar?q=${encodeURIComponent(query)}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    tagsContainer.innerHTML = '';
+                    if (data.categories && data.categories.length > 0) {
+                        data.categories.forEach(tag => {
+                            const a = document.createElement('a');
+                            a.href = `/?tag=${encodeURIComponent(tag.slug)}`;
+                            a.className = 'hashtag-item';
+                            a.textContent = `#${tag.name}`;
+                            tagsContainer.appendChild(a);
+                        });
+                    } else {
+                        tagsContainer.innerHTML = '<div style="color: #94a3b8; padding: 20px;">Tidak ada tagar yang cocok.</div>';
+                    }
+                    tagsContainer.style.opacity = '1';
+                })
+                .catch(err => {
+                    console.error('Error fetching tags:', err);
+                    tagsContainer.style.opacity = '1';
+                });
+            }, 300);
         });
 
-        function fetchListings() {
-            const selectedTags = tagify.value.map(t => t.slug);
-            
-            if (selectedTags.length === 0) {
-                listingContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Silakan pilih tagar di atas untuk melihat iklan.</div>';
-                window.history.replaceState(null, '', '/tagar');
-                return;
-            }
-
+        function loadListings(url) {
             listingContainer.style.opacity = '0.5';
-
-            const params = new URLSearchParams();
-            selectedTags.forEach(tag => params.append('tags[]', tag));
-
-            const url = '/?' + params.toString();
-
+            
             fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
@@ -178,18 +173,41 @@
                 if (newContent) {
                     listingContainer.innerHTML = newContent.innerHTML;
                 } else {
-                    listingContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Tidak ada iklan yang cocok dengan tagar tersebut.</div>';
+                    listingContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Tidak ada iklan ditemukan.</div>';
                 }
                 listingContainer.style.opacity = '1';
                 
-                // Update URL parameter so user can copy the link
-                window.history.replaceState(null, '', '/tagar?' + params.toString());
+                // Update URL parameter
+                window.history.pushState(null, '', url);
             })
             .catch(err => {
                 console.error('Error fetching listings:', err);
                 listingContainer.style.opacity = '1';
             });
         }
+
+        // Event delegation
+        document.addEventListener('click', function(e) {
+            // Click on a hashtag
+            const hashtagLink = e.target.closest('a.hashtag-item');
+            if (hashtagLink) {
+                e.preventDefault();
+                loadListings(hashtagLink.href);
+                return;
+            }
+
+            // Click on pagination inside listing container
+            const listingLink = e.target.closest('#listing-container a');
+            if (listingLink && !listingLink.classList.contains('listing-card-grid')) {
+                e.preventDefault();
+                loadListings(listingLink.href);
+            }
+        });
+
+        // Handle browser back button
+        window.addEventListener('popstate', function() {
+            window.location.reload();
+        });
     });
 </script>
 @endsection
