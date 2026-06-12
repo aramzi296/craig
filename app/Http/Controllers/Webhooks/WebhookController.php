@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Webhooks;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\WaMessage;
 use App\Services\WhatsappBotService;

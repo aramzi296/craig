@@ -33,7 +33,14 @@ class HomeController extends Controller
                 }
             }
 
-            if ($request->filled('tag')) {
+            if ($request->has('tags') && is_array($request->tags)) {
+                $tags = \App\Models\Tag::whereIn('slug', $request->tags)->get();
+                if ($tags->count() > 0) {
+                    foreach ($tags as $tag) {
+                        $scoutQuery->where('tags', $tag->id);
+                    }
+                }
+            } elseif ($request->filled('tag')) {
                 $tag = \App\Models\Tag::where('slug', $request->tag)->first();
                 if ($tag) {
                     $scoutQuery->whereIn('tags', [$tag->id]);
@@ -154,7 +161,12 @@ class HomeController extends Controller
                 }
             }
 
-            if ($request->filled('tag')) {
+            if ($request->has('tags') && is_array($request->tags)) {
+                $tagSlugs = $request->tags;
+                $query->whereHas('tags', function($q) use ($tagSlugs) {
+                    $q->whereIn('tags.slug', $tagSlugs);
+                }, '=', count($tagSlugs));
+            } elseif ($request->filled('tag')) {
                 $tag = \App\Models\Tag::where('slug', $request->tag)->first();
                 if ($tag) {
                     $query->whereHas('tags', function($q) use ($tag) {

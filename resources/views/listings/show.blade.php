@@ -139,6 +139,21 @@
                     </span>
                 </div>
                 @endif
+
+                <div style="font-size: 1rem; color: #334155;">
+                    <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block; vertical-align: middle;">Website</span>
+                    <span style="vertical-align: middle;">
+                        @if($listing->website)
+                            <a href="{{ str_starts_with($listing->website, 'http') ? $listing->website : 'https://' . $listing->website }}" target="_blank" style="display: inline-flex; align-items: center; padding: 4px 12px; background-color: #f0f9ff; color: #0284c7; font-size: 0.8rem; font-weight: 700; border-radius: 6px; text-decoration: none; border: 1px solid #bae6fd; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#e0f2fe'; this.style.borderColor='#7dd3fc'" onmouseout="this.style.backgroundColor='#f0f9ff'; this.style.borderColor='#bae6fd'">
+                                <i class="fa-solid fa-link" style="margin-right: 6px;"></i> Lihat tautan
+                            </a>
+                        @else
+                            <a href="/iklan-website" target="_blank" style="display: inline-flex; align-items: center; padding: 4px 12px; background-color: #fff1f2; color: #e11d48; font-size: 0.8rem; font-weight: 700; border-radius: 6px; text-decoration: none; border: 1px solid #fecdd3; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#ffe4e6'; this.style.borderColor='#fda4af'" onmouseout="this.style.backgroundColor='#fff1f2'; this.style.borderColor='#fecdd3'">
+                                <i class="fa-solid fa-globe" style="margin-right: 6px;"></i> Belum ada website. Lihat iklan
+                            </a>
+                        @endif
+                    </span>
+                </div>
             </div>
 
             <!-- 4. Kontak & User (Interaction - Aligned Version) -->

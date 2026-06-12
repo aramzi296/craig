@@ -1,140 +1,195 @@
 @extends('layouts.app')
 
-@section('title', 'Tagar - ' . config('app.name'))
+@section('title', 'Cari Berdasarkan Tagar - ' . config('app.name'))
 
 @section('content')
-<div class="container page-section" style="padding-top: 40px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 1px solid #f1f5f9; padding-bottom: 20px;">
-        <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin: 0;">Tagar</h2>
-        <div class="search-box" style="box-shadow: none; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; width: 350px;">
-            <input type="text" id="categorySearch" placeholder="Cari tagar..." style="flex: 1; padding: 10px 15px; border: none; outline: none;">
-        </div>
+<!-- Include Tagify -->
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+
+<style>
+    .tagify {
+        width: 100%;
+        padding: 8px 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+        transition: border-color 0.2s;
+        font-family: inherit;
+    }
+    .tagify:hover {
+        border-color: #cbd5e1;
+    }
+    .tagify--focus {
+        border-color: #0ea5e9;
+    }
+    .tagify__tag {
+        background-color: #f1f5f9;
+        border-radius: 6px;
+    }
+    .tagify__tag > div {
+        color: #1e293b;
+        font-weight: 600;
+    }
+    /* Grid Layout Styles (Same as home) */
+    .listing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 15px;
+        margin-bottom: 40px;
+    }
+    .listing-card-grid {
+        background: #fff;
+        border-radius: 4px;
+        overflow: hidden;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: inherit;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+    }
+    .listing-card-grid:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: #0ea5e9;
+    }
+    .grid-image-wrapper {
+        position: relative;
+        width: 100%;
+        padding-bottom: 100%;
+        background: #f8fafc;
+    }
+    .grid-image-wrapper img {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .grid-content {
+        padding: 12px 8px;
+    }
+    .grid-title {
+        font-size: 0.9rem; font-weight: 700; color: #1e293b;
+        line-height: 1.4; margin: 0;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+        overflow: hidden; height: 2.8em;
+    }
+    @media (max-width: 576px) {
+        .listing-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .grid-title {
+            font-size: 0.75rem;
+        }
+    }
+</style>
+
+<div class="container page-section" style="padding-top: 40px; min-height: 60vh;">
+    <div style="margin-bottom: 30px;">
+        <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Cari dengan Tagar</h2>
+        <p style="color: #64748b; margin-bottom: 20px;">Ketik dan pilih satu atau lebih tagar untuk menampilkan iklan yang sesuai.</p>
+        
+        <input name="tags" id="tagsInput" placeholder="Ketik nama tagar (misal: kost, sewa mobil)...">
     </div>
 
-    <div id="categoriesContainer" style="display: flex; flex-wrap: wrap; gap: 10px;">
-        @foreach($categories as $category)
-            <a href="{{ route('home', ['tag' => $category->slug]) }}" class="category-item" data-name="{{ strtolower($category->name) }}" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: flex; align-items: center; gap: 5px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
-                <span style="color: #64748b; font-weight: 400;">#</span>
-                <span class="name-span">{{ $category->name }}</span>
-            </a>
-        @endforeach
-    </div>
-
-    <!-- No Results Found -->
-    <div id="noResults" style="display: none; text-align: center; padding: 60px 20px;">
-        <div style="font-size: 3rem; color: #cbd5e1; margin-bottom: 15px;">
-            <i class="fa-solid fa-hashtag"></i>
+    <!-- Container for Listings -->
+    <div id="listing-container" style="transition: opacity 0.2s;">
+        <!-- Akan diisi otomatis via AJAX -->
+        <div style="text-align: center; color: #94a3b8; padding: 40px 0;">
+            Silakan pilih tagar di atas untuk melihat iklan.
         </div>
-        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">Tagar tidak ditemukan</h3>
-        <p style="color: #64748b;">Coba kata kunci lain atau periksa ejaan Anda.</p>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('categorySearch');
-        const noResults = document.getElementById('noResults');
-        const container = document.getElementById('categoriesContainer');
+        const input = document.getElementById('tagsInput');
+        const listingContainer = document.getElementById('listing-container');
+        let tagify;
 
-        let debounceTimer;
+        // Fetch all tags for whitelist
+        fetch('/tagar', {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const whitelist = data.categories.map(tag => ({
+                value: tag.name,
+                slug: tag.slug
+            }));
 
-        function escapeHtml(text) {
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
+            tagify = new Tagify(input, {
+                whitelist: whitelist,
+                enforceWhitelist: true,
+                dropdown: {
+                    maxItems: 20,
+                    classname: "tags-look",
+                    enabled: 0,
+                    closeOnSelect: false
+                }
+            });
 
-        searchInput.addEventListener('input', function() {
-            clearTimeout(debounceTimer);
-            const query = this.value.trim();
+            tagify.on('add', fetchListings);
+            tagify.on('remove', fetchListings);
 
-            debounceTimer = setTimeout(() => {
-                fetch(`/tagar?q=${encodeURIComponent(query)}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    container.innerHTML = '';
-                    const categories = data.categories;
-
-                    if (categories && categories.length > 0) {
-                        noResults.style.display = 'none';
-                        categories.forEach(category => {
-                            const a = document.createElement('a');
-                            // Ensure the dynamic tag has identical styling, hover transitions, and features
-                            a.href = `/?tag=${encodeURIComponent(category.slug)}`;
-                            a.className = 'category-item';
-                            a.setAttribute('data-name', category.name.toLowerCase());
-                            a.style.textDecoration = 'none';
-                            a.style.color = '#4b5563';
-                            a.style.fontWeight = '600';
-                            a.style.fontSize = '0.9rem';
-                            a.style.transition = 'all 0.2s';
-                            a.style.display = 'flex';
-                            a.style.alignItems = 'center';
-                            a.style.gap = '5px';
-                            a.style.background = '#f1f5f9';
-                            a.style.padding = '8px 16px';
-                            a.style.borderRadius = '50px';
-                            a.style.border = '1px solid #e2e8f0';
-
-                            const hashSpan = document.createElement('span');
-                            hashSpan.style.color = '#64748b';
-                            hashSpan.style.fontWeight = '400';
-                            hashSpan.textContent = '#';
-
-                            const nameSpan = document.createElement('span');
-                            nameSpan.className = 'name-span';
-
-                            const nameText = category.name;
-                            const queryLower = query.toLowerCase();
-                            const index = nameText.toLowerCase().indexOf(queryLower);
-
-                            if (query !== '' && index >= 0) {
-                                const before = nameText.substring(0, index);
-                                const match = nameText.substring(index, index + query.length);
-                                const after = nameText.substring(index + query.length);
-                                nameSpan.innerHTML = `${escapeHtml(before)}<span style="background: rgba(14, 165, 233, 0.2); color: #0ea5e9; font-weight: 700; border-radius: 2px;">${escapeHtml(match)}</span>${escapeHtml(after)}`;
-                            } else {
-                                nameSpan.textContent = nameText;
-                            }
-
-                            a.appendChild(hashSpan);
-                            a.appendChild(nameSpan);
-                            container.appendChild(a);
-                        });
-                    } else {
-                        noResults.style.display = 'block';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching tags:', error);
-                });
-            }, 250);
+            // Check if there are initial tags in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlTags = urlParams.getAll('tags[]');
+            if (urlTags.length > 0) {
+                const initialTags = urlTags.map(slug => whitelist.find(w => w.slug === slug)).filter(Boolean);
+                if (initialTags.length > 0) {
+                    // tagify.addTags will trigger the 'add' event and fetchListings automatically
+                    tagify.addTags(initialTags);
+                }
+            }
         });
+
+        function fetchListings() {
+            const selectedTags = tagify.value.map(t => t.slug);
+            
+            if (selectedTags.length === 0) {
+                listingContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Silakan pilih tagar di atas untuk melihat iklan.</div>';
+                window.history.replaceState(null, '', '/tagar');
+                return;
+            }
+
+            listingContainer.style.opacity = '0.5';
+
+            const params = new URLSearchParams();
+            selectedTags.forEach(tag => params.append('tags[]', tag));
+
+            const url = '/?' + params.toString();
+
+            fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newContent = doc.getElementById('listing-container');
+                
+                if (newContent) {
+                    listingContainer.innerHTML = newContent.innerHTML;
+                } else {
+                    listingContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 40px 0;">Tidak ada iklan yang cocok dengan tagar tersebut.</div>';
+                }
+                listingContainer.style.opacity = '1';
+                
+                // Update URL parameter so user can copy the link
+                window.history.replaceState(null, '', '/tagar?' + params.toString());
+            })
+            .catch(err => {
+                console.error('Error fetching listings:', err);
+                listingContainer.style.opacity = '1';
+            });
+        }
     });
 </script>
-
-<style>
-    .category-item:hover {
-        background: #0ea5e9 !important;
-        border-color: #0ea5e9 !important;
-        color: #ffffff !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
-    }
-    .category-item:hover span {
-        color: #ffffff !important;
-    }
-    @media (max-width: 768px) {
-        .search-box { width: 100% !important; margin-top: 15px; }
-        .container.page-section > div:first-child { flex-direction: column; align-items: flex-start !important; }
-    }
-</style>
 @endsection

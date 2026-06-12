@@ -120,16 +120,32 @@
 </style>
 <section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
     <div class="container" style="max-width: 800px;">
-        <form action="{{ route('home') }}" method="GET" id="search-form" style="display: flex; gap: 10px;">
-            <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam... (Contoh: service AC, kost, rental mobil)" 
-                style="flex: 1; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
-                onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-            <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: background 0.2s;"
+        @php
+            $districts = \Illuminate\Support\Facades\Cache::rememberForever('districts_list', function() {
+                return \App\Models\District::orderBy('name')->get();
+            });
+        @endphp
+        <form action="{{ route('home') }}" method="GET" id="search-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 10px; flex: 1; min-width: 250px;">
+                <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam... (Contoh: service AC, kost, rental mobil)" 
+                    style="flex: 1; min-width: 150px; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+                
+                <select name="location" id="location-select" style="padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; background-color: white; max-width: 180px;"
+                    onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+                    <option value="">Semua Area</option>
+                    @foreach($districts as $district)
+                        <option value="{{ $district->id }}" {{ request('location') == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            
+            <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: background 0.2s; white-space: nowrap;"
                 onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
                 Cari
             </button>
             @if(request()->filled('q') || request()->filled('category') || request()->filled('tag') || request()->filled('location'))
-                <a href="{{ route('home') }}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; transition: background 0.2s;"
+                <a href="{{ route('home') }}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; transition: background 0.2s; white-space: nowrap;"
                     onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
                     Reset
                 </a>
@@ -213,21 +229,7 @@
         @endif
     @endif
     
-    @if(request('q') && isset($matchingTags) && $matchingTags->isNotEmpty())
-        <div class="matching-tags-container" style="margin-bottom: 25px; background: #ffffff; padding: 16px 20px; border-radius: 16px; border: 1px solid #f1f5f9;">
-            <h4 style="font-size: 0.95rem; font-weight: 700; color: #64748b; margin-top: 0; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
-                <i class="fa-solid fa-hashtag" style="color: #0ea5e9;"></i> Tagar Terkait
-            </h4>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-                @foreach($matchingTags as $tag)
-                    <a href="{{ route('home', ['tag' => $tag->slug]) }}" class="category-item" style="text-decoration: none; color: #4b5563; font-weight: 600; font-size: 0.88rem; display: flex; align-items: center; gap: 4px; background: #f1f5f9; padding: 8px 16px; border-radius: 50px; border: 1px solid #e2e8f0;">
-                        <span style="color: #64748b; font-weight: 400;">#</span>
-                        <span>{{ $tag->name }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </div>
-    @endif
+
 
     <div class="listing-grid">
         @foreach($recentListings as $listing)
@@ -261,17 +263,24 @@
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('search-input');
+        const locationSelect = document.getElementById('location-select');
         const searchForm = document.getElementById('search-form');
         const listingContainer = document.getElementById('listing-container');
 
         function performSearch() {
             const q = searchInput.value;
+            const location = locationSelect ? locationSelect.value : '';
             
             // Only search if empty (reset) or length >= 3
             if (q.length > 0 && q.length < 3) return;
 
             const url = new URL(searchForm.action);
-            url.searchParams.set('q', q);
+            if (q) url.searchParams.set('q', q);
+            if (location) url.searchParams.set('location', location);
+            
+            const currentParams = new URLSearchParams(window.location.search);
+            if (currentParams.has('category')) url.searchParams.set('category', currentParams.get('category'));
+            if (currentParams.has('tag')) url.searchParams.set('tag', currentParams.get('tag'));
 
             // Show loading state
             listingContainer.style.opacity = '0.5';
@@ -314,6 +323,12 @@
                 performSearch();
             }
         });
+
+        if (locationSelect) {
+            locationSelect.addEventListener('change', function() {
+                performSearch();
+            });
+        }
 
         // Intersepsi submit form (klik tombol Cari atau tekan Enter)
         searchForm.addEventListener('submit', function(e) {

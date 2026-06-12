@@ -1270,7 +1270,8 @@ class AdminController extends Controller
     }
 
     /**
-     * Membaca listing yang belum memiliki kategori dan mengirimkan ID & Deskripsi ke webhook n8n kategori
+     * Membaca listing yang belum memiliki kategori dan mengirimkan ID & Deskripsi ke webhook n8n kategori.
+     * Ini digunakan oleh Admin untuk menginisiasi proses auto-kategorisasi pada listing (Set Kategori).
      */
     public function setCategory(Request $request)
     {

@@ -9,23 +9,23 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ListingController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\WebhookController;
-use App\Http\Controllers\ListingImportWebhookController;
+use App\Http\Controllers\Webhooks\WebhookController;
+use App\Http\Controllers\Webhooks\ListingImportWebhookController;
 use App\Http\Controllers\WaLoginController;
-use App\Http\Controllers\GenerateTagsWebhookController;
+use App\Http\Controllers\Webhooks\GenerateTagsWebhookController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/kategori', [HomeController::class, 'categoriesDirectory'])->name('categories.directory');
 Route::get('/tagar', [HomeController::class, 'categories'])->name('categories.index');
 
 // ─── API Routes ─────────────────────────────────────────────────────────────
-Route::get('api/subcategories', [\App\Http\Controllers\CategoryApiController::class, 'getSubcategories'])->name('api.subcategories');
+Route::get('api/subcategories', [\App\Http\Controllers\Api\CategoryApiController::class, 'getSubcategories'])->name('api.subcategories');
 
 // ─── Webhooks (CSRF exempt via bootstrap/app.php) ─────────────────────────────
 Route::post('webhook/whatsapp', [WebhookController::class, 'handle'])->name('webhook.whatsapp');
 Route::post('webhook/listing-import', [ListingImportWebhookController::class, 'handle'])->name('webhook.listing-import');
 Route::post('webhook/generate-tags', [GenerateTagsWebhookController::class, 'handle'])->name('webhook.generate-tags');
-Route::post('webhook/assign-category', [\App\Http\Controllers\AssignCategoryWebhookController::class, 'handle'])->name('webhook.assign-category');
+Route::post('webhook/assign-category', [\App\Http\Controllers\Webhooks\AssignCategoryWebhookController::class, 'handle'])->name('webhook.assign-category');
 
 // Auth Routes
 Route::middleware('guest')->group(function () {
