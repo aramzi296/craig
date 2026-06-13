@@ -134,7 +134,7 @@
                     <span style="color: #94a3b8; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; width: 80px; display: inline-block;">Tagar</span>
                     <span style="font-weight: 700;">
                         @foreach($listing->tags as $index => $tag)
-                            <a href="{{ route('home', ['tag' => $tag->slug]) }}" style="color: #0ea5e9; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">#{{ $tag->name }}</a>{{ $index < $listing->tags->count() - 1 ? ', ' : '' }}
+                            <a href="{{ route('categories.index', ['tag' => $tag->slug]) }}" style="color: #0ea5e9; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">#{{ $tag->name }}</a>{{ $index < $listing->tags->count() - 1 ? ', ' : '' }}
                         @endforeach
                     </span>
                 </div>

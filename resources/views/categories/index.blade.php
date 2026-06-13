@@ -8,19 +8,22 @@
         display: inline-block;
         background: #f1f5f9;
         color: #0ea5e9;
-        padding: 5px 12px;
+        padding: 6px 16px;
         border-radius: 20px;
         text-decoration: none;
         font-weight: 600;
-        margin: 3px;
-        font-size: 0.85rem;
+        margin: 5px 8px;
+        font-size: 0.9rem;
         transition: all 0.2s ease;
         border: 1px solid transparent;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
     }
     .hashtag-item:hover {
         background: #e0f2fe;
         border-color: #7dd3fc;
         transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        text-decoration: none;
     }
     .search-input {
         width: 100%;
@@ -102,7 +105,7 @@
     <!-- Container for Tags -->
     <div id="tags-container" style="text-align: center; transition: opacity 0.2s; max-height: 250px; overflow-y: auto; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; background: #fafafa;">
         @foreach($categories as $tag)
-            <a href="{{ route('home', ['tag' => $tag->slug]) }}" class="hashtag-item">#{{ $tag->name }}</a>
+            <a href="{{ route('categories.index', ['tag' => $tag->slug]) }}" class="hashtag-item">#{{ $tag->name }}</a>
         @endforeach
     </div>
 
@@ -119,6 +122,12 @@
         const listingContainer = document.getElementById('listing-container');
 
         let timeout = null;
+
+        // Load tag from URL if present
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('tag')) {
+            loadListings(window.location.href);
+        }
 
         input.addEventListener('input', function() {
             clearTimeout(timeout);
@@ -139,7 +148,7 @@
                     if (data.categories && data.categories.length > 0) {
                         data.categories.forEach(tag => {
                             const a = document.createElement('a');
-                            a.href = `/?tag=${encodeURIComponent(tag.slug)}`;
+                            a.href = `/tagar?tag=${encodeURIComponent(tag.slug)}`;
                             a.className = 'hashtag-item';
                             a.textContent = `#${tag.name}`;
                             tagsContainer.appendChild(a);
@@ -156,10 +165,24 @@
             }, 300);
         });
 
-        function loadListings(url) {
+        function loadListings(targetUrl) {
+            const urlObj = new URL(targetUrl, window.location.origin);
+            let fetchUrl = urlObj.href;
+            let pushUrl = urlObj.href;
+
+            if (urlObj.pathname === '/tagar') {
+                const fetchUrlObj = new URL(urlObj.href);
+                fetchUrlObj.pathname = '/';
+                fetchUrl = fetchUrlObj.href;
+            } else if (urlObj.pathname === '/') {
+                const pushUrlObj = new URL(urlObj.href);
+                pushUrlObj.pathname = '/tagar';
+                pushUrl = pushUrlObj.href;
+            }
+
             listingContainer.style.opacity = '0.5';
             
-            fetch(url, {
+            fetch(fetchUrl, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -178,7 +201,7 @@
                 listingContainer.style.opacity = '1';
                 
                 // Update URL parameter
-                window.history.pushState(null, '', url);
+                window.history.pushState(null, '', pushUrl);
             })
             .catch(err => {
                 console.error('Error fetching listings:', err);
