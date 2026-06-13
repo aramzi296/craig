@@ -3,22 +3,24 @@
 @section('title', 'Kategori Usaha Sebatam - ' . config('app.name'))
 
 @section('content')
-<div class="container page-section" style="padding-top: 50px; padding-bottom: 80px;">
-    <!-- Section Header -->
-    <div style="text-align: center; margin-bottom: 50px;">
-        <h1 style="font-size: 2.8rem; font-weight: 800; color: #0f172a; margin-bottom: 12px; letter-spacing: -0.02em;">
-            Kategori Usaha <span style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Sebatam</span>
-        </h1>
-        <p style="color: #64748b; font-size: 1.1rem; max-width: 600px; margin: 0 auto; line-height: 1.6;">
-            Temukan barang, jasa, dan peluang terbaik di Batam berdasarkan kategori terstruktur yang Anda butuhkan.
-        </p>
-    </div>
-
-    <!-- Live Search Bar -->
-    <div class="search-container">
-        <div class="search-wrapper">
-            <i class="fa-solid fa-magnifying-glass search-icon"></i>
-            <input type="text" id="categorySearch" placeholder="Cari kategori atau subkategori..." autocomplete="off">
+<div class="container page-section" style="padding-top: 12px; padding-bottom: 80px;">
+    <!-- Section Header and Search -->
+    <div style="margin-bottom: 30px; text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 400; color: #1e293b; margin-bottom: 15px;">Kategori Sebatam</h1>
+        
+        @php
+            $districts = \Illuminate\Support\Facades\Cache::rememberForever('districts_list', function() {
+                return \App\Models\District::orderBy('name')->get();
+            });
+        @endphp
+        <div style="display: flex; justify-content: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto;">
+            <input type="text" id="categorySearch" class="search-input" style="flex: 1; margin-bottom: 0;" placeholder="Cari kategori atau subkategori..." autocomplete="off">
+            <select id="locationSelect" style="padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; background-color: white; max-width: 180px;" onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+                <option value="">Semua Area</option>
+                @foreach($districts as $district)
+                    <option value="{{ $district->id }}" {{ request('location') == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                @endforeach
+            </select>
         </div>
     </div>
 
@@ -110,54 +112,19 @@
 
 <style>
     /* Search Bar Stylings */
-    .search-container {
+    .search-input {
+        width: 100%;
         max-width: 600px;
-        margin: 0 auto 50px;
-        position: relative;
-    }
-    
-    .search-wrapper {
-        display: flex;
-        align-items: center;
-        padding: 6px 18px;
-        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
-        border-radius: 20px;
-        background: white;
-        border: 1px solid #e2e8f0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    
-    .search-wrapper:focus-within {
-        border-color: #0ea5e9;
-        box-shadow: 0 10px 30px -5px rgba(14, 165, 233, 0.15);
-        transform: translateY(-2px);
-    }
-    
-    .search-icon {
-        color: #0ea5e9;
-        font-size: 1.2rem;
-        margin-right: 14px;
-        transition: transform 0.3s ease;
-    }
-    
-    .search-wrapper:focus-within .search-icon {
-        transform: scale(1.1);
-    }
-    
-    #categorySearch {
-        flex: 1;
-        padding: 10px 0;
-        border: none;
-        outline: none;
+        padding: 12px 20px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
         font-size: 1rem;
-        font-weight: 600;
-        color: #1e293b;
-        background: transparent;
+        outline: none;
+        transition: border-color 0.2s;
+        margin-bottom: 20px;
     }
-    
-    #categorySearch::placeholder {
-        color: #94a3b8;
-        font-weight: 500;
+    .search-input:focus {
+        border-color: #0ea5e9;
     }
 
     /* Grid Layout */
@@ -376,6 +343,31 @@
         const searchInput = document.getElementById('categorySearch');
         const parentCards = document.querySelectorAll('.parent-card');
         const noResults = document.getElementById('noResults');
+        const locationSelect = document.getElementById('locationSelect');
+
+        function updateLinksWithLocation() {
+            const location = locationSelect.value;
+            document.querySelectorAll('.parent-link, .subcategory-link').forEach(link => {
+                try {
+                    const url = new URL(link.href);
+                    if (location) {
+                        url.searchParams.set('location', location);
+                    } else {
+                        url.searchParams.delete('location');
+                    }
+                    link.href = url.href;
+                } catch (e) {
+                    console.error("Invalid URL in link", link);
+                }
+            });
+        }
+
+        locationSelect.addEventListener('change', updateLinksWithLocation);
+        
+        // Initialize links on load if location is present in URL
+        if (locationSelect.value) {
+            updateLinksWithLocation();
+        }
 
         searchInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();

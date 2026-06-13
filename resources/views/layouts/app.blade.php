@@ -381,8 +381,9 @@
                 </a>
             </div>
 
-            <!-- Desktop Navigation: Kategori, Tagar, Usaha Saya, Masuk/Keluar -->
+            <!-- Desktop Navigation: Beranda, Kategori, Tagar, Usaha Saya, Masuk/Keluar -->
             <nav class="nav-desktop">
+                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('categories.directory') }}" class="{{ request()->routeIs('categories.directory') ? 'active' : '' }}">Kategori</a>
                 <a href="{{ route('categories.index') }}" class="{{ request()->routeIs('categories.index') ? 'active' : '' }}">Tagar</a>
                 <a href="{{ route('listings.create') }}" class="{{ request()->routeIs('listings.create') ? 'active' : '' }}">Daftarkan Usaha</a>
@@ -415,6 +416,7 @@
                 </button>
             </div>
             <div class="mobile-menu-body">
+                <a href="{{ route('home') }}" class="mobile-link {{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
                 <a href="{{ route('categories.directory') }}" class="mobile-link {{ request()->routeIs('categories.directory') ? 'active' : '' }}">Kategori</a>
                 <a href="{{ route('categories.index') }}" class="mobile-link {{ request()->routeIs('categories.index') ? 'active' : '' }}">Tagar</a>
                 <a href="{{ route('listings.create') }}" class="mobile-link {{ request()->routeIs('listings.create') ? 'active' : '' }}">Daftarkan Usaha</a>

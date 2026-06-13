@@ -94,12 +94,24 @@
     }
 </style>
 
-<div class="container page-section" style="padding-top: 40px; min-height: 60vh;">
+<div class="container page-section" style="padding-top: 12px; min-height: 60vh;">
     <div style="margin-bottom: 30px; text-align: center;">
-        <h2 style="font-size: 2rem; font-weight: 800; color: #1e293b; margin-bottom: 15px;">Cari dengan Tagar</h2>
-        <p style="color: #64748b; margin-bottom: 20px;">Ketik untuk mencari tagar, atau pilih dari tagar acak di bawah ini.</p>
+        <h2 style="font-size: 32px; font-weight: 400; color: #1e293b; margin-bottom: 15px;">Tagar Sebatam</h2>
         
-        <input type="text" id="tagsInput" class="search-input" placeholder="Ketik nama tagar (misal: kost, sewa mobil)...">
+        @php
+            $districts = \Illuminate\Support\Facades\Cache::rememberForever('districts_list', function() {
+                return \App\Models\District::orderBy('name')->get();
+            });
+        @endphp
+        <div style="display: flex; justify-content: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto;">
+            <input type="text" id="tagsInput" class="search-input" style="flex: 1; margin-bottom: 0;" placeholder="Ketik nama tagar (misal: kost, sewa mobil)...">
+            <select id="locationSelect" style="padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; background-color: white; max-width: 180px;" onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+                <option value="">Semua Area</option>
+                @foreach($districts as $district)
+                    <option value="{{ $district->id }}" {{ request('location') == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                @endforeach
+            </select>
+        </div>
     </div>
 
     <!-- Container for Tags -->
@@ -120,6 +132,7 @@
         const input = document.getElementById('tagsInput');
         const tagsContainer = document.getElementById('tags-container');
         const listingContainer = document.getElementById('listing-container');
+        const locationSelect = document.getElementById('locationSelect');
 
         let timeout = null;
 
@@ -128,6 +141,13 @@
         if (urlParams.has('tag')) {
             loadListings(window.location.href);
         }
+
+        locationSelect.addEventListener('change', function() {
+            const currentParams = new URLSearchParams(window.location.search);
+            if (currentParams.has('tag')) {
+                loadListings(window.location.href);
+            }
+        });
 
         input.addEventListener('input', function() {
             clearTimeout(timeout);
@@ -167,6 +187,14 @@
 
         function loadListings(targetUrl) {
             const urlObj = new URL(targetUrl, window.location.origin);
+            
+            const location = locationSelect.value;
+            if (location) {
+                urlObj.searchParams.set('location', location);
+            } else {
+                urlObj.searchParams.delete('location');
+            }
+
             let fetchUrl = urlObj.href;
             let pushUrl = urlObj.href;
 

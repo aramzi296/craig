@@ -118,38 +118,26 @@
         color: #ffffff !important;
     }
 </style>
-<section class="search-header" style="background: #ffffff; padding: 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
-    <div class="container" style="max-width: 800px;">
+<section class="search-header" style="background: #ffffff; padding: 12px 0 40px 0; border-bottom: 1px solid #f1f5f9; margin-bottom: 20px;">
+    <div class="container" style="text-align: center;">
+        <h1 style="font-size: 32px; font-weight: 400; color: #1e293b; margin-bottom: 15px;">Pencarian Sebatam</h1>
         @php
             $districts = \Illuminate\Support\Facades\Cache::rememberForever('districts_list', function() {
                 return \App\Models\District::orderBy('name')->get();
             });
         @endphp
-        <form action="{{ route('home') }}" method="GET" id="search-form" style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <div style="display: flex; gap: 10px; flex: 1; min-width: 250px;">
-                <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam... (Contoh: service AC, kost, rental mobil)" 
-                    style="flex: 1; min-width: 150px; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
-                    onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-                
-                <select name="location" id="location-select" style="padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; background-color: white; max-width: 180px;"
-                    onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
-                    <option value="">Semua Area</option>
-                    @foreach($districts as $district)
-                        <option value="{{ $district->id }}" {{ request('location') == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
-                    @endforeach
-                </select>
-            </div>
+        <form action="{{ route('home') }}" method="GET" id="search-form" style="display: flex; justify-content: center; gap: 10px; width: 100%; max-width: 600px; margin: 0 auto;">
+            <input type="text" name="q" id="search-input" value="{{ request('q') }}" placeholder="Cari apa saja di Batam..." 
+                style="flex: 1; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
+                onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
             
-            <button type="submit" style="background: #0ea5e9; color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: background 0.2s; white-space: nowrap;"
-                onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
-                Cari
-            </button>
-            @if(request()->filled('q') || request()->filled('category') || request()->filled('tag') || request()->filled('location'))
-                <a href="{{ route('home') }}" style="background: #f1f5f9; color: #64748b; text-decoration: none; padding: 12px 20px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; transition: background 0.2s; white-space: nowrap;"
-                    onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">
-                    Reset
-                </a>
-            @endif
+            <select name="location" id="location-select" style="padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s; background-color: white; max-width: 180px;"
+                onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'" onchange="this.form.submit()">
+                <option value="">Semua Area</option>
+                @foreach($districts as $district)
+                    <option value="{{ $district->id }}" {{ request('location') == $district->id ? 'selected' : '' }}>{{ $district->name }}</option>
+                @endforeach
+            </select>
         </form>
     </div>
 </section>
@@ -266,6 +254,7 @@
         const locationSelect = document.getElementById('location-select');
         const searchForm = document.getElementById('search-form');
         const listingContainer = document.getElementById('listing-container');
+        let searchTimeout = null;
 
         function performSearch() {
             const q = searchInput.value;
@@ -310,17 +299,15 @@
             });
         }
 
-        // Pemicu pencarian ketika menekan tombol Spasi (kata sudah utuh)
-        searchInput.addEventListener('keyup', function(e) {
-            if (e.key === ' ' || e.code === 'Space') {
-                performSearch();
-            }
-        });
-
-        // Pemicu pencarian ketika input dihapus bersih (reset instan)
+        // Pemicu pencarian otomatis setelah 3 karakter atau kosong (dengan debounce)
         searchInput.addEventListener('input', function() {
-            if (searchInput.value === '') {
-                performSearch();
+            clearTimeout(searchTimeout);
+            const val = searchInput.value;
+            
+            if (val.length >= 3 || val.length === 0) {
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 400);
             }
         });
 
