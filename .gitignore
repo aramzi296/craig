@@ -27,3 +27,6 @@ Thumbs.db
 # SQLite Databases
 database/*.sqlite
 database/*.sqlite-journal
+
+# Ignore local Sail docker-compose file
+compose.yaml
