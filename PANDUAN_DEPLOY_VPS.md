@@ -46,8 +46,8 @@ Repositori ini telah dikonfigurasi agar siap dijalankan menggunakan Docker di se
 3. **Build & Jalankan Docker**:
    Jalankan perintah berikut di VPS dari dalam direktori proyek:
    ```bash
-   docker compose -f docker-compose.yml build
-   docker compose -f docker-compose.yml up -d
+   docker compose build
+   docker compose up -d
    ```
 4. **Jalankan Migrasi (Hanya saat Setup Awal)**:
    ```bash
