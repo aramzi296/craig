@@ -1579,5 +1579,24 @@ class AdminController extends Controller
             return back()->with('error', 'Terjadi kesalahan sistem saat menyimpan data: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function compressImagesManually(\Illuminate\Http\Request $request, \App\Services\ImageService $imageService)
+    {
+        // Limit processing to 50 items per request to avoid timeouts
+        $limitKB = (int) $request->input('limit_kb', 100);
+        $maxItems = (int) $request->input('max_items', 50);
+
+        try {
+            $count = $imageService->compressLargeImages($limitKB, $maxItems);
+            
+            if ($count > 0) {
+                return back()->with('success', "Berhasil mengompres {$count} gambar.");
+            } else {
+                return back()->with('success', "Tidak ada gambar berukuran lebih dari {$limitKB}KB yang perlu dikompres.");
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', "Terjadi kesalahan saat mengompres gambar: " . $e->getMessage());
+        }
+    }
 }
 

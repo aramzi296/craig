@@ -33,6 +33,14 @@
                 </a>
             </li>
             <li class="sidebar-item">
+                <a href="{{ route('admin.settings.compress-images') }}" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Mulai kompresi gambar? Proses ini akan mencari dan mengompres maksimal 50 gambar berukuran besar.')) document.getElementById('compressImagesForm').submit();">
+                    <i class="fa-solid fa-compress"></i> Kompres Gambar
+                </a>
+                <form id="compressImagesForm" action="{{ route('admin.settings.compress-images') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
+            </li>
+            <li class="sidebar-item">
                 <a href="{{ route('admin.n8n.listings') }}" class="sidebar-link {{ request()->routeIs('admin.n8n.listings*') ? 'active' : '' }}">
                     <i class="fa-solid fa-share-nodes"></i> n8n Listing
                 </a>

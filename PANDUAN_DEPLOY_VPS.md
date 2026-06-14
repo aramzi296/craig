@@ -60,3 +60,20 @@ Repositori ini telah dikonfigurasi agar siap dijalankan menggunakan Docker di se
 
 > [!TIP]
 > **Penting:** Pastikan bahwa network Docker dari aplikasi ini memiliki akses ke container Redis dan Meilisearch eksternal Anda. Anda bisa mencapainya dengan menggabungkan container-container ini ke dalam *external docker network* yang sama, atau cukup menggunakan alamat IP host internal docker untuk mengaksesnya dari `.env`.
+
+
+Cara periksa apakah berhasil terhubung ke Redis Docker. Jalankan perintah berikut di terminal:
+
+```bash
+docker compose exec app php artisan tinker --execute='try { \Illuminate\Support\Facades\Redis::ping(); echo "\n✅ BERHASIL TERHUBUNG DENGAN REDIS DOCKER!\n\n"; } catch (\Exception $e) { echo "\n❌ GAGAL TERHUBUNG: " . $e->getMessage() . "\n\n"; }'
+```
+
+Jika berhasil, outputnya akan seperti ini:
+```
+✅ BERHASIL TERHUBUNG DENGAN REDIS DOCKER!
+```
+
+Jika gagal, outputnya akan seperti ini:
+```
+❌ GAGAL TERHUBUNG: Connection refused [IP_ADDRESS]
+```
