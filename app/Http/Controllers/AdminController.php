@@ -1240,7 +1240,7 @@ class AdminController extends Controller
         $successCount = 0;
         $failedCount = 0;
 
-        $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+        $webhookUrl = config('services.n8n.listing_tagar_webhook_url');
 
         foreach ($listings as $listing) {
             $processedCount++;
@@ -1550,7 +1550,7 @@ class AdminController extends Controller
             }
 
             // Trigger tag generation webhook
-            $webhookUrl = 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54';
+            $webhookUrl = config('services.n8n.listing_tagar_webhook_url');
             try {
                 $response = \Illuminate\Support\Facades\Http::timeout(5)->post($webhookUrl, [
                     'id' => $listingModel->id,

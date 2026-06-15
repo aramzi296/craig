@@ -72,6 +72,7 @@ return [
     'n8n' => [
         'listing_webhook_url' => env('N8N_LISTING_WEBHOOK_URL', 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/1f164d6f-5c3c-4b43-8ff2-709a06f01343'),
         'listing_category_webhook_url' => env('N8N_LISTING_CATEGORY_WEBHOOK_URL', 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook-test/b2ffd1ad-a816-4a3e-80a2-523101342679'),
+        'listing_tagar_webhook_url' => env('N8N_LISTING_TAGAR_WEBHOOK_URL', 'https://n8n-pfokjx3fv0cf.axwy.sumopod.my.id/webhook/e0d05b06-3bc5-4512-8dbb-ca7e28437e54'),
     ],
 
 ];
