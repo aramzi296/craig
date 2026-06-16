@@ -141,6 +141,15 @@ return [
         'key' => env('MEILISEARCH_KEY'),
         'index-settings' => [
             \App\Models\Listing::class => [
+                'searchableAttributes' => [
+                    'title',
+                    'description',
+                    'address',
+                    'owner_name',
+                    'owner_whatsapp',
+                    'owner_whatsapp_0',
+                    'owner_whatsapp_suffixes',
+                ],
                 'filterableAttributes' => ['is_active', 'district_id', 'categories', 'tags'],
             ],
         ],
