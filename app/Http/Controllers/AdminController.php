@@ -215,11 +215,31 @@ class AdminController extends Controller
             $search = $request->search;
             $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
             
-            // Mengambil ID listing yang cocok dari Meilisearch
-            $listingIds = \App\Models\Listing::search($search)->keys();
+            $listingIds = [];
+            $useMeilisearch = config('scout.driver') === 'meilisearch';
+            $meilisearchFailed = false;
 
-            $query->where(function($q) use ($search, $normalizedSearch, $listingIds) {
-                $q->whereIn('id', $listingIds);
+            if ($useMeilisearch) {
+                try {
+                    // Mengambil ID listing yang cocok dari Meilisearch
+                    $listingIds = \App\Models\Listing::search($search)->keys();
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Meilisearch connection failed in admin listings: ' . $e->getMessage());
+                    $meilisearchFailed = true;
+                }
+            }
+
+            $query->where(function($q) use ($search, $normalizedSearch, $listingIds, $useMeilisearch, $meilisearchFailed) {
+                if ($useMeilisearch && !$meilisearchFailed && !empty($listingIds)) {
+                    $q->whereIn('id', $listingIds);
+                } else if ($useMeilisearch && !$meilisearchFailed && empty($listingIds)) {
+                    // Meilisearch worked but found nothing
+                    $q->whereIn('id', [0]); // Force empty result
+                } else {
+                    $operator = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                    $q->where('title', $operator, "%{$search}%")
+                      ->orWhere('description', $operator, "%{$search}%");
+                }
 
                 $q->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
                     $uQuery->where('name', 'like', "%{$search}%")
@@ -495,12 +515,32 @@ class AdminController extends Controller
             $search = $request->search;
             $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
             
-            // Mengambil ID listing yang cocok dari Meilisearch
-            $listingIds = \App\Models\Listing::search($search)->keys();
+            $listingIds = [];
+            $useMeilisearch = config('scout.driver') === 'meilisearch';
+            $meilisearchFailed = false;
 
-            $query->whereHas('listing', function($q) use ($search, $normalizedSearch, $listingIds) {
-                $q->where(function($subQ) use ($search, $normalizedSearch, $listingIds) {
-                    $subQ->whereIn('id', $listingIds);
+            if ($useMeilisearch) {
+                try {
+                    // Mengambil ID listing yang cocok dari Meilisearch
+                    $listingIds = \App\Models\Listing::search($search)->keys();
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Meilisearch connection failed in admin photos: ' . $e->getMessage());
+                    $meilisearchFailed = true;
+                }
+            }
+
+            $query->whereHas('listing', function($q) use ($search, $normalizedSearch, $listingIds, $useMeilisearch, $meilisearchFailed) {
+                $q->where(function($subQ) use ($search, $normalizedSearch, $listingIds, $useMeilisearch, $meilisearchFailed) {
+                    if ($useMeilisearch && !$meilisearchFailed && !empty($listingIds)) {
+                        $subQ->whereIn('id', $listingIds);
+                    } else if ($useMeilisearch && !$meilisearchFailed && empty($listingIds)) {
+                        // Meilisearch worked but found nothing
+                        $subQ->whereIn('id', [0]); // Force empty result
+                    } else {
+                        $operator = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                        $subQ->where('title', $operator, "%{$search}%")
+                             ->orWhere('description', $operator, "%{$search}%");
+                    }
 
                     $subQ->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
                         $uQuery->where('name', 'like', "%{$search}%")

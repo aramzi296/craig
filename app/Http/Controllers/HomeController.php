@@ -12,46 +12,117 @@ class HomeController extends Controller
 
         if ($request->filled('q') && strlen(trim($request->q)) >= 2) {
             $q = $request->q;
-            $scoutQuery = \App\Models\Listing::search($q, function ($meilisearch, $query, $options) {
-                $options['matchingStrategy'] = 'all';
-                return $meilisearch->search($query, $options);
-            })->where('is_active', true);
+            $driver = config('scout.driver');
+            $useMeilisearch = $driver === 'meilisearch';
+            $meilisearchFailed = false;
 
-            if ($request->filled('location')) {
-                $scoutQuery->where('district_id', (int)$request->location);
+            if ($useMeilisearch) {
+                try {
+                    $scoutQuery = \App\Models\Listing::search($q, function ($meilisearch, $query, $options) {
+                        $options['matchingStrategy'] = 'all';
+                        return $meilisearch->search($query, $options);
+                    })->where('is_active', true);
+
+                    if ($request->filled('location')) {
+                        $scoutQuery->where('district_id', (int)$request->location);
+                    }
+
+                    if ($request->filled('category')) {
+                        $category = \App\Models\Category::where('slug', $request->category)->first();
+                        if ($category) {
+                            if ($category->parent_id === null) {
+                                $subCategoryIds = $category->children()->pluck('id')->push($category->id)->toArray();
+                                $scoutQuery->whereIn('categories', $subCategoryIds);
+                            } else {
+                                $scoutQuery->whereIn('categories', [$category->id]);
+                            }
+                        }
+                    }
+
+                    if ($request->has('tags') && is_array($request->tags)) {
+                        $tags = \App\Models\Tag::whereIn('slug', $request->tags)->get();
+                        if ($tags->count() > 0) {
+                            foreach ($tags as $tag) {
+                                $scoutQuery->where('tags', $tag->id);
+                            }
+                        }
+                    } elseif ($request->filled('tag')) {
+                        $tag = \App\Models\Tag::where('slug', $request->tag)->first();
+                        if ($tag) {
+                            $scoutQuery->whereIn('tags', [$tag->id]);
+                        }
+                    }
+
+                    $scoutQuery->query(function ($builder) {
+                        $builder->with('district')->notExpired();
+                    });
+
+                    $recentListings = $scoutQuery->paginate(24);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::warning('Meilisearch connection failed, falling back to database: ' . $e->getMessage());
+                    $meilisearchFailed = true;
+                }
             }
 
-            if ($request->filled('category')) {
-                $category = \App\Models\Category::where('slug', $request->category)->first();
-                if ($category) {
-                    if ($category->parent_id === null) {
-                        $subCategoryIds = $category->children()->pluck('id')->push($category->id)->toArray();
-                        $scoutQuery->whereIn('categories', $subCategoryIds);
-                    } else {
-                        $scoutQuery->whereIn('categories', [$category->id]);
+            if (!$useMeilisearch || $meilisearchFailed) {
+                // Database Fallback Search
+                $dbQuery = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+                $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($q);
+
+                $dbQuery->where(function($queryBuilder) use ($q, $normalizedSearch) {
+                    // Try to use ilike if pgsql, else like
+                    $operator = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                    $queryBuilder->where('title', $operator, "%{$q}%")
+                                 ->orWhere('description', $operator, "%{$q}%")
+                                 ->orWhereHas('user', function($uQuery) use ($q, $normalizedSearch, $operator) {
+                                     $uQuery->where('name', $operator, "%{$q}%")
+                                            ->orWhere('whatsapp', 'like', "%{$q}%");
+                                     if ($normalizedSearch) {
+                                         $uQuery->orWhere('whatsapp', 'like', "%{$normalizedSearch}%");
+                                     }
+                                 });
+                });
+
+                if ($request->filled('location')) {
+                    $dbQuery->where('district_id', (int)$request->location);
+                }
+
+                if ($request->filled('category')) {
+                    $category = \App\Models\Category::where('slug', $request->category)->first();
+                    if ($category) {
+                        if ($category->parent_id === null) {
+                            $subCategoryIds = $category->children()->pluck('id')->push($category->id);
+                            $dbQuery->whereHas('categories', function($qBuilder) use ($subCategoryIds) {
+                                $qBuilder->whereIn('categories.id', $subCategoryIds);
+                            });
+                        } else {
+                            $dbQuery->whereHas('categories', function($qBuilder) use ($category) {
+                                $qBuilder->where('categories.id', $category->id);
+                            });
+                        }
                     }
                 }
-            }
 
-            if ($request->has('tags') && is_array($request->tags)) {
-                $tags = \App\Models\Tag::whereIn('slug', $request->tags)->get();
-                if ($tags->count() > 0) {
-                    foreach ($tags as $tag) {
-                        $scoutQuery->where('tags', $tag->id);
+                if ($request->has('tags') && is_array($request->tags)) {
+                    $tagSlugs = $request->tags;
+                    $dbQuery->whereHas('tags', function($qBuilder) use ($tagSlugs) {
+                        $qBuilder->whereIn('tags.slug', $tagSlugs);
+                    }, '=', count($tagSlugs));
+                } elseif ($request->filled('tag')) {
+                    $tag = \App\Models\Tag::where('slug', $request->tag)->first();
+                    if ($tag) {
+                        $dbQuery->whereHas('tags', function($qBuilder) use ($tag) {
+                            $qBuilder->where('tags.id', $tag->id);
+                        });
                     }
                 }
-            } elseif ($request->filled('tag')) {
-                $tag = \App\Models\Tag::where('slug', $request->tag)->first();
-                if ($tag) {
-                    $scoutQuery->whereIn('tags', [$tag->id]);
-                }
+
+                $recentListings = $dbQuery->with('district')
+                    ->orderBy('created_at', 'desc')
+                    ->orderBy('is_premium', 'desc')
+                    ->orderBy('listing_rank', 'asc')
+                    ->paginate(24);
             }
-
-            $scoutQuery->query(function ($builder) {
-                $builder->with('district')->notExpired();
-            });
-
-            $recentListings = $scoutQuery->paginate(24);
 
             $cleanQuery = strtolower(trim($q));
             try {
