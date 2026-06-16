@@ -157,20 +157,27 @@
                     <div style="position: relative; width: 150px; height: 150px; border: 2px solid var(--primary); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
                         <img src="{{ $existingFeaturedPhoto->getThumbnailUrl() }}" alt="Featured" style="width: 100%; height: 100%; object-fit: cover;">
                         <div style="position: absolute; bottom: 0; left: 0; right: 0; background: var(--primary); color: white; font-size: 0.7rem; text-align: center; padding: 2px 0; font-weight: 700;">FOTO FITUR</div>
+                        @if(isset($deletePhotoRoute))
+                            <button type="button"
+                                    onclick="if(confirm('Hapus foto fitur ini? Anda harus mengunggah foto fitur baru setelah menghapus yang lama.')) { document.getElementById('delete-photo-{{ $existingFeaturedPhoto->id }}').submit(); }"
+                                    style="position: absolute; top: 5px; right: 5px; background: rgba(239,68,68,0.9); color: white; border: none; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.7rem; z-index: 10;">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        @endif
                     </div>
                 </div>
-            @endif
-            <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*" {{ isset($listing) && $listing ? '' : 'required' }}>
-            <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                @if(isset($existingFeaturedPhoto) && $existingFeaturedPhoto)
-                    Ganti foto fitur utama (opsional).
-                @else
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                    Untuk mengganti foto fitur, silakan <strong>hapus</strong> foto fitur lama terlebih dahulu dengan menekan tombol silang (X) pada foto di atas.
+                </small>
+            @else
+                <input type="file" name="foto_fitur" id="foto_fitur" class="form-control @error('foto_fitur') is-invalid @enderror" accept="image/*" required>
+                <small style="color: var(--text-muted); display: block; margin-top: 8px;">
                     Pilih foto fitur utama (akan muncul di daftar pencarian). <strong style="color: #ef4444;">Wajib diunggah.</strong>
-                @endif
-            </small>
-            @error('foto_fitur')
-                <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
-            @enderror
+                </small>
+                @error('foto_fitur')
+                    <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
+                @enderror
+            @endif
         </div>
     </div>
 
