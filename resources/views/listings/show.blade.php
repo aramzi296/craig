@@ -51,7 +51,7 @@
                          onclick="openLightbox({{ $index }})"
                          onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='scale(1.05)'" 
                          onmouseout="this.style.borderColor='#f1f5f9'; this.style.transform='scale(1)'">
-                        <img src="{{ $photo->getThumbnailUrl() }}" style="width: 100%; height: 100%; object-fit: cover;">
+                        <img src="{{ $photo->getUrl() }}" style="width: 100%; height: 100%; object-fit: cover;">
                     </div>
                     @endforeach
                 </div>
