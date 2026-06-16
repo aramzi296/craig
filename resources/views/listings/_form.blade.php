@@ -198,6 +198,25 @@
         </div>
     </div>
     @endguest
+
+    @if(isset($isAdminForm) && $isAdminForm)
+    <div class="form-group-horizontal">
+        <label>Nomor WhatsApp Pengiklan</label>
+        <div class="form-input-side">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" class="form-control" value="{{ $listing->user->whatsapp ?? '-' }}" readonly style="background-color: #f1f5f9; cursor: not-allowed; color: #64748b; font-weight: 600;">
+                @if(isset($listing->user) && $listing->user->whatsapp)
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $listing->user->whatsapp) }}" target="_blank" class="btn btn-success" style="background-color: #25D366; border-color: #25D366; color: white; display: flex; align-items: center; justify-content: center; padding: 0 15px; border-radius: 8px; text-decoration: none;">
+                    <i class="fa-brands fa-whatsapp"></i>
+                </a>
+                @endif
+            </div>
+            <small style="color: var(--text-muted); display: block; margin-top: 8px;">
+                Nomor WhatsApp ini diambil dari data pengguna. Jika ingin diubah, ubah dari menu edit pengguna.
+            </small>
+        </div>
+    </div>
+    @endif
 </div>
 
 <!-- Section 2: Informasi Pendukung (Opsional) -->

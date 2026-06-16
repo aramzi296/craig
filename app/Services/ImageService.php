@@ -200,25 +200,58 @@ class ImageService
             $r2Url = rtrim(config('filesystems.disks.r2.url'), '/');
             $relativePath = '';
             
+            $tempDir = storage_path('app/private/temp_compress');
+            if (!file_exists($tempDir)) {
+                mkdir($tempDir, 0755, true);
+            }
+            
             if (str_starts_with($photo->photo_path, $r2Url)) {
                 $isR2 = true;
                 $relativePath = ltrim(str_replace($r2Url, '', $photo->photo_path), '/');
                 
-                if (!Storage::disk('r2')->exists($relativePath)) {
+                if (Storage::disk('r2')->exists($relativePath)) {
+                    // Download file locally to private storage temp
+                    $content = Storage::disk('r2')->get($relativePath);
+                    
+                    $extension = File::extension($relativePath) ?: 'jpg';
+                    $filename = File::name($relativePath);
+                    $fullPath = $tempDir . DIRECTORY_SEPARATOR . $filename . '.' . $extension;
+                    File::put($fullPath, $content);
+                } else {
+                    // Fallback to HTTP download
+                    try {
+                        $content = @file_get_contents($photo->photo_path);
+                        if ($content !== false) {
+                            $extension = File::extension($relativePath) ?: 'jpg';
+                            $filename = File::name($relativePath);
+                            if (empty($filename)) $filename = uniqid();
+                            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $filename . '.' . $extension;
+                            File::put($fullPath, $content);
+                        } else {
+                            continue;
+                        }
+                    } catch (\Exception $e) {
+                        continue;
+                    }
+                }
+            } elseif (str_starts_with($photo->photo_path, 'http://') || str_starts_with($photo->photo_path, 'https://')) {
+                // External URL
+                $isR2 = true; // We will upload this to R2 after compressing
+                $relativePath = 'upload/' . date('Y') . '/' . date('m') . '/' . date('d') . '/' . uniqid() . '.jpg';
+                
+                try {
+                    $content = @file_get_contents($photo->photo_path);
+                    if ($content !== false) {
+                        $extension = 'jpg';
+                        $filename = uniqid();
+                        $fullPath = $tempDir . DIRECTORY_SEPARATOR . $filename . '.' . $extension;
+                        File::put($fullPath, $content);
+                    } else {
+                        continue;
+                    }
+                } catch (\Exception $e) {
                     continue;
                 }
-                
-                // Download file locally to private storage temp
-                $content = Storage::disk('r2')->get($relativePath);
-                $tempDir = storage_path('app/private/temp_compress');
-                if (!file_exists($tempDir)) {
-                    mkdir($tempDir, 0755, true);
-                }
-                
-                $extension = File::extension($relativePath) ?: 'jpg';
-                $filename = File::name($relativePath);
-                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $filename . '.' . $extension;
-                File::put($fullPath, $content);
             } else {
                 $fullPath = storage_path('app/public/' . ltrim($photo->photo_path, '/'));
                 
