@@ -187,11 +187,8 @@ class ImageService
     public function compressLargeImages(int $limitKB = 100, int $maxItems = 100)
     {
         $limitBytes = $limitKB * 1024;
-        $photos = ListingPhoto::where(function($query) use ($limitBytes) {
-                $query->where('file_size', '>', $limitBytes)
-                      ->orWhere('file_size', 0)
-                      ->orWhereNull('file_size');
-            })
+        // Fetch images that haven't been compressed yet
+        $photos = ListingPhoto::where('photo_path', 'NOT LIKE', '%_compressed.webp')
             ->take($maxItems)
             ->get();
         
@@ -211,14 +208,6 @@ class ImageService
                     continue;
                 }
                 
-                $actualSize = Storage::disk('r2')->size($relativePath);
-                if ($actualSize <= $limitBytes) {
-                    if ($photo->file_size != $actualSize) {
-                        $photo->update(['file_size' => $actualSize]);
-                    }
-                    continue;
-                }
-                
                 // Download file locally to private storage temp
                 $content = Storage::disk('r2')->get($relativePath);
                 $tempDir = storage_path('app/private/temp_compress');
@@ -234,14 +223,6 @@ class ImageService
                 $fullPath = storage_path('app/public/' . ltrim($photo->photo_path, '/'));
                 
                 if (!File::exists($fullPath)) {
-                    continue;
-                }
-                
-                $actualSize = File::size($fullPath);
-                if ($actualSize <= $limitBytes) {
-                    if ($photo->file_size != $actualSize) {
-                        $photo->update(['file_size' => $actualSize]);
-                    }
                     continue;
                 }
             }
