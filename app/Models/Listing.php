@@ -142,6 +142,20 @@ class Listing extends Model
         $whatsapp = $this->user ? $this->user->whatsapp : null;
         $whatsapp0 = $whatsapp && str_starts_with($whatsapp, '62') ? '0' . substr($whatsapp, 2) : $whatsapp;
 
+        $waSuffixes = [];
+        if ($whatsapp0) {
+            $len = strlen($whatsapp0);
+            for ($i = 0; $i < $len; $i++) {
+                $waSuffixes[] = substr($whatsapp0, $i);
+            }
+        }
+        if ($whatsapp && $whatsapp !== $whatsapp0) {
+            $len = strlen($whatsapp);
+            for ($i = 0; $i < $len; $i++) {
+                $waSuffixes[] = substr($whatsapp, $i);
+            }
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -154,6 +168,7 @@ class Listing extends Model
             'owner_name' => $this->user ? $this->user->name : null,
             'owner_whatsapp' => $whatsapp,
             'owner_whatsapp_0' => $whatsapp0,
+            'owner_whatsapp_suffixes' => $waSuffixes,
         ];
     }
 }
