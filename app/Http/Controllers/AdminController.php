@@ -493,8 +493,24 @@ class AdminController extends Controller
 
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->whereHas('listing', function($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%");
+            $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
+            
+            // Mengambil ID listing yang cocok dari Meilisearch
+            $listingIds = \App\Models\Listing::search($search)->keys();
+
+            $query->whereHas('listing', function($q) use ($search, $normalizedSearch, $listingIds) {
+                $q->where(function($subQ) use ($search, $normalizedSearch, $listingIds) {
+                    $subQ->whereIn('id', $listingIds);
+
+                    $subQ->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
+                        $uQuery->where('name', 'like', "%{$search}%")
+                               ->orWhere('whatsapp', 'like', "%{$search}%");
+
+                        if ($normalizedSearch) {
+                            $uQuery->orWhere('whatsapp', 'like', "%{$normalizedSearch}%");
+                        }
+                    });
+                });
             });
         }
 
