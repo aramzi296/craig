@@ -459,7 +459,7 @@ class AdminController extends Controller
             }
         }
 
-        return redirect()->route('admin.listings')->with('success', 'Listing berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Listing berhasil diperbarui.');
     }
 
     public function destroyListing($id)

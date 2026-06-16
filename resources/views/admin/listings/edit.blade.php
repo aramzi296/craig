@@ -6,9 +6,14 @@
         <h1 style="font-size: 2rem; font-weight: 700; margin: 0;">Edit Usaha</h1>
         <p style="color: var(--text-muted); margin: 5px 0 0 0;">Mengubah informasi usaha: <strong>{{ $listing->title }}</strong></p>
     </div>
-    <a href="{{ route('admin.listings') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
-        <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar
-    </a>
+    <div style="display: flex; gap: 10px;">
+        <a href="{{ route('admin.listings') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar
+        </a>
+        <a href="{{ route('listings.show', ['slug' => $listing->slug]) }}" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-eye"></i> Lihat Profil
+        </a>
+    </div>
 </div>
 
 @if ($errors->any())

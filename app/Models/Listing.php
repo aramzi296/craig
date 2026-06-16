@@ -139,6 +139,9 @@ class Listing extends Model
 
     public function toSearchableArray()
     {
+        $whatsapp = $this->user ? $this->user->whatsapp : null;
+        $whatsapp0 = $whatsapp && str_starts_with($whatsapp, '62') ? '0' . substr($whatsapp, 2) : $whatsapp;
+
         return [
             'id' => $this->id,
             'title' => $this->title,
@@ -149,7 +152,8 @@ class Listing extends Model
             'categories' => $this->categories->pluck('id')->toArray(),
             'tags' => $this->tags->pluck('id')->toArray(),
             'owner_name' => $this->user ? $this->user->name : null,
-            'owner_whatsapp' => $this->user ? $this->user->whatsapp : null,
+            'owner_whatsapp' => $whatsapp,
+            'owner_whatsapp_0' => $whatsapp0,
         ];
     }
 }
