@@ -6,13 +6,20 @@
         <h1 style="font-size: 2rem; font-weight: 700; margin: 0;">Edit Usaha</h1>
         <p style="color: var(--text-muted); margin: 5px 0 0 0;">Mengubah informasi usaha: <strong>{{ $listing->title }}</strong></p>
     </div>
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 10px; align-items: center;">
         <a href="{{ route('admin.listings') }}" class="btn btn-secondary" style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-arrow-left"></i> Kembali ke Daftar
         </a>
         <a href="{{ route('listings.show', ['slug' => $listing->slug]) }}" target="_blank" class="btn btn-primary" style="display: flex; align-items: center; gap: 8px;">
             <i class="fa-solid fa-eye"></i> Lihat Profil
         </a>
+        <form action="{{ route('admin.listings.destroy', $listing->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus listing ini?');" style="margin: 0;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn" style="display: flex; align-items: center; gap: 8px; background: #ef4444; color: white; border: none; cursor: pointer;">
+                <i class="fa-solid fa-trash"></i> Hapus
+            </button>
+        </form>
     </div>
 </div>
 
