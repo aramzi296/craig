@@ -181,9 +181,9 @@
                     @endphp
 
                     @if($canSeeContact)
-                        <a href="{{ route('listings.whatsapp', $listing->id) }}" target="_blank" class="btn-detail btn-detail-whatsapp">
-                            <i class="fa-brands fa-whatsapp"></i> Hubungi WhatsApp
-                        </a>
+                        <button type="button" id="btn-show-wa" onclick="showWhatsappNumber({{ $listing->id }})" class="btn-detail btn-detail-whatsapp">
+                            <i class="fa-brands fa-whatsapp"></i> Tampilkan WhatsApp
+                        </button>
                     @elseif($listing->whatsapp_visibility == 1)
                         <a href="{{ route('login') }}" class="btn-detail btn-detail-sky">
                             <i class="fa-solid fa-right-to-bracket"></i> Login untuk Chat
@@ -765,5 +765,41 @@
             closeReportModal();
         }
     };
+
+    async function showWhatsappNumber(listingId) {
+        const btn = document.getElementById('btn-show-wa');
+        const originalContent = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Memuat...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`/listing/${listingId}/whatsapp`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Replace button with an actual link showing the number
+                const link = document.createElement('a');
+                link.href = data.url;
+                link.target = '_blank';
+                link.className = 'btn-detail btn-detail-whatsapp';
+                link.innerHTML = `<i class="fa-brands fa-whatsapp"></i> ${data.whatsapp}`;
+                
+                btn.parentNode.replaceChild(link, btn);
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Gagal memuat';
+                setTimeout(() => { btn.innerHTML = originalContent; btn.disabled = false; }, 2000);
+            }
+        } catch (error) {
+            console.error('Error fetching WA number:', error);
+            btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Terjadi kesalahan';
+            setTimeout(() => { btn.innerHTML = originalContent; btn.disabled = false; }, 2000);
+        }
+    }
 </script>
 @endsection

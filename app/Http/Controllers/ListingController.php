@@ -497,6 +497,13 @@ class ListingController extends Controller
         $message = "Saya membaca profil Anda di " . config('app.name') . " dengan judul: " . $listing->title . ".";
         $url = "https://wa.me/" . $listing->user->whatsapp . "?text=" . urlencode($message);
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'whatsapp' => $listing->user->whatsapp,
+                'url' => $url,
+            ]);
+        }
+
         return redirect()->away($url);
     }
 }
