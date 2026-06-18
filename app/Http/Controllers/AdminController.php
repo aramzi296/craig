@@ -1565,11 +1565,13 @@ class AdminController extends Controller
             return back()->withErrors(['json_data' => 'Format JSON tidak valid: ' . json_last_error_msg()])->withInput();
         }
 
+        // Cek dukungan untuk key 'nomor_wa' atau 'nomor_whatsapp'
+        $nomorWaInput = $decoded['nomor_wa'] ?? $decoded['nomor_whatsapp'] ?? null;
+
         // Validate required keys in decoded JSON
         $requiredKeys = ['judul', 'alamat', 'keterangan_usaha'];
-        if (!empty($decoded['nomor_wa'])) {
+        if (!empty($nomorWaInput)) {
             $requiredKeys[] = 'nama';
-            $requiredKeys[] = 'nomor_wa';
         }
         foreach ($requiredKeys as $key) {
             if (empty($decoded[$key])) {
@@ -1579,9 +1581,8 @@ class AdminController extends Controller
 
         // Check and normalize WhatsApp if provided
         $normalizedWa = null;
-        if (!empty($decoded['nomor_wa'])) {
-            $nomorWa = $decoded['nomor_wa'];
-            $normalizedWa = \App\Models\User::normalizeWhatsappNumber($nomorWa);
+        if (!empty($nomorWaInput)) {
+            $normalizedWa = \App\Models\User::normalizeWhatsappNumber($nomorWaInput);
             if (!$normalizedWa) {
                 return back()->withErrors(['json_data' => 'Nomor WhatsApp di dalam JSON tidak valid.'])->withInput();
             }
