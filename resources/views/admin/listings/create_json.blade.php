@@ -49,12 +49,15 @@
             </div>
 
             <div class="form-group-horizontal" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
-                <label for="foto" style="font-weight: 700; color: var(--text); font-size: 0.95rem;">Foto Fitur Utama <span style="color: #ef4444;">*</span></label>
-                <input type="file" name="foto" id="foto" class="form-control @error('foto') is-invalid @enderror" accept="image/*" style="padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;" required>
+                <label for="foto" style="font-weight: 700; color: var(--text); font-size: 0.95rem;">Foto <span style="color: #ef4444;">*</span></label>
+                <input type="file" name="foto[]" id="foto" class="form-control @error('foto') is-invalid @enderror @error('foto.*') is-invalid @enderror" accept="image/*" multiple style="padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box;" required>
                 <small style="color: var(--text-muted); display: block; margin-top: 5px;">
-                    Pilih foto fitur utama untuk listing (format: JPG, JPEG, PNG, WEBP, maks 10MB).
+                    Pilih foto untuk listing (format: JPG, JPEG, PNG, WEBP, maks 10MB per file). Foto pertama yang dipilih akan otomatis dijadikan foto fitur utama.
                 </small>
                 @error('foto')
+                    <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
+                @enderror
+                @error('foto.*')
                     <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>

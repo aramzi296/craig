@@ -1552,7 +1552,8 @@ class AdminController extends Controller
     {
         $request->validate([
             'json_data' => 'required|string',
-            'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'foto' => 'required|array|min:1',
+            'foto.*' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'website' => 'nullable|string|max:255',
             'facebook' => 'nullable|string|max:255',
         ]);
@@ -1591,20 +1592,22 @@ class AdminController extends Controller
             }
         }
 
-        $fileDetails = null;
+        $fileDetails = [];
         if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
+            $files = $request->file('foto');
             $tempDir = storage_path('app/private/temp_uploads');
             if (!file_exists($tempDir)) { 
                 mkdir($tempDir, 0777, true); 
             }
-            $fileName = uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move($tempDir, $fileName);
-            $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
-            $fileDetails = [
-                'fullPath' => $fullPath,
-                'fileName' => $fileName,
-            ];
+            foreach ($files as $index => $file) {
+                $fileName = uniqid() . '_' . $index . '.' . $file->getClientOriginalExtension();
+                $file->move($tempDir, $fileName);
+                $fullPath = $tempDir . DIRECTORY_SEPARATOR . $fileName;
+                $fileDetails[] = [
+                    'fullPath' => $fullPath,
+                    'fileName' => $fileName,
+                ];
+            }
         }
 
         $website = $request->input('website');
@@ -1670,8 +1673,15 @@ class AdminController extends Controller
             $listingModel = $result[1];
 
             // Upload Foto after transaction commits successfully
-            if ($fileDetails) {
-                ProcessListingImageUpload::dispatchSync($fileDetails['fullPath'], $listingModel->id, 'foto_fitur', $fileDetails['fileName']);
+            if (!empty($fileDetails)) {
+                $featurePhoto = $fileDetails[0];
+                ProcessListingImageUpload::dispatchSync($featurePhoto['fullPath'], $listingModel->id, 'foto_fitur', $featurePhoto['fileName']);
+                
+                // Process the rest as gallery photos
+                for ($i = 1; $i < count($fileDetails); $i++) {
+                    $galeriPhoto = $fileDetails[$i];
+                    ProcessListingImageUpload::dispatchSync($galeriPhoto['fullPath'], $listingModel->id, 'galeri', $galeriPhoto['fileName']);
+                }
             }
 
             // Trigger tag generation webhook
@@ -1696,9 +1706,13 @@ class AdminController extends Controller
             }
 
         } catch (\Exception $e) {
-            // If transaction failed but file was moved, cleanup
-            if ($fileDetails && file_exists($fileDetails['fullPath'])) {
-                @unlink($fileDetails['fullPath']);
+            // If transaction failed but files were moved, cleanup
+            if (!empty($fileDetails)) {
+                foreach ($fileDetails as $fd) {
+                    if (file_exists($fd['fullPath'])) {
+                        @unlink($fd['fullPath']);
+                    }
+                }
             }
             \Illuminate\Support\Facades\Log::error("Gagal memproses Listing By JSON: " . $e->getMessage());
             return back()->with('error', 'Terjadi kesalahan sistem saat menyimpan data: ' . $e->getMessage())->withInput();
