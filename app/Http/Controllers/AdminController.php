@@ -1648,12 +1648,21 @@ class AdminController extends Controller
                     $user = auth()->user();
                 }
 
+                $districtId = null;
+                if (!empty($decoded['kecamatan'])) {
+                    $district = \App\Models\District::whereRaw('LOWER(name) = ?', [strtolower(trim($decoded['kecamatan']))])->first();
+                    if ($district) {
+                        $districtId = $district->id;
+                    }
+                }
+
                 // Create listing
                 $listingData = [
                     'user_id' => $user->id,
                     'title' => trim($decoded['judul']),
                     'description' => trim($decoded['keterangan_usaha']),
                     'address' => trim($decoded['alamat']),
+                    'district_id' => $districtId,
                     'slug' => \Illuminate\Support\Str::slug(trim($decoded['judul']) . '-' . uniqid()),
                     'is_active' => \DB::raw('true'),
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
