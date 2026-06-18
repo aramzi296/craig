@@ -33,14 +33,15 @@
             <div class="form-group-horizontal" style="margin-top: 25px; display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
                 <label for="json_data" style="font-weight: 700; color: var(--text); font-size: 0.95rem;">Payload JSON <span style="color: #ef4444;">*</span></label>
                 <textarea name="json_data" id="json_data" rows="12" class="form-control @error('json_data') is-invalid @enderror" style="font-family: monospace; font-size: 0.9rem; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; width: 100%; box-sizing: border-box; background: #f8fafc;" placeholder='{
-  "judul": "Jasa Tukang Bangunan Batam",
-  "nama": "Mitro Sanjay",
-  "alamat": "Batam",
-  "keterangan_usaha": "Melayani jasa pertukangan dan renovasi bangunan, meliputi pembangunan rumah dari nol, pembuatan dapur dan meja dapur, penyambungan rumah, pembuatan kamar mandi, pembuatan teras beserta kanopi, pembuatan septic tank, pemasangan plafon PVC, plester dan aci, serta pemasangan pipa/plumbing.",
-  "nomor_wa": "6285789173762"
+  "judul": "Rental Mobil Batam Terpercaya - Q Auto Rent Car & Driver",
+  "nama": "Rental mobil batam",
+  "alamat": "ruko tanah mas blok A no 1, Batam, Indonesia, 29430",
+  "keterangan_usaha": "TRANSPORTASI SERVICE : Rental mobil + lepas kunci...",
+  "nomor_wa": "6281261012334",
+  "referensi": "[https://www.facebook.com/Qautorentcarbatam1](https://www.facebook.com/Qautorentcarbatam1)"
 }' required>{{ old('json_data') }}</textarea>
                 <small style="color: var(--text-muted); display: block; margin-top: 5px;">
-                    Pastikan JSON menggunakan format yang valid dengan key wajib: <code>judul</code>, <code>alamat</code>, dan <code>keterangan_usaha</code>. Sertakan <code>nomor_wa</code> dan <code>nama</code> jika ingin membuat akun pengguna baru. Jika dikosongkan, postingan akan dibuat menggunakan akun admin Anda.
+                    Pastikan JSON menggunakan format yang valid dengan key wajib: <code>judul</code>, <code>alamat</code>, dan <code>keterangan_usaha</code>. Sertakan <code>nomor_wa</code> dan <code>nama</code> jika ingin membuat akun pengguna baru. Key <code>referensi</code> dapat digunakan untuk otomatis mengisi data tautan.
                 </small>
                 @error('json_data')
                     <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>

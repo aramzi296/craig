@@ -316,7 +316,7 @@ class AdminController extends Controller
             'district_id' => 'nullable|exists:districts,id',
             'subdistrict_id' => 'nullable|exists:subdistricts,id',
             'address' => 'required|string|max:255',
-            'user_id' => 'required|exists:users,id',
+            'user_id' => 'required|string',
             'website' => 'nullable|url|max:255',
             'facebook' => 'nullable|url|max:255',
             'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
@@ -327,6 +327,35 @@ class AdminController extends Controller
 
         $rawTags = $data['tags'] ?? null;
         unset($data['tags']);
+
+        $userIdInput = $data['user_id'];
+        $user = \App\Models\User::find($userIdInput);
+        
+        if (!$user) {
+            $normalizedWa = \App\Models\User::normalizeWhatsappNumber($userIdInput);
+            if (!$normalizedWa) {
+                return back()->withErrors(['user_id' => 'Nomor WhatsApp tidak valid.'])->withInput();
+            }
+            
+            $existingUser = \App\Models\User::where('whatsapp', $normalizedWa)->first();
+            if ($existingUser) {
+                $data['user_id'] = $existingUser->id;
+            } else {
+                $randomSuffix = rand(100, 999);
+                $autoEmail = $normalizedWa . '+' . $randomSuffix . '@sebatam.com';
+                $randomPassword = \Illuminate\Support\Str::random(16);
+
+                $newUser = \App\Models\User::create([
+                    'name' => 'User ' . $normalizedWa,
+                    'whatsapp' => $normalizedWa,
+                    'email' => $autoEmail,
+                    'password' => \Illuminate\Support\Facades\Hash::make($randomPassword),
+                    'is_verified' => \DB::raw('true'),
+                    'ads_quota' => get_setting('jumlah_iklan_user_default', 1),
+                ]);
+                $data['user_id'] = $newUser->id;
+            }
+        }
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         
@@ -1580,6 +1609,20 @@ class AdminController extends Controller
 
         $website = $request->input('website');
         $facebook = $request->input('facebook');
+
+        if (!empty($decoded['referensi'])) {
+            $ref = trim($decoded['referensi']);
+            // If it matches markdown link [text](url), extract url
+            if (preg_match('/\]\((.*?)\)/', $ref, $matches)) {
+                $ref = $matches[1];
+            }
+            
+            if (stripos($ref, 'facebook') !== false) {
+                $facebook = $facebook ?: $ref;
+            } else {
+                $website = $website ?: $ref;
+            }
+        }
 
         try {
             $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa, $website, $facebook) {

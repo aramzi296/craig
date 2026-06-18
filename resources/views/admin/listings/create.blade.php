@@ -42,7 +42,7 @@
                             </option>
                         @endforeach
                     </select>
-                    <small class="text-muted" style="display: block; margin-top: 5px;">Tentukan pengguna terdaftar yang memiliki profil usaha ini.</small>
+                    <small class="text-muted" style="display: block; margin-top: 5px;">Ketik nama/nomor WA pengguna terdaftar, atau ketik nomor WA baru untuk membuat akun otomatis.</small>
                     @error('user_id')
                         <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
                     @enderror
@@ -50,7 +50,7 @@
             </div>
 
             <div class="form-group-horizontal">
-                <label for="title">Nama Usaha <span style="color: #ef4444;">*</span></label>
+                <label for="title">Judul <span style="color: #ef4444;">*</span></label>
                 <div class="form-input-side">
                     <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" value="{{ old('title') }}" placeholder="Contoh: Bengkel Motor Berkah Jaya" required>
                     @error('title')
@@ -367,6 +367,22 @@
         $('#user_id').select2({
             placeholder: 'Ketik nama atau nomor WA pengguna...',
             minimumInputLength: 2,
+            tags: true,
+            createTag: function (params) {
+                var term = $.trim(params.term);
+                if (term === '') {
+                    return null;
+                }
+                // Only allow numbers for new WA tag
+                if (!/^\d+$/.test(term)) {
+                    return null;
+                }
+                return {
+                    id: term,
+                    text: term + ' (Buat Akun Baru)',
+                    newTag: true
+                }
+            },
             ajax: {
                 url: "{{ route('admin.users.search') }}",
                 dataType: 'json',
