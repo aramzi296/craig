@@ -3,6 +3,18 @@
 @section('content')
 <div class="container listing-detail-container" style="padding-top: 20px;">
     <div style="max-width: 800px; margin-left: 0;">
+        <!-- Search Form -->
+        <div style="margin-bottom: 25px;">
+            <form action="{{ route('home') }}" method="GET" style="display: flex; gap: 10px; width: 100%;">
+                <input type="text" name="q" placeholder="Cari layanan, toko, atau usaha lainnya di Batam..." 
+                    style="flex: 1; padding: 12px 20px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; outline: none; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='#0ea5e9'" onblur="this.style.borderColor='#e2e8f0'">
+                <button type="submit" style="padding: 12px 24px; border-radius: 12px; background: #0ea5e9; color: white; border: none; font-weight: 700; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='#0284c7'" onmouseout="this.style.background='#0ea5e9'">
+                    <i class="fa-solid fa-magnifying-glass"></i> Cari
+                </button>
+            </form>
+        </div>
+
         <!-- Breadcrumbs -->
         @php
             $category = $listing->categories->first();
