@@ -11,12 +11,13 @@ class Listing extends Model
     protected $fillable = [
         'user_id', 'district_id', 'subdistrict_id', 'title', 'slug', 'activation_code', 'description', 
         'address', 'price', 'is_featured', 'is_premium', 'is_active', 'features', 
-        'whatsapp_visibility', 'comment_visibility', 'expires_at', 'website',
+        'whatsapp_visibility', 'comment_visibility', 'expires_at', 'website', 'meta',
         'listing_rank',
     ];
 
     protected $casts = [
         'features' => 'array',
+        'meta' => 'array',
         'is_featured' => 'boolean',
         'is_premium' => 'boolean',
         'is_active' => 'boolean',

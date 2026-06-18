@@ -68,6 +68,20 @@
                     <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
                 @enderror
             </div>
+
+            <div class="form-group-horizontal" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px;">
+                <label for="facebook" style="font-weight: 700; color: var(--text); font-size: 0.95rem;">Facebook <span style="color: var(--text-muted); font-weight: normal;">(Opsional)</span></label>
+                <div style="display: flex; align-items: center; border: 1px solid #e2e8f0; border-radius: 12px; background: #fff; overflow: hidden;">
+                    <span style="padding: 12px 15px; background: #f8fafc; border-right: 1px solid #e2e8f0;"><i class="fa-brands fa-facebook" style="color: #1877F2; font-size: 1.2rem;"></i></span>
+                    <input type="text" name="facebook" id="facebook" class="form-control @error('facebook') is-invalid @enderror" value="{{ old('facebook') }}" style="padding: 12px 15px; border: none; width: 100%; box-sizing: border-box; outline: none;" placeholder="https://facebook.com/namahalaman">
+                </div>
+                <small style="color: var(--text-muted); display: block; margin-top: 5px;">
+                    Tautan ke halaman Facebook bisnis.
+                </small>
+                @error('facebook')
+                    <div class="invalid-feedback" style="display: block; color: #ef4444; font-size: 0.85rem; margin-top: 5px;">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div style="display: flex; gap: 15px; margin-top: 40px; justify-content: flex-end; border-top: 1px solid var(--border); padding-top: 30px;">

@@ -272,6 +272,20 @@
             </div>
 
             <div class="form-group-horizontal">
+                <label for="facebook">Link Facebook</label>
+                <div class="form-input-side">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: #f8fafc; border-right: none;"><i class="fa-brands fa-facebook" style="color: #1877F2; font-size: 1.2rem;"></i></span>
+                        <input type="url" name="facebook" id="facebook" class="form-control @error('facebook') is-invalid @enderror" style="border-left: none;" value="{{ old('facebook') }}" placeholder="https://facebook.com/namahalaman">
+                    </div>
+                    <small class="text-muted" style="display: block; margin-top: 5px;">Tautan ke halaman Facebook bisnis.</small>
+                    @error('facebook')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="form-group-horizontal">
                 <label for="comment_visibility">Kolom Komentar</label>
                 <div class="form-input-side">
                     <select name="comment_visibility" id="comment_visibility" class="form-control">

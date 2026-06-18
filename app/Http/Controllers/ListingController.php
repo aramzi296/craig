@@ -69,6 +69,7 @@ class ListingController extends Controller
             'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
             'ad_package' => 'required|in:standard,premium',
         ];
 
@@ -140,6 +141,14 @@ class ListingController extends Controller
         if ($isPremiumPackage) {
             $data['is_premium'] = \DB::raw('true');
         }
+
+        $meta = [];
+        if (!empty($data['website'])) $meta['website'] = $data['website'];
+        if (!empty($data['facebook'])) $meta['facebook'] = $data['facebook'];
+        
+        $data['meta'] = $meta;
+        $data['website'] = null;
+        unset($data['facebook']);
 
         $listing = \App\Models\Listing::create($data);
 
@@ -268,6 +277,7 @@ class ListingController extends Controller
             'galeri.*' => 'image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
             'comment_visibility' => 'nullable|integer|in:0,1,2',
             'website' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
         ], [
             'foto_fitur.image' => 'File harus berupa gambar.',
             'foto_fitur.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
@@ -280,6 +290,17 @@ class ListingController extends Controller
         if ($data['title'] !== $listing->title) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         }
+
+        $meta = $listing->meta ?? [];
+        if (array_key_exists('website', $data)) {
+            $meta['website'] = $data['website'];
+            $data['website'] = null;
+        }
+        if (array_key_exists('facebook', $data)) {
+            $meta['facebook'] = $data['facebook'];
+            unset($data['facebook']);
+        }
+        $data['meta'] = $meta;
 
         $listing->update($data);
 

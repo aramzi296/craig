@@ -318,6 +318,7 @@ class AdminController extends Controller
             'address' => 'required|string|max:255',
             'user_id' => 'required|exists:users,id',
             'website' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
             'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
@@ -334,6 +335,14 @@ class AdminController extends Controller
         $data['expires_at'] = now()->addDays(10);
         $data['activation_code'] = (string) random_int(100000, 999999);
         $data['whatsapp_visibility'] = 2;
+
+        $meta = [];
+        if (!empty($data['website'])) $meta['website'] = $data['website'];
+        if (!empty($data['facebook'])) $meta['facebook'] = $data['facebook'];
+        
+        $data['meta'] = $meta;
+        $data['website'] = null;
+        unset($data['facebook']);
 
         $listing = \App\Models\Listing::create($data);
 
@@ -421,6 +430,7 @@ class AdminController extends Controller
             'subdistrict_id' => 'nullable|exists:subdistricts,id',
             'address' => 'required|string|max:255',
             'website' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
             'foto_fitur' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'galeri' => 'nullable|array',
             'galeri.*' => 'image|mimes:jpeg,png,jpg,webp|max:10240',
@@ -433,6 +443,17 @@ class AdminController extends Controller
         if ($data['title'] !== $listing->title) {
             $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         }
+
+        $meta = $listing->meta ?? [];
+        if (array_key_exists('website', $data)) {
+            $meta['website'] = $data['website'];
+            $data['website'] = null;
+        }
+        if (array_key_exists('facebook', $data)) {
+            $meta['facebook'] = $data['facebook'];
+            unset($data['facebook']);
+        }
+        $data['meta'] = $meta;
 
         $listing->update($data);
 
@@ -1504,6 +1525,7 @@ class AdminController extends Controller
             'json_data' => 'required|string',
             'foto' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'website' => 'nullable|string|max:255',
+            'facebook' => 'nullable|string|max:255',
         ]);
 
         $jsonData = trim($request->input('json_data'));
@@ -1557,9 +1579,10 @@ class AdminController extends Controller
         }
 
         $website = $request->input('website');
+        $facebook = $request->input('facebook');
 
         try {
-            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa, $website) {
+            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($decoded, $normalizedWa, $website, $facebook) {
                 if ($normalizedWa) {
                     // Generate automatic email (Match WhatsappBotService logic)
                     $randomSuffix = rand(100, 999);
@@ -1588,7 +1611,10 @@ class AdminController extends Controller
                     'is_active' => \DB::raw('true'),
                     'expires_at' => now()->addDays((int)get_setting('expire_iklan', 30)),
                     'whatsapp_visibility' => 2,
-                    'website' => $website ? trim($website) : null,
+                    'meta' => [
+                        'website' => $website ? trim($website) : null,
+                        'facebook' => $facebook ? trim($facebook) : null,
+                    ],
                 ];
 
                 $listing = \App\Models\Listing::create($listingData);

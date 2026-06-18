@@ -404,14 +404,28 @@
         </div>
     </div>
 
-    {{-- Website field (opsional) --}}
+    {{-- Website & Facebook field (opsional) --}}
     @if(isset($showWebsite) && $showWebsite)
     <div class="form-group-horizontal">
         <label for="website">Link Website</label>
         <div class="form-input-side">
-            <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->website ?? '') }}" placeholder="https://example.com">
+            <input type="url" name="website" id="website" class="form-control @error('website') is-invalid @enderror" value="{{ old('website', $listing->meta['website'] ?? '') }}" placeholder="https://example.com">
             <small class="text-muted">Link website produk, portfolio, atau info lebih lanjut.</small>
             @error('website')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
+    <div class="form-group-horizontal" style="margin-top: 15px;">
+        <label for="facebook">Link Facebook</label>
+        <div class="form-input-side">
+            <div class="input-group">
+                <span class="input-group-text" style="background: #f8fafc; border-right: none;"><i class="fa-brands fa-facebook" style="color: #1877F2; font-size: 1.2rem;"></i></span>
+                <input type="url" name="facebook" id="facebook" class="form-control @error('facebook') is-invalid @enderror" style="border-left: none;" value="{{ old('facebook', $listing->meta['facebook'] ?? '') }}" placeholder="https://facebook.com/namahalaman">
+            </div>
+            <small class="text-muted" style="display: block; margin-top: 5px;">Tautan ke halaman Facebook bisnis Anda.</small>
+            @error('facebook')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
