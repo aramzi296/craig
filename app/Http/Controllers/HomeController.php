@@ -118,7 +118,7 @@ class HomeController extends Controller
                 }
 
                 $recentListings = $dbQuery->with('district')
-                    ->orderBy('created_at', 'desc')
+                    ->orderBy('updated_at', 'desc')
                     ->orderBy('is_premium', 'desc')
                     ->orderBy('listing_rank', 'asc')
                     ->paginate(24);
@@ -247,7 +247,7 @@ class HomeController extends Controller
             }
             
             $recentListings = $query->with('district')
-                ->orderBy('created_at', 'desc')
+                ->orderBy('updated_at', 'desc')
                 ->orderBy('is_premium', 'desc')
                 ->orderBy('listing_rank', 'asc')
                 ->paginate(24);
@@ -485,7 +485,7 @@ class HomeController extends Controller
             ->where('user_id', $id)
             ->whereRaw('is_active = true')
             ->notExpired()
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->orderBy('is_premium', 'desc')
             ->orderBy('listing_rank', 'asc')
             ->paginate(24);
