@@ -174,6 +174,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/generate-tags', [AdminController::class, 'generateTags'])->name('generate-tags');
         Route::get('/set-category', [AdminController::class, 'setCategory'])->name('set-category');
         Route::post('/clear-category', [AdminController::class, 'clearCategories'])->name('clear-category');
+
+        // Backup Management
+        Route::post('/backup/run', [AdminController::class, 'runBackup'])->name('backup.run');
+        Route::post('/backup/db', [AdminController::class, 'runBackupDb'])->name('backup.db');
+        Route::post('/backup/files', [AdminController::class, 'runBackupFiles'])->name('backup.files');
+        Route::post('/backup/clean', [AdminController::class, 'runBackupClean'])->name('backup.clean');
     });
 
     // Member Premium Upgrade

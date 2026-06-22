@@ -133,6 +133,37 @@
                     <i class="fa-solid fa-clipboard-list"></i> Template WA
                 </a>
             </li>
+
+            <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
+            
+            <li class="sidebar-item" style="padding: 10px 20px; font-weight: 800; color: #64748b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                Sistem Backup
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin menjalankan backup penuh (Database + File)? Proses ini mungkin memakan waktu.')) document.getElementById('formBackupRun').submit();">
+                    <i class="fa-solid fa-database"></i> Backup Penuh
+                </a>
+                <form id="formBackupRun" action="{{ route('admin.backup.run') }}" method="POST" style="display: none;">@csrf</form>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin menjalankan backup database saja?')) document.getElementById('formBackupDb').submit();">
+                    <i class="fa-solid fa-server"></i> Backup DB Saja
+                </a>
+                <form id="formBackupDb" action="{{ route('admin.backup.db') }}" method="POST" style="display: none;">@csrf</form>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin menjalankan backup file saja? Proses ini mungkin memakan waktu.')) document.getElementById('formBackupFiles').submit();">
+                    <i class="fa-solid fa-file-zipper"></i> Backup File Saja
+                </a>
+                <form id="formBackupFiles" action="{{ route('admin.backup.files') }}" method="POST" style="display: none;">@csrf</form>
+            </li>
+            <li class="sidebar-item">
+                <a href="#" class="sidebar-link" onclick="event.preventDefault(); if(confirm('Yakin ingin membersihkan file backup lama sesuai aturan retensi?')) document.getElementById('formBackupClean').submit();">
+                    <i class="fa-solid fa-broom"></i> Bersihkan Backup Lama
+                </a>
+                <form id="formBackupClean" action="{{ route('admin.backup.clean') }}" method="POST" style="display: none;">@csrf</form>
+            </li>
+
             <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
             <li class="sidebar-item">
                 <a href="{{ route('dashboard') }}" class="sidebar-link">

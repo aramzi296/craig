@@ -1747,5 +1747,43 @@ class AdminController extends Controller
             return back()->with('error', "Terjadi kesalahan saat mengompres gambar: " . $e->getMessage());
         }
     }
-}
+    public function runBackup()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('backup:run');
+            return back()->with('success', 'Backup penuh berhasil dijalankan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menjalankan backup: ' . $e->getMessage());
+        }
+    }
 
+    public function runBackupDb()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('backup:run', ['--only-db' => true]);
+            return back()->with('success', 'Backup database berhasil dijalankan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menjalankan backup database: ' . $e->getMessage());
+        }
+    }
+
+    public function runBackupFiles()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('backup:run', ['--only-files' => true]);
+            return back()->with('success', 'Backup file berhasil dijalankan.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menjalankan backup file: ' . $e->getMessage());
+        }
+    }
+
+    public function runBackupClean()
+    {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('backup:clean');
+            return back()->with('success', 'Pembersihan backup lama berhasil.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal membersihkan backup: ' . $e->getMessage());
+        }
+    }
+}

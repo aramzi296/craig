@@ -9,3 +9,4 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 Schedule::command('app:compress-images')->daily();
+Schedule::command('backup:run --only-db')->dailyAt('01:00');

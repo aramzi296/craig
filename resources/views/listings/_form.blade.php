@@ -302,24 +302,11 @@
     </div>
 
     <div class="form-group-horizontal">
-        <label for="parent_category_id">Kategori Utama</label>
+        <label for="tagify_category">Sub Kategori</label>
         <div class="form-input-side">
-            <select id="parent_category_id" class="form-control" style="height: 48px; border-radius: 8px;">
-                <option value="">Pilih Kategori Utama</option>
-                @foreach($categories as $cat)
-                    <option value="{{ $cat->id }}" {{ old('parent_category_id', isset($listing) && $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : '') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
-                @endforeach
-            </select>
-        </div>
-    </div>
-
-    <div class="form-group-horizontal">
-        <label for="category_id">Sub Kategori</label>
-        <div class="form-input-side">
-            <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror" style="height: 48px; border-radius: 8px;" disabled>
-                <option value="">Pilih Sub Kategori</option>
-            </select>
-            <small style="color: var(--text-muted); display: block; margin-top: 5px;">Pilih Kategori Utama terlebih dahulu untuk memunculkan Sub Kategori.</small>
+            <input type="hidden" name="category_id" id="real_category_id" value="{{ old('category_id', isset($listing) && $listing->categories->first() ? $listing->categories->first()->id : '') }}">
+            <input id="tagify_category" class="form-control @error('category_id') is-invalid @enderror" placeholder="Pilih Sub Kategori...">
+            <small style="color: var(--text-muted); display: block; margin-top: 5px;">Ketik untuk mencari kategori spesifik yang relevan dengan usaha Anda.</small>
             @error('category_id')
                 <div class="invalid-feedback" style="display: block;">{{ $message }}</div>
             @enderror
@@ -328,47 +315,69 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const parentSelect = document.getElementById('parent_category_id');
-            const childSelect = document.getElementById('category_id');
-            const categoryTree = @json($categories);
-
-            function updateChildCategories(selectedParentId, selectedChildId = null) {
-                childSelect.innerHTML = '<option value="">Pilih Sub Kategori</option>';
-                if (!selectedParentId) {
-                    childSelect.disabled = true;
-                    return;
+            const categoryInput = document.getElementById('tagify_category');
+            const realCategoryInput = document.getElementById('real_category_id');
+            
+            @php
+                $allSubcategories = [];
+                foreach($categories as $cat) {
+                    // Include parent name in search strings so users can still search by parent
+                    foreach($cat->children as $child) {
+                        $allSubcategories[] = [
+                            'value' => $child->name,
+                            'id' => $child->id,
+                            'searchBy' => $child->name . ' ' . $cat->name
+                        ];
+                    }
                 }
+            @endphp
+            
+            const subcategories = @json($allSubcategories);
+            const oldCategoryId = realCategoryInput.value;
+            
+            // Set initial value for Tagify if we have an old ID
+            let initialValue = [];
+            if (oldCategoryId) {
+                const found = subcategories.find(s => s.id == oldCategoryId);
+                if (found) {
+                    initialValue = [found];
+                }
+            }
 
-                const parentCat = categoryTree.find(c => c.id == selectedParentId);
-                if (parentCat && parentCat.children && parentCat.children.length > 0) {
-                    parentCat.children.forEach(child => {
-                        const opt = document.createElement('option');
-                        opt.value = child.id;
-                        opt.textContent = child.name;
-                        if (selectedChildId && child.id == selectedChildId) {
-                            opt.selected = true;
+            if (initialValue.length > 0) {
+                categoryInput.value = JSON.stringify(initialValue);
+            }
+
+            const tagifyCat = new Tagify(categoryInput, {
+                whitelist: subcategories,
+                mode: 'select',
+                enforceWhitelist: true,
+                skipInvalid: true,
+                dropdown: {
+                    maxItems: 100,
+                    classname: "tags-look",
+                    enabled: 0,
+                    closeOnSelect: true,
+                    searchKeys: ['value', 'searchBy']
+                }
+            });
+
+            tagifyCat.on('change', function(e) {
+                if(e.detail.value) {
+                    try {
+                        let val = JSON.parse(e.detail.value);
+                        if (val.length > 0) {
+                            realCategoryInput.value = val[0].id;
+                        } else {
+                            realCategoryInput.value = '';
                         }
-                        childSelect.appendChild(opt);
-                    });
-                    childSelect.disabled = false;
+                    } catch (err) {
+                        realCategoryInput.value = '';
+                    }
                 } else {
-                    childSelect.disabled = true;
+                    realCategoryInput.value = '';
                 }
-            }
-
-            if (parentSelect && childSelect) {
-                parentSelect.addEventListener('change', function() {
-                    updateChildCategories(this.value);
-                });
-
-                // Populate on old/initial value if present
-                const oldParent = @json(old('parent_category_id', isset($listing) && $listing->categories->first() ? ($listing->categories->first()->parent_id ?: $listing->categories->first()->id) : ''));
-                const oldChild = @json(old('category_id', isset($listing) && $listing->categories->first() && $listing->categories->first()->parent_id ? $listing->categories->first()->id : ''));
-
-                if (oldParent) {
-                    updateChildCategories(oldParent, oldChild);    
-                }
-            }
+            });
         });
     </script>
 
