@@ -1747,9 +1747,17 @@ class AdminController extends Controller
             return back()->with('error', "Terjadi kesalahan saat mengompres gambar: " . $e->getMessage());
         }
     }
+    private function registerBackupCommands()
+    {
+        $kernel = app(\Illuminate\Contracts\Console\Kernel::class);
+        $kernel->registerCommand(app(\Spatie\Backup\Commands\BackupCommand::class));
+        $kernel->registerCommand(app(\Spatie\Backup\Commands\CleanupCommand::class));
+    }
+
     public function runBackup()
     {
         try {
+            $this->registerBackupCommands();
             \Illuminate\Support\Facades\Artisan::call('backup:run');
             return back()->with('success', 'Backup penuh berhasil dijalankan.');
         } catch (\Exception $e) {
@@ -1760,6 +1768,7 @@ class AdminController extends Controller
     public function runBackupDb()
     {
         try {
+            $this->registerBackupCommands();
             \Illuminate\Support\Facades\Artisan::call('backup:run', ['--only-db' => true]);
             return back()->with('success', 'Backup database berhasil dijalankan.');
         } catch (\Exception $e) {
@@ -1770,6 +1779,7 @@ class AdminController extends Controller
     public function runBackupFiles()
     {
         try {
+            $this->registerBackupCommands();
             \Illuminate\Support\Facades\Artisan::call('backup:run', ['--only-files' => true]);
             return back()->with('success', 'Backup file berhasil dijalankan.');
         } catch (\Exception $e) {
@@ -1780,6 +1790,7 @@ class AdminController extends Controller
     public function runBackupClean()
     {
         try {
+            $this->registerBackupCommands();
             \Illuminate\Support\Facades\Artisan::call('backup:clean');
             return back()->with('success', 'Pembersihan backup lama berhasil.');
         } catch (\Exception $e) {
