@@ -8,30 +8,8 @@
             <p>Silakan masuk ke akun {{ config('app.name') }} Anda</p>
         </div>
 
-        <!-- WhatsApp Method (Recommended) -->
-        <div class="wa-registration-cta" style="background: linear-gradient(135deg, #25d366 0%, #128c7e 100%); padding: 25px; border-radius: 16px; color: white; margin-bottom: 30px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(37, 211, 102, 0.2);">
-            <div style="position: relative; z-index: 2;">
-                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                    <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700;">Login Tanpa Password</h3>
-                </div>
-                <p style="text-align: left; color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4;">
-                    Masuk lebih aman dan cepat menggunakan kode OTP yang dikirim ke WhatsApp Anda.
-                </p>
-                <a href="{{ route('wa-login') }}" class="btn" style="background: white; color: #128c7e; width: 100%; border: none; font-weight: 700; padding: 12px;">
-                    <i class="fab fa-whatsapp" style="margin-right: 8px;"></i> Masuk via WhatsApp
-                </a>
-            </div>
-            <div style="position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 1;"></div>
-        </div>
 
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:25px;color:var(--text-muted);font-size:.85rem;">
-            <div style="flex:1;height:1px;background:var(--border);"></div>
-            <span>ATAU MASUK MANUAL</span>
-            <div style="flex:1;height:1px;background:var(--border);"></div>
-        </div>
+
 
         <form action="{{ route('login') }}" method="POST">
             @csrf

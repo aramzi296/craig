@@ -35,6 +35,8 @@ class User extends Authenticatable
         'profile_photo',
         'ik_file_id',
         'ads_quota',
+        'email_otp',
+        'email_otp_expires_at',
     ];
 
     /**
@@ -48,6 +50,7 @@ class User extends Authenticatable
         'wa_otp1',
         'wa_otp2',
         'wa_login_token',
+        'email_otp',
     ];
 
     /**
@@ -63,9 +66,9 @@ class User extends Authenticatable
             'is_verified'                => 'boolean',
             'is_admin'                   => 'boolean',
             'wa_otp1_expires_at'         => 'datetime',
-
             'wa_otp2_expires_at'         => 'datetime',
             'wa_login_token_expires_at'  => 'datetime',
+            'email_otp_expires_at'       => 'datetime',
         ];
     }
 

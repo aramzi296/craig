@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\LoginOtpMail;
 
 class AuthController extends Controller
 {
@@ -17,19 +19,81 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended('dashboard');
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return back()->withErrors([
+                'email' => 'Email atau password salah.',
+            ])->onlyInput('email');
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        // Generate OTP
+        $otp = sprintf("%06d", mt_rand(1, 999999));
+        
+        $user->update([
+            'email_otp' => Hash::make($otp),
+            'email_otp_expires_at' => now()->addMinutes(10),
+        ]);
+
+        Mail::to($user->email)->send(new LoginOtpMail($otp));
+
+        $request->session()->put('login_user_id', $user->id);
+        $request->session()->put('login_remember', $request->boolean('remember'));
+
+        return redirect()->route('login.otp');
+    }
+
+    public function showOtpForm(Request $request)
+    {
+        if (!$request->session()->has('login_user_id')) {
+            return redirect()->route('login');
+        }
+
+        return view('auth.login-otp');
+    }
+
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'otp' => ['required', 'digits:6'],
+        ], [
+            'otp.required' => 'Kode OTP wajib diisi.',
+            'otp.digits'   => 'Kode OTP harus 6 digit angka.',
+        ]);
+
+        $userId = $request->session()->get('login_user_id');
+        if (!$userId) {
+            return redirect()->route('login')->withErrors(['email' => 'Sesi login telah berakhir.']);
+        }
+
+        $user = User::find($userId);
+
+        if (!$user || !$user->email_otp_expires_at || $user->email_otp_expires_at->isPast()) {
+            if ($user) {
+                $user->update(['email_otp' => null, 'email_otp_expires_at' => null]);
+            }
+            return back()->withErrors(['otp' => 'Kode OTP sudah kedaluwarsa. Silakan login kembali.']);
+        }
+
+        if (!Hash::check($request->otp, $user->email_otp)) {
+            return back()->withErrors(['otp' => 'Kode OTP salah.']);
+        }
+
+        // OTP Valid
+        $user->update(['email_otp' => null, 'email_otp_expires_at' => null]);
+        
+        $remember = $request->session()->pull('login_remember', false);
+        $request->session()->forget('login_user_id');
+
+        Auth::login($user, $remember);
+        $request->session()->regenerate();
+
+        return redirect()->intended('dashboard');
     }
 
     public function showRegister(Request $request)

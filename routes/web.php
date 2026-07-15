@@ -11,7 +11,7 @@ use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Webhooks\WebhookController;
 use App\Http\Controllers\Webhooks\ListingImportWebhookController;
-use App\Http\Controllers\WaLoginController;
+//
 use App\Http\Controllers\Webhooks\GenerateTagsWebhookController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,10 +35,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 
     // ─── WhatsApp OTP Login ────────────────────────────────────────────────
-    // GET  /wa-login → form OTP1 + OTP2
-    // POST /wa-login → verifikasi dan login
-    Route::get('/wa-login', [WaLoginController::class, 'index'])->name('wa-login');
-    Route::post('/wa-login', [WaLoginController::class, 'verify'])->name('wa-login.verify');
+    Route::get('/login/otp', [AuthController::class, 'showOtpForm'])->name('login.otp');
+    Route::post('/login/otp', [AuthController::class, 'verifyOtp'])->name('login.otp.verify');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
