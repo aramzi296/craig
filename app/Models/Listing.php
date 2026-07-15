@@ -138,6 +138,15 @@ class Listing extends Model
         // No longer needed, Scout handles indexing automatically
     }
 
+    public function scopePublicActive($query)
+    {
+        return $query->whereRaw('listings.is_active = true')
+                     ->notExpired()
+                     ->whereHas('user', function($q) {
+                         $q->whereRaw('users.is_active = true');
+                     });
+    }
+
     public function toSearchableArray()
     {
         $whatsapp = $this->user ? $this->user->whatsapp : null;
@@ -170,6 +179,7 @@ class Listing extends Model
             'owner_whatsapp' => $whatsapp,
             'owner_whatsapp_0' => $whatsapp0,
             'owner_whatsapp_suffixes' => $waSuffixes,
+            'user_is_active' => $this->user ? (bool)$this->user->is_active : false,
         ];
     }
 }

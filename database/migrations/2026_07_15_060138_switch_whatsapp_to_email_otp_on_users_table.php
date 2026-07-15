@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             // Drop WhatsApp-related columns
             $table->dropColumn([
-                'whatsapp',
                 'wa_otp1',
                 'wa_otp1_expires_at',
                 'wa_otp2',
@@ -40,7 +39,6 @@ return new class extends Migration
             $table->dropColumn(['email_otp', 'email_otp_expires_at']);
 
             // Re-add WhatsApp-related columns
-            $table->string('whatsapp', 30)->nullable()->unique()->after('email');
             $table->string('wa_otp1')->nullable()->after('whatsapp');
             $table->timestamp('wa_otp1_expires_at')->nullable()->after('wa_otp1');
             $table->string('wa_otp2')->nullable()->after('wa_otp1_expires_at');

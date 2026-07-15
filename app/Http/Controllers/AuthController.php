@@ -103,12 +103,17 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        $request->merge([
+            'name' => strip_tags($request->name)
+        ]);
+
         $request->validate([
-            'name'     => ['required', 'string', 'max:255'],
+            'name'     => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\.\,\-\'\&]+$/'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Password::min(8)],
         ], [
             'name.required'     => 'Nama lengkap wajib diisi.',
+            'name.regex'        => 'Nama hanya boleh berisi huruf, angka, dan tanda baca dasar.',
             'email.required'    => 'Email wajib diisi.',
             'email.email'       => 'Format email tidak valid.',
             'email.unique'      => 'Email ini sudah terdaftar.',

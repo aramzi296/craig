@@ -129,11 +129,9 @@ class ListingController extends Controller
 
         $data['slug'] = \Illuminate\Support\Str::slug($data['title'] . '-' . uniqid());
         
+        $data['is_active'] = \DB::raw('false');
         if ($isGuest) {
-            $data['is_active'] = \DB::raw('false');
             $data['activation_code'] = (string) random_int(10000, 99999);
-        } else {
-            $data['is_active'] = \DB::raw('true');
         }
 
         $data['expires_at'] = now()->addDays((int)get_setting('expire_iklan', 30));
@@ -223,16 +221,7 @@ class ListingController extends Controller
             }
         }
 
-        if ($isGuest) {
-            $layout = 'layouts.app';
-            $section = 'content';
-            $otp = $listing->activation_code;
-            $whatsapp = $user->whatsapp;
-            $botNumber = config('services.whatsapp.bot_number', '6282172292230');
-            return view('listings.activation', compact('listing', 'otp', 'whatsapp', 'botNumber', 'layout', 'section'));
-        }
-
-        return redirect()->route('dashboard')->with('success', 'Iklan Anda berhasil dikirim dan ditayangkan.');
+        return view('listings.thankyou');
     }
 
     public function edit($id)

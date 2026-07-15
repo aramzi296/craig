@@ -23,11 +23,18 @@ class ProfileController extends Controller
     {
         $user = auth()->user();
         
+        if ($request->has('name')) {
+            $request->merge([
+                'name' => strip_tags($request->name)
+            ]);
+        }
+        
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\.\,\-\'\&]+$/'],
             'whatsapp' => 'required|string|max:20',
             'photo' => 'nullable|image|mimes:' . get_setting('allowed_image_types', 'jpeg,png,jpg,webp') . '|max:' . get_setting('max_image_size', 2048),
         ], [
+            'name.regex' => 'Nama hanya boleh berisi huruf, angka, dan tanda baca dasar.',
             'photo.image' => 'File harus berupa gambar.',
             'photo.mimes' => 'Format gambar harus ' . str_replace(',', ', ', get_setting('allowed_image_types', 'jpeg,png,jpg,webp')) . '.',
             'photo.max' => 'Ukuran foto tidak boleh lebih dari ' . (get_setting('max_image_size', 2048) / 1024) . 'MB.',

@@ -649,9 +649,17 @@ class AdminController extends Controller
 
     public function storeUser(Request $request)
     {
+        if ($request->has('name') && $request->name !== null) {
+            $request->merge([
+                'name' => strip_tags($request->name)
+            ]);
+        }
+
         $data = $request->validate([
             'whatsapp' => 'required|string|max:20',
-            'name' => 'nullable|string|max:255',
+            'name' => ['nullable', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\.\,\-\'\&]+$/'],
+        ], [
+            'name.regex' => 'Nama hanya boleh berisi huruf, angka, dan tanda baca dasar.',
         ]);
 
         $normalizedWa = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']);
@@ -690,10 +698,18 @@ class AdminController extends Controller
     {
         $user = \App\Models\User::findOrFail($id);
 
+        if ($request->has('name')) {
+            $request->merge([
+                'name' => strip_tags($request->name)
+            ]);
+        }
+
         $data = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z0-9\s\.\,\-\'\&]+$/'],
             'email' => 'required|string|email|max:255|unique:users,email,'.$id,
             'whatsapp' => 'required|string|max:20',
+        ], [
+            'name.regex' => 'Nama hanya boleh berisi huruf, angka, dan tanda baca dasar.',
         ]);
 
         $normalizedWa = \App\Models\User::normalizeWhatsappNumber($data['whatsapp']);
@@ -726,6 +742,29 @@ class AdminController extends Controller
         \DB::update("UPDATE users SET is_admin = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
 
         return back()->with('success', 'Status peran pengguna berhasil diubah.');
+    }
+
+    public function toggleUserActiveStatus($id)
+    {
+        if (auth()->id() == $id) {
+            return back()->with('error', 'Anda tidak bisa menonaktifkan akun Anda sendiri.');
+        }
+
+        $user = \App\Models\User::findOrFail($id);
+        
+        // We use explicit DB query because PDO might cast booleans to integers causing postgres error
+        $newStatusSql = $user->is_active ? 'false' : 'true';
+        \DB::update("UPDATE users SET is_active = $newStatusSql, updated_at = NOW() WHERE id = ?", [$id]);
+        
+        // Clear caches so the homepage search immediately reflects the change
+        \Illuminate\Support\Facades\Cache::store('redis')->forget('tags:approved_with_listings');
+        try {
+            \Illuminate\Support\Facades\Redis::connection('cache')->del('laravel-cache-tags:searches');
+        } catch (\Exception $e) {}
+
+        $statusText = !$user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return back()->with('success', "Akun pengguna berhasil {$statusText}.");
     }
 
     public function destroyUser($id)

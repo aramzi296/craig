@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
         Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::post('/users/{id}/toggle-admin', [AdminController::class, 'toggleAdminStatus'])->name('users.toggle-admin');
+        Route::post('/users/{id}/toggle-active', [AdminController::class, 'toggleUserActiveStatus'])->name('users.toggle-active');
         Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
         // Slot Iklan Management

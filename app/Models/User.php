@@ -37,6 +37,7 @@ class User extends Authenticatable
         'ads_quota',
         'email_otp',
         'email_otp_expires_at',
+        'is_active',
     ];
 
     /**
@@ -65,6 +66,7 @@ class User extends Authenticatable
             'password'                   => 'hashed',
             'is_verified'                => 'boolean',
             'is_admin'                   => 'boolean',
+            'is_active'                  => 'boolean',
             'wa_otp1_expires_at'         => 'datetime',
             'wa_otp2_expires_at'         => 'datetime',
             'wa_login_token_expires_at'  => 'datetime',

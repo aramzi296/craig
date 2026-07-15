@@ -196,9 +196,6 @@
         <label for="whatsapp_number">Nomor WhatsApp <span style="color: #ef4444;">*</span></label>
         <div class="form-input-side">
             <input type="text" name="whatsapp_number" id="whatsapp_number" class="form-control @error('whatsapp_number') is-invalid @enderror" value="{{ old('whatsapp_number', $listing->whatsapp_number ?? '') }}" placeholder="Contoh: 0812xxxx (tanpa spasi)" required>
-            <small style="color: var(--text-muted); display: block; margin-top: 8px;">
-                Nomor WhatsApp ini sangat diperlukan sebagai nomor yang akan dikontak pelanggan dan nomor ini juga digunakan untuk mengirimkan kode aktivasi dan login ke dasbor member.
-            </small>
             @error('whatsapp_number')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror

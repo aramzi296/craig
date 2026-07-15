@@ -111,6 +111,12 @@
                         @else
                             <span class="badge" style="background: #f1f5f9; color: #64748b; font-size: 0.65rem;">REGULAR</span>
                         @endif
+                        
+                        @if($user->is_active)
+                            <span class="badge" style="background: #dcfce7; color: #166534; font-size: 0.65rem;">AKTIF</span>
+                        @else
+                            <span class="badge" style="background: #fee2e2; color: #b91c1c; font-size: 0.65rem;">NONAKTIF</span>
+                        @endif
                     </div>
                 </td>
                 <td>
@@ -150,6 +156,14 @@
                             </a>
 
                             <div style="height: 1px; background: #f1f5f9; margin: 5px 0;"></div>
+
+                            <form action="{{ route('admin.users.toggle-active', $user->id) }}" method="POST" style="margin: 0;">
+                                @csrf
+                                <button type="submit" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: {{ $user->is_active ? '#f59e0b' : '#10b981' }}; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
+                                    <i class="fa-solid {{ $user->is_active ? 'fa-user-slash' : 'fa-user-check' }}" style="width: 16px;"></i>
+                                    {{ $user->is_active ? 'Nonaktifkan Akun' : 'Aktifkan Akun' }}
+                                </button>
+                            </form>
 
                             <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun ini? Semua usaha milik pengguna ini juga akan terhapus.')" style="margin: 0;">
                                 @csrf

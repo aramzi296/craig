@@ -21,7 +21,7 @@ class HomeController extends Controller
                     $scoutQuery = \App\Models\Listing::search($q, function ($meilisearch, $query, $options) {
                         $options['matchingStrategy'] = 'all';
                         return $meilisearch->search($query, $options);
-                    })->where('is_active', true);
+                    })->where('is_active', true)->where('user_is_active', true);
 
                     if ($request->filled('location')) {
                         $scoutQuery->where('district_id', (int)$request->location);
@@ -54,7 +54,7 @@ class HomeController extends Controller
                     }
 
                     $scoutQuery->query(function ($builder) {
-                        $builder->with('district')->notExpired();
+                        $builder->with('district')->publicActive();
                     });
 
                     $recentListings = $scoutQuery->paginate(24);
@@ -66,7 +66,7 @@ class HomeController extends Controller
 
             if (!$useMeilisearch || $meilisearchFailed) {
                 // Database Fallback Search
-                $dbQuery = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+                $dbQuery = \App\Models\Listing::query()->publicActive();
                 $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($q);
 
                 $dbQuery->where(function($queryBuilder) use ($q, $normalizedSearch) {
@@ -140,7 +140,7 @@ class HomeController extends Controller
                     $allTags = $redisStore->remember('tags:approved_with_listings', 3600, function() {
                         return \App\Models\Tag::whereRaw('is_approved = true')
                             ->whereHas('listings', function($q) {
-                                $q->whereRaw('is_active = true')->notExpired();
+                                $q->publicActive();
                             })
                             ->orderBy('name')
                             ->get();
@@ -174,7 +174,7 @@ class HomeController extends Controller
                 $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
                 $matchingTagsQuery = \App\Models\Tag::whereRaw('is_approved = true')
                     ->whereHas('listings', function($q) {
-                        $q->whereRaw('is_active = true')->notExpired();
+                        $q->publicActive();
                     });
 
                 $words = array_filter(explode(' ', $cleanQuery));
@@ -210,7 +210,7 @@ class HomeController extends Controller
                 }
             }
         } else {
-            $query = \App\Models\Listing::query()->whereRaw('is_active = true')->notExpired();
+            $query = \App\Models\Listing::query()->publicActive();
 
             if ($request->filled('location')) {
                 $query->where('district_id', (int)$request->location);
@@ -292,7 +292,7 @@ class HomeController extends Controller
         if ($code) {
             $query->where('activation_code', $code);
         } else {
-            $query->whereRaw('is_active = true')->notExpired();
+            $query->publicActive();
         }
 
         $listing = $query->firstOrFail();
@@ -302,16 +302,14 @@ class HomeController extends Controller
                 $q->whereIn('categories.id', $listing->categories->pluck('id'));
             })
             ->where('id', '!=', $listing->id)
-            ->whereRaw('is_active = true')
-            ->notExpired()
+            ->publicActive()
             ->latest()
             ->take(6)
             ->get();
 
         $sidebarPremiumListings = \App\Models\Listing::with(['categories', 'tags'])
             ->whereRaw('is_premium = true')
-            ->whereRaw('is_active = true')
-            ->notExpired()
+            ->publicActive()
             ->where('id', '!=', $listing->id)
             ->inRandomOrder()
             ->take(5)
@@ -328,7 +326,7 @@ class HomeController extends Controller
                 ->with(['children' => function($query) {
                     $query->whereRaw('is_approved = true')
                         ->withCount(['listings' => function($q) {
-                            $q->whereRaw('is_active = true')->notExpired();
+                            $q->publicActive();
                         }])
                         ->orderBy('sort_order')
                         ->orderBy('name');
@@ -340,8 +338,7 @@ class HomeController extends Controller
             // Count parent unique listings as the unique count of listings across parent and all its children
             foreach ($cats as $parent) {
                 $categoryIds = $parent->children->pluck('id')->push($parent->id);
-                $parent->listings_count = \App\Models\Listing::whereRaw('is_active = true')
-                    ->notExpired()
+                $parent->listings_count = \App\Models\Listing::publicActive()
                     ->whereHas('categories', function($q) use ($categoryIds) {
                         $q->whereIn('categories.id', $categoryIds);
                     })
@@ -375,7 +372,7 @@ class HomeController extends Controller
                     $allTags = $redisStore->remember('tags:approved_with_listings', 3600, function() {
                         return \App\Models\Tag::whereRaw('is_approved = true')
                             ->whereHas('listings', function($q) {
-                                $q->whereRaw('is_active = true')->notExpired();
+                                $q->publicActive();
                             })
                             ->orderBy('name')
                             ->get();
@@ -409,7 +406,7 @@ class HomeController extends Controller
                 $driver = \Illuminate\Support\Facades\DB::connection()->getDriverName();
                 $categoriesQuery = \App\Models\Tag::whereRaw('is_approved = true')
                     ->whereHas('listings', function($q) {
-                        $q->whereRaw('is_active = true')->notExpired();
+                        $q->publicActive();
                     });
 
                 $words = array_filter(explode(' ', $cleanQuery));
@@ -449,7 +446,7 @@ class HomeController extends Controller
                 $categories = $redisStore->remember('tags:approved_with_listings', 3600, function() {
                     return \App\Models\Tag::whereRaw('is_approved = true')
                         ->whereHas('listings', function($q) {
-                            $q->whereRaw('is_active = true')->notExpired();
+                            $q->publicActive();
                         })
                         ->orderBy('name')
                         ->get();
@@ -458,7 +455,7 @@ class HomeController extends Controller
                 // Fallback direct DB query if Redis fails
                 $categories = \App\Models\Tag::whereRaw('is_approved = true')
                     ->whereHas('listings', function($q) {
-                        $q->whereRaw('is_active = true')->notExpired();
+                        $q->publicActive();
                     })
                     ->orderBy('name')
                     ->get();
@@ -483,8 +480,7 @@ class HomeController extends Controller
         
         $recentListings = \App\Models\Listing::query()
             ->where('user_id', $id)
-            ->whereRaw('is_active = true')
-            ->notExpired()
+            ->publicActive()
             ->orderBy('updated_at', 'desc')
             ->orderBy('is_premium', 'desc')
             ->orderBy('listing_rank', 'asc')
