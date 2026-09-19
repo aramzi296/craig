@@ -257,6 +257,17 @@ class AdminController extends Controller
             $query->whereRaw("is_active = $val");
         }
 
+        if ($request->filled('expire_status')) {
+            if ($request->expire_status === 'expired') {
+                $query->where('expires_at', '<', now());
+            } elseif ($request->expire_status === 'active') {
+                $query->where(function($q) {
+                    $q->whereNull('expires_at')
+                      ->orWhere('expires_at', '>=', now());
+                });
+            }
+        }
+
         $listings = $query->latest()->paginate(20)->withQueryString();
 
         return view('admin.listings.index', compact('listings'));
@@ -628,6 +639,135 @@ class AdminController extends Controller
         }
 
         return back()->with('success', "Listing #{$listing->id} ({$listing->title}) berhasil {$statusText}.");
+    }
+
+    public function updateSingleListingExpire(Request $request)
+    {
+        $request->validate([
+            'listing_id' => 'required|exists:listings,id',
+            'action_type' => 'required|in:set_date,add_days',
+            'expire_date' => 'nullable|date|required_if:action_type,set_date',
+            'add_days' => 'nullable|integer|min:1|required_if:action_type,add_days',
+        ]);
+
+        $listing = \App\Models\Listing::findOrFail($request->listing_id);
+
+        if ($request->action_type === 'set_date') {
+            $listing->update(['expires_at' => $request->expire_date]);
+            $msg = "Berhasil mengatur expire date untuk {$listing->title}.";
+        } else {
+            $currentExpire = $listing->expires_at ? \Carbon\Carbon::parse($listing->expires_at) : now();
+            $newExpire = $currentExpire->addDays($request->add_days);
+            $listing->update(['expires_at' => $newExpire]);
+            $msg = "Berhasil menambahkan {$request->add_days} hari ke expire date untuk {$listing->title}.";
+        }
+
+        return back()->with('success', $msg);
+    }
+
+    public function updateBulkListingExpire(Request $request)
+    {
+        $request->validate([
+            'target_type' => 'required|in:selected,all_filtered',
+            'listing_ids' => 'nullable|string',
+            'action_type' => 'required|in:set_date,add_days',
+            'expire_date' => 'nullable|date|required_if:action_type,set_date',
+            'add_days' => 'nullable|integer|min:1|required_if:action_type,add_days',
+        ]);
+
+        $query = \App\Models\Listing::query();
+
+        if ($request->target_type === 'selected') {
+            if (empty($request->listing_ids)) {
+                return back()->with('error', 'Tidak ada listing yang dipilih.');
+            }
+            $ids = explode(',', $request->listing_ids);
+            $query->whereIn('id', $ids);
+        } else {
+            // Apply current filters logic similar to index
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $normalizedSearch = \App\Models\User::normalizeWhatsappNumber($search);
+                
+                $listingIds = [];
+                $useMeilisearch = config('scout.driver') === 'meilisearch';
+                $meilisearchFailed = false;
+    
+                if ($useMeilisearch) {
+                    try {
+                        $listingIds = \App\Models\Listing::search($search)->keys();
+                    } catch (\Exception $e) {
+                        $meilisearchFailed = true;
+                    }
+                }
+    
+                $query->where(function($q) use ($search, $normalizedSearch, $listingIds, $useMeilisearch, $meilisearchFailed) {
+                    if ($useMeilisearch && !$meilisearchFailed && !empty($listingIds)) {
+                        $q->whereIn('id', $listingIds);
+                    } else if ($useMeilisearch && !$meilisearchFailed && empty($listingIds)) {
+                        $q->whereIn('id', [0]);
+                    } else {
+                        $operator = \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' ? 'ilike' : 'like';
+                        $q->where('title', $operator, "%{$search}%")
+                          ->orWhere('description', $operator, "%{$search}%");
+                    }
+    
+                    $q->orWhereHas('user', function($uQuery) use ($search, $normalizedSearch) {
+                        $uQuery->where('name', 'like', "%{$search}%")
+                               ->orWhere('whatsapp', 'like', "%{$search}%");
+                        if ($normalizedSearch) {
+                            $uQuery->orWhere('whatsapp', 'like', "%{$normalizedSearch}%");
+                        }
+                    });
+                });
+            }
+    
+            if ($request->filled('status')) {
+                $val = $request->status ? 'true' : 'false';
+                $query->whereRaw("is_active = $val");
+            }
+
+            if ($request->filled('expire_status')) {
+                if ($request->expire_status === 'expired') {
+                    $query->where('expires_at', '<', now());
+                } elseif ($request->expire_status === 'active') {
+                    $query->where(function($q) {
+                        $q->whereNull('expires_at')
+                          ->orWhere('expires_at', '>=', now());
+                    });
+                }
+            }
+        }
+
+        $count = $query->count();
+        if ($count === 0) {
+            return back()->with('error', 'Tidak ada listing yang sesuai untuk diperbarui.');
+        }
+
+        if ($request->action_type === 'set_date') {
+            $query->update(['expires_at' => $request->expire_date]);
+            $msg = "Berhasil mengatur expire date untuk {$count} listing.";
+        } else {
+            // Need to update individually if adding days because each listing might have a different expires_at.
+            // But we can do it in a query using DB::raw if supported, but simpler via loop/chunk for SQLite compatibility.
+            if (\Illuminate\Support\Facades\DB::connection()->getDriverName() === 'pgsql' || \Illuminate\Support\Facades\DB::connection()->getDriverName() === 'mysql') {
+                $days = (int)$request->add_days;
+                $query->update([
+                    'expires_at' => \DB::raw("COALESCE(expires_at, NOW()) + INTERVAL '{$days} days'")
+                ]);
+            } else {
+                // SQLite fallback
+                $query->chunkById(100, function ($listings) use ($request) {
+                    foreach ($listings as $listing) {
+                        $current = $listing->expires_at ? \Carbon\Carbon::parse($listing->expires_at) : now();
+                        $listing->update(['expires_at' => $current->addDays($request->add_days)]);
+                    }
+                });
+            }
+            $msg = "Berhasil menambahkan {$request->add_days} hari ke expire date untuk {$count} listing.";
+        }
+
+        return back()->with('success', $msg);
     }
 
     public function users(Request $request)

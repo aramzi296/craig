@@ -85,6 +85,8 @@ Route::middleware('auth')->group(function () {
 
         // Listing Management
         Route::get('/listings', [AdminController::class, 'listings'])->name('listings');
+        Route::post('/listings/expire/single', [AdminController::class, 'updateSingleListingExpire'])->name('listings.expire.single');
+        Route::post('/listings/expire/bulk', [AdminController::class, 'updateBulkListingExpire'])->name('listings.expire.bulk');
         Route::get('/listings/create', [AdminController::class, 'createListing'])->name('listings.create');
         Route::post('/listings', [AdminController::class, 'storeListing'])->name('listings.store');
         Route::get('/listings/json', [AdminController::class, 'createListingByJson'])->name('listings.json');

@@ -6,7 +6,10 @@
         <h1>Kelola Usaha</h1>
         <p style="color: var(--text-muted);">Kelola semua usaha yang terdaftar di {{ config('app.name') }}.</p>
     </div>
-    <a href="{{ route('admin.listings.create') }}" class="btn btn-primary">+ Usaha Baru</a>
+    <div style="display: flex; gap: 10px;">
+        <button type="button" class="btn btn-secondary" onclick="openBulkExpireModal()">Kelola Expire Date</button>
+        <a href="{{ route('admin.listings.create') }}" class="btn btn-primary">+ Usaha Baru</a>
+    </div>
 </div>
 
 @if(session('success'))
@@ -31,6 +34,15 @@
             </select>
         </div>
 
+        <div style="width: 150px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 5px;">Masa Aktif</label>
+            <select name="expire_status" class="form-control" style="padding: 10px 15px;">
+                <option value="">Semua</option>
+                <option value="active" {{ request('expire_status') === 'active' ? 'selected' : '' }}>Belum Expire</option>
+                <option value="expired" {{ request('expire_status') === 'expired' ? 'selected' : '' }}>Sudah Expire</option>
+            </select>
+        </div>
+
         <div style="display: flex; gap: 10px;">
             <button type="submit" class="btn btn-primary">Filter</button>
             <a href="{{ route('admin.listings') }}" class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center;">Reset</a>
@@ -42,6 +54,7 @@
     <table class="data-table">
         <thead>
             <tr>
+                <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAll"></th>
                 <th>Usaha</th>
                 <th>Pemilik</th>
                 <th>Kategori</th>
@@ -54,6 +67,9 @@
         <tbody>
             @forelse($listings as $listing)
             <tr>
+                <td style="text-align: center;">
+                    <input type="checkbox" class="listing-checkbox" value="{{ $listing->id }}">
+                </td>
                 <td>
                     <div style="font-weight: 600;">{{ $listing->title }}</div>
                     @if($listing->district)
@@ -131,6 +147,10 @@
                             <a href="{{ route('admin.listings.edit', $listing->id) }}" class="dropdown-item" style="display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; text-decoration: none; font-size: 0.9rem; transition: background 0.2s;">
                                 <i class="fa-solid fa-pen-to-square" style="width: 16px; color: #0ea5e9;"></i> Edit Usaha
                             </a>
+
+                            <button type="button" onclick="openSingleExpireModal({{ $listing->id }}, '{{ addslashes($listing->title) }}')" class="dropdown-item" style="width: 100%; text-align: left; background: none; border: none; display: flex; align-items: center; gap: 10px; padding: 10px 16px; color: #475569; cursor: pointer; font-size: 0.9rem; font-family: inherit;">
+                                <i class="fa-solid fa-clock" style="width: 16px; color: #f59e0b;"></i> Ubah Expire Date
+                            </button>
 
                             <form action="{{ route('admin.listings.toggle', $listing->id) }}" method="POST" style="margin: 0;">
                                 @csrf
@@ -226,4 +246,210 @@
         color: var(--primary) !important;
     }
 </style>
+
+<!-- Modal Bulk Expire -->
+<div id="bulkExpireModal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-content glass" style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Kelola Expire Date</h3>
+            <button type="button" onclick="closeBulkExpireModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+        </div>
+        
+        <form action="{{ route('admin.listings.expire.bulk') }}" method="POST">
+            @csrf
+            
+            <!-- Forward filter states -->
+            <input type="hidden" name="search" value="{{ request('search') }}">
+            <input type="hidden" name="status" value="{{ request('status') }}">
+            <input type="hidden" name="expire_status" value="{{ request('expire_status') }}">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Target Usaha</label>
+                <div style="display: flex; gap: 15px;">
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="radio" name="target_type" value="selected" checked onchange="toggleTargetType()">
+                        Terpilih (<span id="selectedCount">0</span>)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 5px; cursor: pointer;">
+                        <input type="radio" name="target_type" value="all_filtered" onchange="toggleTargetType()">
+                        Semua Sesuai Filter ({{ $listings->total() }})
+                    </label>
+                </div>
+            </div>
+            
+            <input type="hidden" name="listing_ids" id="bulkListingIds">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Tindakan</label>
+                <select name="action_type" id="bulkActionType" class="form-control" style="width: 100%; padding: 10px;" onchange="toggleBulkActionInput()">
+                    <option value="add_days">Tambah Hari</option>
+                    <option value="set_date">Atur Tanggal Spesifik</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;" id="bulkInputAddDays">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Jumlah Hari</label>
+                <input type="number" name="add_days" class="form-control" style="width: 100%; padding: 10px;" min="1" value="30">
+            </div>
+            
+            <div style="margin-bottom: 20px; display: none;" id="bulkInputSetDate">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Tanggal Expire</label>
+                <input type="date" name="expire_date" class="form-control" style="width: 100%; padding: 10px;">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeBulkExpireModal()" class="btn btn-secondary">Batal</button>
+                <button type="submit" class="btn btn-primary" id="btnSubmitBulk" disabled>Terapkan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Single Expire -->
+<div id="singleExpireModal" class="modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-content glass" style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; width: 90%;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="margin: 0;">Kelola Expire Date Usaha</h3>
+            <button type="button" onclick="closeSingleExpireModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+        </div>
+        
+        <p style="margin-top: 0; margin-bottom: 20px; font-size: 0.95rem; color: var(--text-muted);">
+            Usaha: <strong id="singleExpireTitle"></strong>
+        </p>
+
+        <form action="{{ route('admin.listings.expire.single') }}" method="POST">
+            @csrf
+            <input type="hidden" name="listing_id" id="singleListingId">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Tindakan</label>
+                <select name="action_type" id="singleActionType" class="form-control" style="width: 100%; padding: 10px;" onchange="toggleSingleActionInput()">
+                    <option value="add_days">Tambah Hari</option>
+                    <option value="set_date">Atur Tanggal Spesifik</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 20px;" id="singleInputAddDays">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Jumlah Hari</label>
+                <input type="number" name="add_days" class="form-control" style="width: 100%; padding: 10px;" min="1" value="30">
+            </div>
+            
+            <div style="margin-bottom: 20px; display: none;" id="singleInputSetDate">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem;">Tanggal Expire</label>
+                <input type="date" name="expire_date" class="form-control" style="width: 100%; padding: 10px;">
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeSingleExpireModal()" class="btn btn-secondary">Batal</button>
+                <button type="submit" class="btn btn-primary">Terapkan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Checkbox logic
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const listingCheckboxes = document.querySelectorAll('.listing-checkbox');
+    const selectedCountSpan = document.getElementById('selectedCount');
+    const bulkListingIdsInput = document.getElementById('bulkListingIds');
+    const btnSubmitBulk = document.getElementById('btnSubmitBulk');
+    
+    function updateSelectedCount() {
+        const selectedIds = Array.from(listingCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+            
+        if(selectedCountSpan) selectedCountSpan.textContent = selectedIds.length;
+        if(bulkListingIdsInput) bulkListingIdsInput.value = selectedIds.join(',');
+        
+        // Update master checkbox state
+        if (listingCheckboxes.length > 0 && selectAllCheckbox) {
+            selectAllCheckbox.checked = selectedIds.length === listingCheckboxes.length;
+            selectAllCheckbox.indeterminate = selectedIds.length > 0 && selectedIds.length < listingCheckboxes.length;
+        }
+        
+        toggleTargetType();
+    }
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            listingCheckboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+            updateSelectedCount();
+        });
+    }
+    
+    listingCheckboxes.forEach(cb => {
+        cb.addEventListener('change', updateSelectedCount);
+    });
+
+    // Bulk Modal logic
+    function openBulkExpireModal() {
+        updateSelectedCount();
+        const modal = document.getElementById('bulkExpireModal');
+        if(modal) {
+            modal.style.display = 'flex';
+            void modal.offsetWidth; // force reflow
+        }
+    }
+    
+    function closeBulkExpireModal() {
+        const modal = document.getElementById('bulkExpireModal');
+        if(modal) modal.style.display = 'none';
+    }
+    
+    function toggleBulkActionInput() {
+        const actionType = document.getElementById('bulkActionType').value;
+        if (actionType === 'add_days') {
+            document.getElementById('bulkInputAddDays').style.display = 'block';
+            document.getElementById('bulkInputSetDate').style.display = 'none';
+        } else {
+            document.getElementById('bulkInputAddDays').style.display = 'none';
+            document.getElementById('bulkInputSetDate').style.display = 'block';
+        }
+    }
+    
+    function toggleTargetType() {
+        const targetElement = document.querySelector('input[name="target_type"]:checked');
+        if(!targetElement || !selectedCountSpan || !btnSubmitBulk) return;
+        
+        const targetType = targetElement.value;
+        const selectedCount = parseInt(selectedCountSpan.textContent) || 0;
+        
+        if (targetType === 'selected' && selectedCount === 0) {
+            btnSubmitBulk.disabled = true;
+        } else {
+            btnSubmitBulk.disabled = false;
+        }
+    }
+
+    // Single Modal logic
+    function openSingleExpireModal(id, title) {
+        document.getElementById('singleListingId').value = id;
+        document.getElementById('singleExpireTitle').textContent = title;
+        const modal = document.getElementById('singleExpireModal');
+        if(modal) {
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
+        }
+    }
+    
+    function closeSingleExpireModal() {
+        const modal = document.getElementById('singleExpireModal');
+        if(modal) modal.style.display = 'none';
+    }
+    
+    function toggleSingleActionInput() {
+        const actionType = document.getElementById('singleActionType').value;
+        if (actionType === 'add_days') {
+            document.getElementById('singleInputAddDays').style.display = 'block';
+            document.getElementById('singleInputSetDate').style.display = 'none';
+        } else {
+            document.getElementById('singleInputAddDays').style.display = 'none';
+            document.getElementById('singleInputSetDate').style.display = 'block';
+        }
+    }
+</script>
 @endsection
